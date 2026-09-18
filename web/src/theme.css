@@ -1,0 +1,520 @@
+/* Tokens del brand kit de ComprasMío!  Verde = precio fijo · ámbar = subasta. */
+:root {
+  --bg: #FAF7F2;
+  --card: #FFFDFA;
+  --ink: #201F1B;
+  --muted: #56514A;
+  --soft-ink: #6B6455;
+  --line: #E4DCD0;
+  --sand: #F2ECE3;
+  --green: #0E7C66;
+  --green-d: #0A6350;
+  --green-forest: #0A3B31;
+  --green-soft: #E4F0EA;
+  --green-border: #C6DED3;
+  --orange: #AE5115;
+  --orange-d: #8E4211;
+  --orange-l: #E9A23B;
+  --orange-soft: #F7EADF;
+  --on-dark-muted: #94B8AC;
+  --radius-card: 18px;
+  --radius-cta: 16px;
+  --radius-input: 14px;
+  --radius-chip: 7px;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Public Sans', system-ui, sans-serif;
+  font-size: 14.5px;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, select, textarea { font: inherit; color: inherit; }
+
+button { cursor: pointer; }
+
+/* La profundidad viene del borde de 1px, no de sombras. */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+}
+
+.mono {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  letter-spacing: .05em;
+}
+
+.mode-chip {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: .06em;
+  color: var(--card);
+  padding: 3px 7px;
+  border-radius: var(--radius-chip);
+  white-space: nowrap;
+}
+
+.btn {
+  height: 44px;
+  padding: 0 18px;
+  border-radius: var(--radius-cta);
+  border: 1px solid transparent;
+  background: var(--green);
+  color: var(--card);
+  font-weight: 600;
+  transition: background .15s, border-color .15s, opacity .15s;
+}
+.btn:hover { background: var(--green-d); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn--outline { background: transparent; border-color: var(--line); color: var(--ink); }
+.btn--outline:hover { background: transparent; border-color: var(--orange); color: var(--orange-d); }
+.btn--orange { background: var(--orange); }
+.btn--orange:hover { background: var(--orange-d); }
+.btn--sm { height: 34px; padding: 0 14px; font-size: 13px; }
+
+.icon-btn {
+  width: 42px; height: 42px;
+  display: grid; place-items: center;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  transition: border-color .15s, color .15s;
+}
+.icon-btn:hover { border-color: var(--orange); color: var(--orange-d); }
+.icon-btn--sm { width: 32px; height: 32px; border-radius: 9px; }
+
+.input {
+  width: 100%;
+  height: 48px;
+  padding: 0 13px;
+  border-radius: var(--radius-input);
+  border: 1px solid var(--line);
+  background: var(--card);
+  outline: none;
+  transition: border-color .15s;
+}
+.input:focus { border-color: var(--green); }
+
+.label {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  margin-bottom: 7px;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 4px 9px;
+  border-radius: var(--radius-chip);
+  border: 1px solid var(--line);
+  background: var(--sand);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.badge--good { background: var(--green-soft); border-color: var(--green-border); color: var(--green-d); }
+.badge--warn { background: var(--orange-soft); border-color: #E8D3BE; color: var(--orange-d); }
+
+.table-head {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--sand);
+  padding: 11px 16px;
+}
+.table-row {
+  padding: 13px 16px;
+  border-top: 1px solid var(--line);
+  align-items: center;
+  font-size: 13.5px;
+}
+.table-row:hover { background: #FBF8F3; }
+
+.thumb { border-radius: 10px; flex: none; }
+
+.progress { height: 7px; border-radius: 4px; background: var(--sand); overflow: hidden; }
+.progress > div { height: 100%; background: var(--green); }
+
+:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+/* ===================================================== estructura web === */
+
+.topbar {
+  display: flex; align-items: center; gap: 18px;
+  padding: 14px 26px;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; z-index: 20;
+}
+.topbar__nav { display: flex; gap: 4px; }
+.topbar__link {
+  padding: 9px 14px; border-radius: 11px; text-decoration: none;
+  color: var(--muted); font-size: 14px; font-weight: 500;
+}
+.topbar__link.is-active { background: var(--green-soft); color: var(--green-d); }
+
+.page { max-width: 1180px; margin: 0 auto; padding: 26px; }
+
+.bottombar { display: none; }
+
+.offline-dot {
+  width: 9px; height: 9px; border-radius: 50%; background: var(--orange);
+}
+
+/* En móvil la navegación baja al pulgar y la cabecera se simplifica. */
+@media (max-width: 760px) {
+  .topbar { padding: 12px 16px; gap: 12px; }
+  .topbar__nav { display: none; }
+  .page { padding: 18px 16px 88px; }
+  /* El vendedor no tiene barra inferior: no hace falta el espacio reservado. */
+  .page--seller { padding-bottom: 18px; }
+  .bottombar {
+    display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+    background: var(--card); border-top: 1px solid var(--line);
+    padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+  }
+  .bottombar__link {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3;
+    text-decoration: none; color: var(--muted); font-size: 11px; min-height: 44px;
+    justify-content: center;
+  }
+  .bottombar__link.is-active { color: var(--green); font-weight: 600; }
+}
+
+/* ============================================================= feed === */
+
+.feed-grid {
+  display: grid; gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+}
+.stream-card { transition: border-color .15s, transform .15s; }
+.stream-card:hover { border-color: var(--green-border); transform: translateY(-2px); }
+@media (max-width: 500px) {
+  .feed-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+}
+
+/* ======================================================== sala en vivo === */
+
+.room { display: grid; grid-template-columns: minmax(0, 1fr) 340px; height: 100dvh; background: var(--green-forest); }
+.room__stage { display: flex; flex-direction: column; min-width: 0; }
+.room__video { position: relative; flex: 1; display: grid; place-items: center; color: var(--card); }
+.room__tag {
+  font-weight: 700; font-size: 22px; letter-spacing: 1.5px; white-space: pre-line;
+  text-align: center; color: rgba(255,253,250,.8);
+}
+.room__topbar { position: absolute; top: 14px; left: 14px; right: 14px; display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+.room__round {
+  width: 34px; height: 34px; border-radius: 50%; border: none; display: grid; place-items: center;
+  background: rgba(10,59,49,.6); color: var(--card);
+}
+.room__live {
+  display: inline-flex; align-items: center; gap: 6px; background: var(--orange); color: var(--card);
+  border-radius: 999px; padding: 5px 11px; font-size: 11.5px; font-weight: 600;
+}
+.room__dot { width: 7px; height: 7px; border-radius: 50%; background: var(--card); }
+.room__pill {
+  display: inline-flex; align-items: center; gap: 5px; background: rgba(10,59,49,.6); color: var(--card);
+  border-radius: 999px; padding: 5px 11px; font-size: 12px;
+}
+.room__catalog {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--orange); color: var(--card); border: none;
+  border-radius: 999px; padding: 5px 8px 5px 11px; font-size: 12px; font-weight: 600;
+}
+.room__catalog-count {
+  background: rgba(255,253,250,.28); border-radius: 999px;
+  min-width: 17px; height: 17px; padding: 0 4px;
+  display: inline-flex; align-items: center; justify-content: center; font-size: 11px;
+}
+.room__seller {
+  position: absolute; top: 60px; left: 14px; right: 14px;
+  display: flex; align-items: center; gap: 10px; color: var(--card);
+}
+.room__avatar {
+  width: 34px; height: 34px; border-radius: 50%; background: rgba(255,253,250,.18);
+  display: grid; place-items: center; font-size: 12px; font-weight: 600; flex: none;
+}
+.room__follow {
+  height: 32px; padding: 0 14px; border-radius: 999px; font-size: 12.5px; font-weight: 600;
+  border: 1px solid rgba(255,253,250,.4); color: var(--card);
+}
+.room__dock {
+  background: var(--green-forest); color: var(--card);
+  padding: 18px 22px calc(20px + env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(255,253,250,.12);
+}
+.room__chat { display: flex; flex-direction: column; border-radius: 0; border-top: none; border-bottom: none; border-right: none; }
+.room__messages { flex: 1; overflow-y: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 7px; }
+
+/* En escritorio el chat vive en la columna lateral; estas dos variantes móviles
+   quedan ocultas hasta la media query de abajo. */
+.room__overlay-messages { display: none; }
+.room__mobile-composer { display: none; }
+
+.btn--pulse { animation: pulse 800ms ease-in-out infinite; }
+@keyframes pulse { 50% { transform: scale(1.025); } }
+
+@media (max-width: 900px) {
+  .room { grid-template-columns: 1fr; grid-template-rows: 1fr; position: relative; }
+  .room__stage { height: 100dvh; }
+
+  /* El panel lateral de escritorio desaparece del todo: en móvil su lugar lo
+     ocupan .room__overlay-messages y .room__mobile-composer, cada uno con su
+     propio espacio, para que nunca compitan por la misma franja de pantalla
+     que el botón de pujar/comprar del dock. */
+  .room__chat { display: none; }
+
+  /*
+   * Los mensajes flotan SOBRE el video, pero acotados a la caja del propio
+   * video (que tiene position:relative) — no a toda la pantalla. Como el
+   * video usa flex:1 y cede espacio al composer y al dock que están debajo,
+   * "bottom:0" aquí cae justo donde termina el video, nunca sobre el dock.
+   */
+  .room__overlay-messages {
+    display: flex; flex-direction: column; gap: 6px;
+    position: absolute; left: 0; right: 0; bottom: 0;
+    padding: 14px; max-height: 38%; overflow: hidden;
+    pointer-events: none;
+  }
+  .room__overlay-msg {
+    margin: 0; font-size: 13.5px; line-height: 1.45; color: var(--card);
+    text-shadow: 0 1px 3px rgba(0,0,0,.55);
+  }
+  .room__overlay-msg strong { color: var(--on-dark-muted); }
+
+  /* El cajón de comentario queda en su propio renglón, en el flujo normal
+     entre el video y el dock — nunca superpuesto a ninguno de los dos. */
+  .room__mobile-composer {
+    display: flex; gap: 8px;
+    padding: 10px 14px;
+    background: var(--green-forest);
+    border-top: 1px solid rgba(255,253,250,.12);
+  }
+  .room__mobile-composer .input {
+    height: 42px; background: rgba(255,253,250,.08); border-color: rgba(255,253,250,.24); color: var(--card);
+  }
+  .room__mobile-composer .input::placeholder { color: rgba(255,253,250,.5); }
+  .room__mobile-composer .btn { height: 42px; padding: 0 14px; flex: none; }
+}
+
+/* ======================================================= transmisión === */
+
+.broadcast { display: grid; grid-template-columns: minmax(0, 1fr) 360px; height: 100dvh; background: var(--green-forest); }
+.broadcast__stage { position: relative; min-width: 0; }
+.broadcast__video { width: 100%; height: 100%; object-fit: cover; background: var(--green-forest); }
+.broadcast__gate { position: absolute; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(10,59,49,.85); }
+.broadcast__hud { position: absolute; top: 14px; left: 14px; right: 14px; display: flex; align-items: center; gap: 9px; }
+.broadcast__ctrl {
+  width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(255,253,250,.35);
+  background: rgba(10,59,49,.6); color: var(--card); display: grid; place-items: center;
+}
+.broadcast__end {
+  height: 34px; padding: 0 14px; border-radius: 999px; font-size: 12.5px; font-weight: 600;
+  border: 1px solid rgba(255,253,250,.45); background: transparent; color: var(--card);
+}
+.broadcast__warn {
+  position: absolute; left: 14px; right: 14px; bottom: 14px; margin: 0;
+  background: var(--orange-soft); border: 1px solid #E8D3BE; color: var(--orange-d);
+  border-radius: 12px; padding: 10px 13px; font-size: 13px; font-weight: 500;
+}
+.broadcast__panel { display: flex; flex-direction: column; border-radius: 0; border-top: none; border-bottom: none; border-right: none; }
+.broadcast__chat { flex: 1; overflow-y: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
+
+@media (max-width: 900px) {
+  .broadcast { grid-template-columns: 1fr; grid-template-rows: 1fr auto; }
+  .broadcast__panel { max-height: 45vh; }
+  .broadcast__chat { display: none; }
+}
+
+/* ====================================================== panel vendedor === */
+
+.seller { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 22px; }
+.seller__nav { display: flex; flex-direction: column; gap: 3px; position: sticky; top: 90px; align-self: start; }
+.seller__link {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 11px;
+  text-decoration: none; color: var(--muted); font-size: 14px;
+}
+.seller__link.is-active { background: var(--green-soft); color: var(--green-d); font-weight: 600; }
+.seller__badge {
+  margin-left: auto; background: var(--orange); color: var(--card);
+  border-radius: 999px; padding: 1px 8px; font-size: 11.5px; font-weight: 600;
+}
+.seller__body { min-width: 0; }
+
+@media (max-width: 760px) {
+  .seller { grid-template-columns: 1fr; gap: 16px; }
+  .seller__nav { flex-direction: row; overflow-x: auto; position: static; padding-bottom: 4px; }
+  .seller__link span:not(.seller__badge) { white-space: nowrap; }
+  .seller__nav .btn { width: auto !important; flex: none; margin-top: 0 !important; }
+}
+
+/* ============================================================ diálogos === */
+
+.overlay {
+  position: fixed; inset: 0; z-index: 60; background: rgba(32,31,27,.45);
+  display: grid; place-items: center; padding: 20px;
+}
+.sheet { width: min(460px, 100%); max-height: 92vh; overflow-y: auto; padding: 22px; }
+.seal {
+  width: 74px; height: 74px; border-radius: 50%; background: var(--green); color: var(--card);
+  display: grid; place-items: center; margin: 0 auto;
+}
+@media (max-width: 560px) {
+  .overlay { place-items: end center; padding: 0; }
+  .sheet {
+    width: 100%; border-radius: var(--radius-card) var(--radius-card) 0 0;
+    padding-bottom: calc(22px + env(safe-area-inset-bottom));
+  }
+}
+
+.room__player { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.room__hint {
+  position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%);
+  background: rgba(10,59,49,.72); color: var(--card);
+  border-radius: 999px; padding: 6px 14px; font-size: 12.5px; white-space: nowrap;
+}
+
+/* ================================================ tablas responsive === */
+
+/*
+ * El ancho de columnas de escritorio viaja como variable CSS (--cols), fijada
+ * desde cada componente. Así la media query de abajo puede reemplazar todo el
+ * layout por tarjetas apiladas sin pelear con un estilo en línea: un estilo en
+ * línea siempre le gana a una regla externa, pero una variable no es la
+ * propiedad en sí, así que queda libre para sobrescribirse acá.
+ */
+.table-head, .table-row {
+  display: grid;
+  grid-template-columns: var(--cols);
+  gap: 12px;
+}
+
+@media (max-width: 760px) {
+  .table-head { display: none; }
+
+  .table-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 14px 16px;
+  }
+
+  /* Cada celda etiquetada se convierte en una fila "etiqueta: valor". */
+  .table-row > [data-label] {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .table-row > [data-label]::before {
+    content: attr(data-label);
+    flex: none;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+    padding-top: 2px;
+  }
+
+  /* La celda "título" (miniatura + nombre) queda arriba, sin etiqueta, separada. */
+  .table-row > .row-header {
+    padding-bottom: 10px;
+    margin-bottom: 2px;
+    border-bottom: 1px solid var(--line);
+  }
+}
+
+/* ===================================================== grillas del panel === */
+
+.grid-2 { display: grid; grid-template-columns: minmax(0,1.4fr) minmax(0,1fr); gap: 14px; }
+.grid-auto-md { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.customers-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.3fr); gap: 14px; align-items: start; }
+
+@media (max-width: 760px) {
+  .grid-2, .grid-auto-md { grid-template-columns: 1fr; }
+  .customers-grid { grid-template-columns: 1fr; }
+  .customers-grid .card { min-height: 420px; }
+}
+
+/* ==================================================== tarjeta de usuario === */
+
+.user-badge {
+  display: flex; align-items: center; gap: 8px;
+  height: 34px; padding: 0 12px 0 4px;
+  border-radius: 999px; background: var(--green-soft); border: 1px solid var(--green-border);
+}
+.user-badge__avatar {
+  width: 26px; height: 26px; border-radius: 50%; flex: none;
+  background: var(--green-forest); color: var(--card);
+  display: grid; place-items: center; font-size: 11px; font-weight: 600;
+}
+.user-badge__name {
+  font-size: 13px; font-weight: 500; color: var(--green-d);
+  max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* En pantallas muy angostas solo queda el círculo con las iniciales. */
+@media (max-width: 420px) {
+  .user-badge { padding: 0 4px; gap: 0; }
+  .user-badge__name { display: none; }
+}
+
+/* ============================================================ bienvenida === */
+
+.welcome {
+  min-height: 100dvh; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 32px 20px calc(32px + env(safe-area-inset-bottom));
+  background: linear-gradient(var(--green-soft), var(--bg) 55%);
+}
+.welcome__brand { text-align: center; margin-bottom: 24px; }
+.welcome__slogan {
+  margin: 10px 0 0; font-size: 13.5px; color: var(--muted); max-width: 280px;
+  line-height: 1.5; margin-left: auto; margin-right: auto;
+}
+.welcome__card { width: min(420px, 100%); padding: 0; overflow: hidden; }
+
+.welcome__tabs { display: flex; border-bottom: 1px solid var(--line); }
+.welcome__tab {
+  flex: 1; height: 50px; border: none; background: none; font-size: 14px; font-weight: 500;
+  color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.welcome__tab.is-active { color: var(--green-d); font-weight: 600; border-bottom-color: var(--green); }
+
+.welcome__title { margin: 4px 0 0; font-size: 19px; font-weight: 600; }
+.welcome__subtitle { margin: 4px 0 0; font-size: 13px; color: var(--muted); line-height: 1.45; }
+
+.welcome__role {
+  display: flex; align-items: center; gap: 13px; padding: 14px; text-align: left;
+  border: 1.5px solid var(--line); border-radius: var(--radius-input); background: var(--card);
+  color: inherit;
+}
+.welcome__role:hover { border-color: var(--green-border); background: var(--green-soft); }
+.welcome__role-icon {
+  width: 38px; height: 38px; border-radius: 12px; flex: none; color: var(--card);
+  display: grid; place-items: center;
+}
+
+.welcome__back {
+  display: inline-flex; align-items: center; gap: 6px; background: none; border: none;
+  font-size: 12.5px; font-weight: 500; color: var(--muted); padding: 0; margin-bottom: 14px;
+}
+.welcome__back:hover { color: var(--green-d); }
+
+.welcome__chosen {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin-bottom: 16px;
+  border: 1.5px solid; border-radius: var(--radius-input); background: var(--bg);
+}

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es-BO">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0E7C66" />
+    <meta name="description" content="Compras en vivo en Bolivia. Subastas y precio fijo, directo desde la transmisión." />
+    <title>ComprasMío!</title>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!--
+      Sin esto, un fallo al montar la app deja la pantalla en blanco y sin ningún
+      rastro visible — especialmente molesto en un celular, donde no hay consola
+      a mano. Este bloque atrapa el error y lo escribe directo en la página.
+    -->
+    <script>
+      function showBootError(err) {
+        if (document.getElementById('boot-error')) return;
+        var box = document.createElement('div');
+        box.id = 'boot-error';
+        box.style.cssText =
+          'position:fixed;inset:0;background:#FAF7F2;color:#201F1B;' +
+          'font:13px/1.5 ui-monospace,monospace;padding:20px;overflow:auto;z-index:99999;white-space:pre-wrap;';
+        var message = (err && (err.stack || err.message)) || String(err);
+        box.textContent = 'La aplicación no pudo iniciar:\n\n' + message;
+        document.body.appendChild(box);
+      }
+      window.addEventListener('error', function (e) { showBootError(e.error || e.message); });
+      window.addEventListener('unhandledrejection', function (e) { showBootError(e.reason); });
+    </script>
+    <script type="module">
+      import('/src/main.tsx').catch((err) => {
+        window.dispatchEvent(new ErrorEvent('error', { error: err }));
+      });
+    </script>
+  </body>
+</html>

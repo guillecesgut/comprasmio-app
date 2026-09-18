@@ -1,0 +1,11 @@
+{
+  "name": "ComprasMío!",
+  "short_name": "ComprasMío!",
+  "description": "Compras en vivo en Bolivia",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF7F2",
+  "theme_color": "#0E7C66",
+  "lang": "es-BO",
+  "icons": []
+}
