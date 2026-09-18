@@ -17,3 +17,20 @@ services:
         sync: false
       - key: LIVEKIT_API_SECRET
         sync: false
+      # Cuentas de arranque (opcional). El plan gratuito no tiene disco
+      # persistente ni Shell: sin esto, cada redeploy deja la base vacía y no
+      # hay forma de sembrarla a mano. Completá estas seis para que el
+      # servidor arme las dos cuentas solo, cada vez que arranca con la base
+      # vacía. Dejalas en blanco si preferís que arranque realmente vacía.
+      - key: SEED_SELLER_PHONE
+        sync: false
+      - key: SEED_SELLER_PASSWORD
+        sync: false
+      - key: SEED_SELLER_NAME
+        sync: false
+      - key: SEED_BUYER_PHONE
+        sync: false
+      - key: SEED_BUYER_PASSWORD
+        sync: false
+      - key: SEED_BUYER_NAME
+        sync: false

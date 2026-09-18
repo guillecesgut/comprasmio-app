@@ -34,6 +34,10 @@ npm install
 npm run dev
 ```
 
+Para dejar la base local con solo dos cuentas puntuales en vez del catálogo de ejemplo
+completo (útil antes de mostrarle el proyecto a alguien), pará el servidor y corré
+`node server/reset-keep-users.mjs` — ver la cabecera de ese archivo para los detalles.
+
 Una sola aplicación web sirve a compradores y vendedores:
 
 | Ruta | Para quién |
@@ -63,9 +67,32 @@ build de la web, los tres en la misma URL. `server/src/index.js` ya detecta si e
    vacíos, la plataforma funciona igual sin cámara.
 4. **Deploy**. La primera build tarda unos minutos (instala e compila la web). Al terminar,
    Render te da una URL tipo `https://comprasmio.onrender.com` — esa es la que compartís.
-5. Entrá a esa URL y corré `node server/reset-keep-users.mjs` desde la consola de Render
-   (**Shell**, en el panel del servicio) si querés arrancar con la base limpia en vez de
-   los datos de ejemplo — o corré `npm run seed` para tener el catálogo de demostración.
+
+### Cuentas de arranque, sin Shell
+
+El plan gratuito de Render no incluye acceso a una consola (**Shell**) para correr un
+script a mano — eso es de los planes pagos. Y como tampoco tiene disco persistente, cada
+vez que subís código nuevo la base arranca vacía. La solución: `server/src/bootstrap.js`
+arma las cuentas solo, leyendo variables de entorno, cada vez que el servidor detecta que
+no hay ningún usuario.
+
+En el panel del servicio en Render → **Environment**, agregá:
+
+| Variable | Ejemplo |
+|---|---|
+| `SEED_SELLER_PHONE` | `77326694` |
+| `SEED_SELLER_PASSWORD` | la que quieras |
+| `SEED_SELLER_NAME` | `Relojería Andina` |
+| `SEED_BUYER_PHONE` | `75580800` |
+| `SEED_BUYER_PASSWORD` | la que quieras |
+| `SEED_BUYER_NAME` | `Ana Quispe` |
+
+Guardá — Render reinicia el servicio solo. Al arrancar con la base vacía, crea esas dos
+cuentas (vendedor y compradora) y no vuelve a tocarlas mientras haya datos: un reinicio
+posterior con las mismas variables no las duplica ni las pisa.
+
+Si dejás esas seis variables sin completar, el servidor arranca realmente vacío, sin
+crear ninguna cuenta — para eso no hace falta hacer nada.
 
 **Las limitaciones del plan gratuito, para que no sorprendan a mitad de una prueba:**
 
@@ -74,9 +101,9 @@ build de la web, los tres en la misma URL. `server/src/index.js` ya detecta si e
   a la URL un minuto antes de que arranque la sesión de prueba, para que ya esté despierto.
 - **Los datos no están garantizados entre despliegues.** El plan gratuito no incluye disco
   persistente: si Render reinicia el contenedor (por ejemplo, al subir código nuevo), la
-  base de datos JSON vuelve a estar vacía. Para una prueba de una sesión esto no importa;
-  para algo que tiene que sobrevivir días, hace falta el disco persistente de un plan pago
-  o mover los datos a una base real (Postgres, por ejemplo).
+  base de datos JSON vuelve a estar vacía — las cuentas de arranque de arriba resuelven
+  justo esto. Para algo que tiene que sobrevivir días con catálogo y órdenes reales, hace
+  falta el disco persistente de un plan pago o mover los datos a una base real (Postgres).
 - **Una sola instancia, sin autoescalado.** De sobra para un grupo focal; no es el mismo
   plan que usarías con usuarios reales y simultáneos de a cientos.
 

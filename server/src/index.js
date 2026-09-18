@@ -7,6 +7,7 @@ import express from 'express';
 import cors from 'cors';
 
 import * as db from './db.js';
+import { bootstrapIfEmpty } from './bootstrap.js';
 import { attachUser } from './auth.js';
 import * as hub from './realtime/hub.js';
 import * as engine from './realtime/engine.js';
@@ -23,6 +24,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 4000;
 
 db.load();
+bootstrapIfEmpty();
 
 const app = express();
 app.use(cors());
