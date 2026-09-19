@@ -3,6 +3,7 @@ import * as db from '../db.js';
 import * as hub from '../realtime/hub.js';
 import { requireAuth, requireSeller } from '../auth.js';
 import { STATUS, salesSummary } from '../orders.js';
+import * as notifications from '../notifications.js';
 
 const router = Router();
 
@@ -100,6 +101,17 @@ router.post('/customers/:id/thread', requireSeller, (req, res) => {
     at: new Date().toISOString(),
   });
   hub.emit(`user:${req.params.id}`, 'thread:new', { message: entry });
+
+  const seller = db.find('sellers', (s) => s.id === req.user.sellerId);
+  notifications.notify({
+    userId: req.params.id,
+    kind: notifications.KIND.MESSAGE,
+    title: `Mensaje de ${seller?.name || 'tu vendedor'}`,
+    body: text,
+    link: `/mensajes/${req.user.sellerId}`,
+    group: `chat:${req.user.sellerId}:${req.params.id}`,
+  });
+
   res.status(201).json({ message: entry });
 });
 

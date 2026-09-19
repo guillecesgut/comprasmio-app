@@ -1,14 +1,25 @@
 import React from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { api, bs, realtime } from '../../api';
 import { SectionTitle, ErrorNote, Empty, Icon } from '../../components/shared';
 
 export function Customers({ refreshKey }: { refreshKey: number }) {
+  // `?cliente=<id>` llega desde el enlace de cada orden: abre ese chat directo,
+  // sin obligar al vendedor a buscar a la persona en la lista.
+  const [params] = useSearchParams();
+  const requested = params.get('cliente');
+
   const [customers, setCustomers] = React.useState<any[]>([]);
-  const [selected, setSelected] = React.useState<string | null>(null);
+  const [selected, setSelected] = React.useState<string | null>(requested);
   const [thread, setThread] = React.useState<any[]>([]);
   const [draft, setDraft] = React.useState('');
   const [error, setError] = React.useState<string | null>(null);
   const scroller = React.useRef<HTMLDivElement>(null);
+
+  // Si el enlace cambia de cliente estando ya en la sección, hay que seguirlo.
+  React.useEffect(() => {
+    if (requested) setSelected(requested);
+  }, [requested]);
 
   React.useEffect(() => {
     api.customers()

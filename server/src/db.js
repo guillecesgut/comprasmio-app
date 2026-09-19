@@ -14,6 +14,7 @@ const EMPTY = {
   orders: [],
   messages: [],
   threads: [],
+  notifications: [],
   meta: { orderSeq: 10482, lotSeq: 4 },
 };
 

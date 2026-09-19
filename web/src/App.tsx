@@ -7,6 +7,7 @@ import { Room } from './buyer/Room';
 import { Orders, Favorites } from './buyer/Account';
 import { Messages } from './buyer/Messages';
 import { Welcome } from './Welcome';
+import { NotificationBell } from './NotificationBell';
 import { SellerArea } from './seller/SellerArea';
 
 const BUYER_NAV = [
@@ -73,6 +74,7 @@ function Shell({ children }: { children: React.ReactNode }) {
                   Vender
                 </Link>
               )}
+              <NotificationBell />
               <UserBadge name={user.name} />
               <button className="icon-btn icon-btn--sm" onClick={logout} aria-label="Cerrar sesión">
                 <Icon name="logout" size={16} />

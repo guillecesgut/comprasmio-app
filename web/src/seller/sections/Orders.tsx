@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { api, bs, Mode, STATUS_TABS } from '../../api';
 import { SectionTitle, ErrorNote, Empty, ModeChip, Thumb, Badge, Icon } from '../../components/shared';
 
@@ -85,7 +86,14 @@ export function Orders({ refreshKey, onChange }: { refreshKey: number; onChange:
                 </div>
               </div>
 
-              <span data-label="Comprador" style={{ color: 'var(--green-d)', fontWeight: 500 }}>@{order.buyerHandle}</span>
+              <span data-label="Comprador">
+                <Link
+                  to={`/vender/clientes?cliente=${order.buyerId}`}
+                  style={{ color: 'var(--green-d)', fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                >
+                  <Icon name="send" size={13} /> @{order.buyerHandle}
+                </Link>
+              </span>
 
               <div data-label="Monto" style={{ lineHeight: 1.4, textAlign: 'right' }}>
                 <div style={{ fontWeight: 600 }}>{bs(order.total)}</div>

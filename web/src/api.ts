@@ -101,11 +101,17 @@ export const api = {
     request<{ favorites: string[] }>(`/api/seller/favorites/${streamId}`, { method: 'PUT' }),
 
   /** Info pública de un vendedor, para el encabezado del chat. */
-  sellerInfo: (sellerId: string) => request<{ seller: any }>(`/api/sellers/${sellerId}`),
-  /** Chat directo con un vendedor puntual, para coordinar la entrega. */
+  sellerInfo: (sellerId: string) => request<{ seller: any }>(`/api/sellers/${sellerId}`),  /** Chat directo con un vendedor puntual, para coordinar la entrega. */
   threadWith: (sellerId: string) => request<{ thread: any[] }>(`/api/threads/${sellerId}`),
   messageSeller: (sellerId: string, text: string) =>
     request<{ message: any }>(`/api/threads/${sellerId}`, { method: 'POST', body: body({ text }) }),
+
+  /* --------------------------------------------------- notificaciones --- */
+  notifications: () =>
+    request<{ notifications: any[]; unread: number }>('/api/notifications'),
+  /** Sin ids marca todas como leídas. */
+  markNotificationsRead: (ids?: string[]) =>
+    request<{ unread: number }>('/api/notifications/read', { method: 'POST', body: body({ ids }) }),
 
   /* ------------------------------------------------------- vendedor --- */
   overview: () => request<any>('/api/seller/overview'),

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import * as db from '../db.js';
 import * as hub from '../realtime/hub.js';
 import { requireAuth } from '../auth.js';
+import * as notifications from '../notifications.js';
 
 const router = Router();
 
@@ -50,7 +51,34 @@ router.post('/threads/:sellerId', requireAuth, (req, res) => {
     at: new Date().toISOString(),
   });
   hub.emit(`seller:${seller.id}`, 'thread:new', { message });
+
+  // Agrupado por conversación: cinco mensajes seguidos no generan cinco filas.
+  const sellerUser = notifications.ownerOfSeller(seller.id);
+  notifications.notify({
+    userId: sellerUser?.id,
+    kind: notifications.KIND.MESSAGE,
+    title: `Mensaje de @${req.user.handle}`,
+    body: text,
+    link: `/vender/clientes?cliente=${req.user.id}`,
+    group: `chat:${seller.id}:${req.user.id}`,
+  });
+
   res.status(201).json({ message });
+});
+
+/* -------------------------------------------------- notificaciones --- */
+
+router.get('/notifications', requireAuth, (req, res) => {
+  res.json({
+    notifications: notifications.listFor(req.user.id),
+    unread: notifications.unreadCount(req.user.id),
+  });
+});
+
+/** Sin `ids` marca todas; con `ids` solo esas. */
+router.post('/notifications/read', requireAuth, (req, res) => {
+  notifications.markRead(req.user.id, req.body?.ids);
+  res.json({ unread: notifications.unreadCount(req.user.id) });
 });
 
 export default router;

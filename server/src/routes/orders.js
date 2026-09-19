@@ -8,6 +8,7 @@ import * as db from '../db.js';
 import * as hub from '../realtime/hub.js';
 import { requireAuth, requireSeller } from '../auth.js';
 import { STATUS, STATUS_LABEL, attachReceipt, verifyPayment, markShipped, salesSummary } from '../orders.js';
+import * as notifications from '../notifications.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const UPLOADS = path.join(__dirname, '..', '..', 'uploads');
@@ -109,6 +110,17 @@ router.post('/:id/receipt', requireAuth, upload.single('receipt'), (req, res) =>
   hub.emit(`user:${order.buyerId}`, 'thread:new', { message: welcome });
   hub.emit(`seller:${order.sellerId}`, 'thread:new', { message: welcome });
 
+  // El vendedor tiene que enterarse de que hay plata esperando verificación,
+  // aunque no tuviera el panel abierto en ese momento.
+  const sellerUser = notifications.ownerOfSeller(order.sellerId);
+  notifications.notify({
+    userId: sellerUser?.id,
+    kind: notifications.KIND.PAYMENT_SUBMITTED,
+    title: 'Pago por verificar',
+    body: `@${order.buyerHandle} envió el comprobante de "${order.productName}" (${order.ref}).`,
+    link: '/vender/ordenes',
+  });
+
   res.json({ order: view(updated) });
 });
 
@@ -137,6 +149,15 @@ router.post('/:id/verify', requireSeller, (req, res) => {
   // Sincronización entre superficies: el comprador ve el cambio en Compras al instante.
   hub.emit(`user:${order.buyerId}`, 'order:update', { order: view(updated) });
   hub.emit(`seller:${order.sellerId}`, 'order:update', { order: view(updated) });
+
+  notifications.notify({
+    userId: order.buyerId,
+    kind: notifications.KIND.PAYMENT_VERIFIED,
+    title: 'Pago verificado',
+    body: `${order.sellerName} confirmó tu pago de "${order.productName}" (${order.ref}).`,
+    link: '/compras',
+  });
+
   res.json({ order: view(updated) });
 });
 
