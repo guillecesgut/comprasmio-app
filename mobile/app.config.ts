@@ -10,6 +10,18 @@ import type { ExpoConfig } from 'expo/config';
  *    identificador registrado en App Store Connect).
  *  - Corré `eas init` para que EAS complete `extra.eas.projectId`.
  */
+/** Proyecto de EAS (creado con `eas init`). */
+const EAS_PROJECT_ID = '9f2d3ef9-cb61-4327-9c9b-079be27f6c31';
+
+/**
+ * EAS Update. Las publicaciones con `eas update` usan el runtime de Expo Go
+ * (`sdkVersion` → exposdk:57.0.0) para poder abrirlas desde Expo Go sin la PC.
+ * Las builds de EAS (development y App Store) traen código nativo propio
+ * (LiveKit), así que usan `fingerprint`: una actualización pensada para Expo Go
+ * nunca llega a una build con otro código nativo.
+ */
+const runtimeVersion = process.env.EAS_BUILD ? { policy: 'fingerprint' as const } : { policy: 'sdkVersion' as const };
+
 const config: ExpoConfig = {
   name: 'ComprasMío!',
   slug: 'comprasmio',
@@ -18,6 +30,8 @@ const config: ExpoConfig = {
   orientation: 'portrait',
   icon: './assets/icon.png',
   userInterfaceStyle: 'light',
+  runtimeVersion,
+  updates: { url: `https://u.expo.dev/${EAS_PROJECT_ID}` },
   ios: {
     bundleIdentifier: 'bo.comprasmio.app',
     buildNumber: '1',
@@ -69,7 +83,7 @@ const config: ExpoConfig = {
   experiments: { typedRoutes: true },
   extra: {
     apiUrl: process.env.EXPO_PUBLIC_API_URL,
-    // eas: { projectId: '...' }  ← lo completa `eas init`
+    eas: { projectId: EAS_PROJECT_ID },
   },
 };
 
