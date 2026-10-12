@@ -48,6 +48,11 @@ Una sola aplicación web sirve a compradores y vendedores:
 | `/vender` | panel del vendedor |
 | `/vender/transmitir/:id` | cámara al aire |
 
+### App iOS
+
+`mobile/` es la app nativa (Expo) con el diseño de `design/`, para publicar en la App Store.
+Usa este mismo backend. Ver `mobile/README.md`.
+
 `vite.config.ts` usa `host: true`, así que desde el celular podés abrir `http://TU_IP:5173`
 mientras la web corre en tu computadora.
 
