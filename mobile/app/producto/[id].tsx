@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, TextInput, ScrollView, KeyboardAvoidingView, Platform, ActionSheetIOS, StyleSheet } from 'react-native';
+import { View, Text, TextInput, ScrollView, Keyboard, ActionSheetIOS, StyleSheet } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, type Mode } from '@/api';
-import { Circle, Group, Row, Segmented, SectionHeader, Sym, ErrorLine, useToast } from '@/ui';
+import { Btn, Circle, Group, Row, Segmented, SectionHeader, Sym, ErrorLine, useToast } from '@/ui';
 import { C, T, MODE } from '@/theme';
 
 const CATEGORIES = ['Relojes', 'Accesorios', 'Ropa', 'Electrónica', 'General'];
@@ -50,11 +51,35 @@ export default function Producto() {
       .catch((e) => setError(e.message));
   }, [id, isNew]);
 
-  const valid =
-    loaded && name.trim().length > 0 &&
-    (mode === 'fixed'
-      ? Number(price) > 0 && Number(stock) > 0
-      : Number(start) > 0 && min !== '' && Number(min) >= Number(start));
+  // Qué falta para poder guardar, en el orden del formulario: se muestra sobre el botón.
+  const missing: string[] = [];
+  if (!name.trim()) missing.push('el nombre');
+  if (mode === 'fixed') {
+    if (!(Number(price) > 0)) missing.push('el precio');
+    if (!(Number(stock) > 0)) missing.push('las unidades');
+  } else {
+    if (!(Number(start) > 0)) missing.push('el precio inicial');
+    if (min === '') missing.push('el precio mínimo');
+  }
+  const minTooLow = mode === 'auction' && min !== '' && Number(start) > 0 && Number(min) < Number(start);
+  const valid = loaded && missing.length === 0 && !minTooLow;
+  const hint = !loaded
+    ? null
+    : missing.length
+      ? `Falta ${missing.length > 1 ? `${missing.slice(0, -1).join(', ')} y ${missing[missing.length - 1]}` : missing[0]}.`
+      : minTooLow
+        ? 'El precio mínimo tiene que ser igual o mayor al inicial.'
+        : null;
+
+  // En una hoja (formSheet) KeyboardAvoidingView mide mal el teclado y el botón
+  // de abajo quedaba tapado: se sube el pie con la altura real del teclado.
+  const insets = useSafeAreaInsets();
+  const [keyboard, setKeyboard] = React.useState(0);
+  React.useEffect(() => {
+    const show = Keyboard.addListener('keyboardWillShow', (e) => setKeyboard(e.endCoordinates.height));
+    const hide = Keyboard.addListener('keyboardWillHide', () => setKeyboard(0));
+    return () => { show.remove(); hide.remove(); };
+  }, []);
 
   const save = async () => {
     if (!valid) return;
@@ -80,7 +105,7 @@ export default function Producto() {
     );
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <View style={{ flex: 1 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
         <Circle icon="xmark" bg={C.fill} onPress={() => router.back()} label="Cerrar" />
         <Text style={[T.headline, { flex: 1, textAlign: 'center' }]}>{isNew ? 'Nuevo producto' : 'Editar producto'}</Text>
@@ -158,9 +183,20 @@ export default function Producto() {
           ))}
         </Group>
 
-        <View style={{ paddingHorizontal: 32 }}><ErrorLine message={error} /></View>
       </ScrollView>
-    </KeyboardAvoidingView>
+
+      {/* Pie fijo: siempre visible, por encima del teclado. */}
+      <View style={{ paddingHorizontal: 24, paddingTop: 10, paddingBottom: keyboard ? keyboard + 10 : Math.max(insets.bottom, 16) + 4, borderTopWidth: 0.5, borderTopColor: C.separator, backgroundColor: C.groupedBg }}>
+        {error ? <ErrorLine message={error} /> : hint && <Text style={[T.footnote, { textAlign: 'center', marginBottom: 8 }]}>{hint}</Text>}
+        <Btn
+          title={isNew ? 'Crear producto' : 'Guardar cambios'}
+          disabled={!valid}
+          loading={busy}
+          onPress={save}
+          style={{ marginTop: error ? 10 : 0 }}
+        />
+      </View>
+    </View>
   );
 }
 
