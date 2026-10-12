@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
+<style>
+  body { margin: 0; background: #E7E3DC; color: #201F1B; -webkit-font-smoothing: antialiased; }
+  a { color: #0A6350; text-decoration: none; }
+  a:hover { color: #073F33; text-decoration: underline; }
+  [data-om-starter="ios-frame"] * { scrollbar-width: none; }
+  [data-om-starter="ios-frame"] *::-webkit-scrollbar { display: none; }
+  input::placeholder { color: #8E877B; }
+</style>
+</helmet>
+
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif; letter-spacing: -.01em; min-height: 100vh; box-sizing: border-box; padding: 40px 28px; display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 48px;">
+
+  <aside style="width: 300px; display: flex; flex-direction: column; gap: 18px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <div style="width: 38px; height: 38px; border-radius: 11px; background: #0E7C66; display: flex; align-items: center; justify-content: center;"><div style="display: flex; flex-direction: column; align-items: center;"><div style="width: 9.5px; height: 5px; border: 1.9px solid #FFFDFA; border-bottom: none; border-radius: 6px 6px 0 0; box-sizing: border-box; margin-bottom: -.5px;"></div><div style="width: 18px; height: 14.5px; background: #FFFDFA; border-radius: 2px 2px 4px 4px; display: flex; align-items: center; justify-content: center;"><div style="width: 4.5px; height: 4.5px; border-radius: 50%; background: #E9A23B;"></div></div></div></div>
+      <div><div style="font-family: 'Public Sans', sans-serif; font-weight: 700; font-size: 19px; letter-spacing: -.03em;">ComprasMío<span style="color: #AE5115;">!</span></div><div style="font-size: 13px; color: #6B6455;">Prototipo navegable · iOS</div></div>
+    </div>
+    <div style="font-size: 15px; line-height: 1.45; color: #3D3A34;">Todo funciona: las pujas corren en tiempo real, los demás compradores son simulados y el vendedor verifica pagos.</div>
+    <div style="background: #FFFFFF; border-radius: 18px; overflow: hidden;">
+      <div style="padding: 12px 16px 8px; font-size: 12px; font-weight: 600; color: #6B6455; text-transform: uppercase; letter-spacing: .04em;">Ir a</div>
+      <sc-for list="{{ jumps }}" as="j" hint-placeholder-count="10">
+        <div onClick="{{ j.go }}" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; cursor: pointer; border-top: .5px solid #EEE8DF; background: {{ j.bg }};" style-hover="background: #F4F2EE;">
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: {{ j.dot }}; flex: none;"></span>
+          <span style="flex: 1; font-size: 15px;">{{ j.label }}</span>
+          <span style="font-family: 'Material Symbols Rounded'; font-size: 18px; line-height: 1; color: #B0A797;">chevron_right</span>
+        </div>
+      </sc-for>
+    </div>
+    <div style="background: #0A3B31; color: #FFFDFA; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 1.45;">
+      <div style="font-weight: 600; font-size: 15px;">Probá esto</div>
+      <div style="color: #C7DDD5;">1 · Entrá a Relojería Andina y pujá hasta que el reloj llegue a 0.</div>
+      <div style="color: #C7DDD5;">2 · Adjuntá el comprobante y confirmá: el vendedor lo verifica solo.</div>
+      <div style="color: #C7DDD5;">3 · Como vendedor, armá un vivo y abrí lotes desde la cola.</div>
+    </div>
+    <div onClick="{{ reset }}" style="height: 44px; border-radius: 999px; border: 1px solid #201F1B; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; cursor: pointer;" style-hover="background: #FFFFFF;">Reiniciar demo</div>
+  </aside>
+
+  <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ darkStatus }}" hint-size="402px,874px">
+
+    <sc-if value="{{ is.welcome }}" hint-placeholder-val="{{ true }}">
+      <div style="height: 874px; background: #FFFFFF; display: flex; flex-direction: column; box-sizing: border-box; padding: 62px 0 0;">
+        <div style="margin: 8px 16px 0; height: 430px; border-radius: 34px; background: repeating-linear-gradient(135deg, #DCE9E3 0 12px, #EDE6DB 12px 24px); display: flex; align-items: center; justify-content: center; color: #4F6B61; font-size: 13px; font-family: ui-monospace, Menlo, monospace;">foto · vendedora en vivo</div>
+        <div style="padding: 28px 28px 0; display: flex; flex-direction: column; gap: 12px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 34px; height: 34px; border-radius: 10px; background: #0E7C66; display: flex; align-items: center; justify-content: center;"><div style="display: flex; flex-direction: column; align-items: center;"><div style="width: 8.5px; height: 4.5px; border: 1.7px solid #FFFDFA; border-bottom: none; border-radius: 5px 5px 0 0; box-sizing: border-box; margin-bottom: -.5px;"></div><div style="width: 16px; height: 13px; background: #FFFDFA; border-radius: 2px 2px 4px 4px; display: flex; align-items: center; justify-content: center;"><div style="width: 4px; height: 4px; border-radius: 50%; background: #E9A23B;"></div></div></div></div>
+            <span style="font-family: 'Public Sans', sans-serif; font-weight: 700; font-size: 21px; letter-spacing: -.03em;">ComprasMío<span style="color: #AE5115;">!</span></span>
+          </div>
+          <div style="font-size: 34px; font-weight: 700; line-height: 1.12; letter-spacing: -.5px;">Subastas y compras en vivo.</div>
+          <div style="font-size: 17px; line-height: 1.4; color: #6B6455;">Pujá, comprá al toque y pagá por QR. Tu dinero, siempre a la vista.</div>
+        </div>
+        <div style="margin-top: auto; padding: 0 24px 50px; display: flex; flex-direction: column; gap: 12px;">
+          <div onClick="{{ toSignup }}" style="height: 54px; border-radius: 999px; background: #0E7C66; color: #FFFFFF; font-size: 17px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: pointer;" style-active="opacity: .75;">Crear cuenta</div>
+          <div onClick="{{ toLogin }}" style="height: 54px; border-radius: 999px; background: #F2EEE7; font-size: 17px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: pointer;" style-active="opacity: .75;">Ya tengo cuenta</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.role }}" hint-placeholder-val="{{ false }}">
+      <div style="height: 874px; background: #F4F2EE; display: flex; flex-direction: column; box-sizing: border-box; padding: 62px 0 0;">
+        <div style="padding: 4px 16px;"><div onClick="{{ toWelcome }}" style="width: 44px; height: 44px; border-radius: 50%; background: #FFFFFF; display: flex; align-items: center; justify-content: center; cursor: pointer;"><span style="font-family: 'Material Symbols Rounded'; font-size: 22px; line-height: 1;">arrow_back_ios_new</span></div></div>
+        <div style="padding: 10px 20px 0;"><div style="font-size: 34px; font-weight: 700; letter-spacing: -.4px; line-height: 41px;">¿Qué querés hacer?</div><div style="font-size: 17px; color: #6B6455; margin-top: 6px;">Elegí con qué cuenta vas a entrar.</div></div>
+        <div style="margin: 24px 16px 0; background: #FFFFFF; border-radius: 26px; overflow: hidden;">
+          <div onClick="{{ pickBuyer }}" style="display: flex; align-items: center; gap: 14px; padding: 18px 16px; border-bottom: .5px solid #E4DCD0; cursor: pointer;">
+            <div style="width: 44px; height: 44px; border-radius: 12px; background: #0E7C66; color: #FFFFFF; display: flex; align-items: center; justify-content: center; flex: none;"><span style="font-family: 'Material Symbols Rounded'; font-size: 24px; line-height: 1; font-variation-settings: 'FILL' 1;">shopping_bag</span></div>
+            <div style="flex: 1;"><div style="font-size: 17px; font-weight: 600;">Quiero comprar</div><div style="font-size: 14px; color: #6B6455; margin-top: 2px;">Entrá a los vivos, pujá y comprá al toque.</div></div>
+            <span style="font-family: 'Material Symbols Rounded'; font-size: 26px; line-height: 1; color: {{ roleUi.buyerColor }}; font-variation-settings: {{ roleUi.buyerFill }};">{{ roleUi.buyerIcon }}</span>
+          </div>
+          <div onClick="{{ pickSeller }}" style="display: flex; align-items: center; gap: 14px; padding: 18px 16px; cursor: pointer;">
+            <div style="width: 44px; height: 44px; border-radius: 12px; background: #AE5115; color: #FFFFFF; display: flex; align-items: center; justify-content: center; flex: none;"><span style="font-family: 'Material Symbols Rounded'; font-size: 24px; line-height: 1; font-variation-settings: 'FILL' 1;">videocam</span></div>
+            <div style="flex: 1;"><div style="font-size: 17px; font-weight: 600;">Quiero vender</div><div style="font-size: 14px; color: #6B6455; margin-top: 2px;">Transmití en vivo y cobrá por QR.</div></div>
+            <span style="font-family: 'Material Symbols Rounded'; font-size: 26px; line-height: 1; color: {{ roleUi.sellerColor }}; font-variation-settings: {{ roleUi.sellerFill }};">{{ roleUi.sellerIcon }}</span>
+          </div>
+        </div>
+        <div style="padding: 10px 36px 0; font-size: 13px; color: #6B6455;">Esta elección es definitiva: cada rol tiene su propia app.</div>
+        <div style="margin-top: auto; padding: 0 24px 50px;"><div onClick="{{ toAuth }}" style="height: 54px; border-radius: 999px; background: #0E7C66; color: #FFFFFF; font-size: 17px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: pointer;" style-active="opacity: .75;">{{ roleUi.cta }}</div></div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.auth }}" hint-placeholder-val="{{ false }}">
+      <div style="height: 874px; background: #F4F2EE; display: flex; flex-direction: column; box-sizing: border-box; padding: 62px 0 0;">
+        <div style="padding: 4px 16px; display: flex; align-items: center; gap: 12px;">
+          <div onClick="{{ auth.back }}" style="width: 44px; height: 44px; border-radius: 50%; background: #FFFFFF; display: flex; align-items: center; justify-content: center; cursor: pointer;"><span style="font-family: 'Material Symbols Rounded'; font-size: 22px; line-height: 1;">arrow_back_ios_new</span></div>
+          <div style="flex: 1; height: 36px; border-radius: 999px; background: #E6E1D8; display: flex; padding: 2px; box-sizing: border-box;">
+            <div onClick="{{ auth.setSignup }}" style="flex: 1; border-radius: 999px; background: {{ auth.sSignup.bg }}; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: {{ auth.sSignup.fw }}; cursor: pointer;">Crear cuenta</div>
+            <div onClick="{{ auth.setLogin }}" style="flex: 1; border-radius: 999px; background: {{ auth.sLogin.bg }}; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: {{ auth.sLogin.fw }}; cursor: pointer;">Iniciar sesión</div>
+          </div>
+        </div>
+        <div style="padding: 18px 20px 0; font-size: 28px; font-weight: 700; letter-spacing: -.3px;">{{ auth.title }}</div>
+        <sc-if value="{{ auth.isSignup }}" hint-placeholder-val="{{ false }}">
+          <div style="margin: 8px 20px 0; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: {{ auth.roleColor }};"><span style="font-family: 'Material Symbols Rounded'; font-size: 18px; line-height: 1; font-variation-settings: 'FILL' 1;">{{ auth.roleIcon }}</span>{{ auth.roleLabel }}</div>
+        </sc-if>
+        <div style="margin: 14px 16px 0; background: #FFFFFF; border-radius: 26px; overflow: hidden;">
+          <sc-if value="{{ auth.isSignup }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; align-items: center; padding: 0 16px; height: 52px; border-bottom: .5px solid #E4DCD0;"><span style="width: 104px; font-size: 17px; flex: none;">Nombre</span><input value="{{ auth.name }}" onChange="{{ auth.onName }}" placeholder="Ana Quispe" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; font: inherit; font-size: 17px; color: #201F1B;"></div>
+          </sc-if>
+          <div style="display: flex; align-items: center; padding: 0 16px; height: 52px; border-bottom: .5px solid #E4DCD0;"><span style="width: 104px; font-size: 17px; flex: none;">Celular</span><span style="font-size: 17px; color: #6B6455; margin-right: 6px;">+591</span><input value="{{ auth.phone }}" onChange="{{ auth.onPhone }}" inputMode="tel" placeholder="71234567" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; font: inherit; font-size: 17px; color: #201F1B;"></div>
+          <div style="display: flex; align-items: center; padding: 0 16px; height: 52px;"><span style="width: 104px; font-size: 17px; flex: none;">Contraseña</span><input type="password" value="{{ auth.pass }}" onChange="{{ auth.onPass }}" placeholder="Mínimo 6 caracteres" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; font: inherit; font-size: 17px; color: #201F1B;"></div>
+        </div>
+        <div style="padding: 8px 32px 0; font-size: 13px; color: #6B6455; line-height: 1.4;">{{ auth.foot }}</div>
+        <div style="padding: 20px 24px 0;"><div onClick="{{ auth.submit }}" style="height: 54px; border-radius: 999px; background: #0E7C66; color: #FFFFFF; font-size: 17px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: {{ auth.op }};" style-active="transform: scale(.98);">{{ auth.cta }}</div></div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.feed }}" hint-placeholder-val="{{ false }}">
+      <div style="min-height: 100%; background: #F4F2EE; box-sizing: border-box; padding: 62px 0 120px;">
+        <div style="padding: 4px 16px 0 20px; display: flex; align-items: center; gap: 10px;">
+          <div style="width: 30px; height: 30px; border-radius: 9px; background: #0E7C66; display: flex; align-items: center; justify-content: center;"><div style="display: flex; flex-direction: column; align-items: center;"><div style="width: 7.5px; height: 4px; border: 1.5px solid #FFFDFA; border-bottom: none; border-radius: 5px 5px 0 0; box-sizing: border-box; margin-bottom: -.5px;"></div><div style="width: 14px; height: 11.5px; background: #FFFDFA; border-radius: 2px 2px 3.5px 3.5px; display: flex; align-items: center; justify-content: center;"><div style="width: 3.5px; height: 3.5px; border-radius: 50%; background: #E9A23B;"></div></div></div></div>
+          <span style="flex: 1;"></span>
+          <div onClick="{{ noAlerts }}" style="width: 44px; height: 44px; border-radius: 50%; background: #FFFFFF; display: flex; align-items: center; justify-content: center; cursor: pointer;"><span style="font-family: 'Material Symbols Rounded'; font-size: 22px; line-height: 1;">notifications</span></div>
+          <div onClick="{{ openAccount }}" style="width: 44px; height: 44px; border-radius: 50%; background: #0A3B31; color: #FFFDFA; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; cursor: pointer;">{{ me.ini }}</div>
+        </div>
+        <div style="padding: 6px 20px 0; font-size: 34px; font-weight: 700; letter-spacing: -.4px; line-height: 41px;">En vivo ahora</div>
+        <div style="margin: 12px 16px 0; height: 40px; border-radius: 999px; background: #E6E1D8; display: flex; align-items: center; gap: 6px; padding: 0 14px; color: #6B6455;"><span style="font-family: 'Material Symbols Rounded'; font-size: 20px; line-height: 1;">search</span><input ref="{{ searchRef }}" value="{{ feed.query }}" onChange="{{ feed.onQuery }}" placeholder="Buscar productos, vendedores…" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; font: inherit; font-size: 16px; color: #201F1B;"></div>
+        <div style="margin: 12px 16px 0; height: 36px; border-radius: 999px; background: #E6E1D8; display: flex; padding: 2px; box-sizing: border-box;">
+          <sc-for list="{{ feed.filters }}" as="f" hint-placeholder-count="3">
+            <div onClick="{{ f.pick }}" style="flex: 1; border-radius: 999px; background: {{ f.bg }}; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px; font-weight: {{ f.fw }}; cursor: pointer;"><span style="width: 7px; height: 7px; border-radius: 50%; background: {{ f.dot }};"></span>{{ f.label }}</div>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ feed.showFeatured }}" hint-placeholder-val="{{ false }}">
+          <div onClick="{{ feed.featured.open }}" style="margin: 18px 16px 0; height: 236px; border-radius: 26px; overflow: hidden; position: relative; background: {{ feed.featured.video }}; cursor: pointer;" style-active="transform: scale(.985);">
+            <div style="position: absolute; top: 14px; left: 14px; display: flex; gap: 6px;">
+              <span style="display: flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 999px; background: #AE5115; color: #FFFFFF; font-size: 12px; font-weight: 700; letter-spacing: .04em;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #FFFFFF;"></span>EN VIVO</span>
+              <span style="display: flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 999px; background: rgba(0,0,0,.35); color: #FFFFFF; font-size: 12px; font-weight: 600;"><span style="font-family: 'Material Symbols Rounded'; font-size: 14px; line-height: 1;">visibility</span>{{ feed.featured.viewers }}</span>
+            </div>
+            <div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 16px; background: linear-gradient(transparent, rgba(5,30,24,.85)); color: #FFFFFF;">
+              <div style="font-size: 13px; color: #C7DDD5;">{{ feed.featured.seller }} · {{ feed.featured.rating }}</div>
+              <div style="font-size: 22px; font-weight: 600; margin-top: 3px;">{{ feed.featured.title }}</div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px;">
+                <span style="font-size: 15px;">Desde <strong style="font-size: 17px;">{{ feed.featured.price }}</strong></span>
+                <span style="height: 34px; padding: 0 16px; border-radius: 999px; background: #FFFFFF; color: #0A3B31; font-size: 15px; font-weight: 600; display: flex; align-items: center;">Entrar</span>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <div style="padding: 22px 20px 10px; display: flex; align-items: baseline; justify-content: space-between;"><span style="font-size: 22px; font-weight: 600;">{{ feed.heading }}</span><span style="font-size: 15px; color: #6B6455;">{{ feed.count }}</span></div>
+        <sc-if value="{{ feed.empty }}" hint-placeholder-val="{{ false }}">
+          <div style="margin: 0 16px; padding: 28px 20px; background: #FFFFFF; border-radius: 22px; text-align: center;"><div style="font-size: 17px; font-weight: 600;">Nada con ese filtro</div><div style="font-size: 15px; color: #6B6455; margin-top: 4px;">Probá con otra búsqueda: los vivos entran y salen todo el día.</div></div>
+        </sc-if>
+        <div style="padding: 0 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px 12px;">
+          <sc-for list="{{ feed.cards }}" as="c" hint-placeholder-count="4">
+            <div onClick="{{ c.open }}" style="display: flex; flex-direction: column; gap: 6px; cursor: pointer;" style-active="opacity: .7;">
+              <div style="position: relative; aspect-ratio: 3 / 4; border-radius: 18px; overflow: hidden; background: {{ c.cover }};">
+                <span style="position: absolute; top: 8px; left: 8px; display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 999px; background: rgba(0,0,0,.42); color: #FFFFFF; font-size: 12px; font-weight: 600;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #E9A23B;"></span>{{ c.viewers }}</span>
+                <span onClick="{{ c.fav }}" style="position: absolute; top: 6px; right: 6px; width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,.32); color: {{ c.favColor }}; display: flex; align-items: center; justify-content: center;"><span style="font-family: 'Material Symbols Rounded'; font-size: 18px; line-height: 1; font-variation-settings: {{ c.favFill }};">favorite</span></span>
+                <span style="position: absolute; bottom: 8px; left: 8px; padding: 4px 9px; border-radius: 999px; background: {{ c.modeBg }}; color: #FFFFFF; font-size: 12px; font-weight: 600;">{{ c.modeLabel }}</span>
+              </div>
+              <div style="font-size: 13px; color: #6B6455; margin-top: 2px;">{{ c.seller }}</div>
+              <div style="font-size: 15px; font-weight: 600; line-height: 1.25;">{{ c.title }}</div>
+              <div style="font-size: 15px; font-weight: 700; color: #0A6350;">{{ c.price }} <span style="font-size: 13px; font-weight: 400; color: #6B6455;">{{ c.note }}</span></div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.room }}" hint-placeholder-val="{{ false }}">
+      <div style="height: 874px; background: {{ r.video }}; color: #FFFFFF;">
+        <div style="position: absolute; top: 300px; left: 0; right: 0; text-align: center; font-size: 13px; color: rgba(255,255,255,.4); font-family: ui-monospace, Menlo, monospace;">video LiveKit · 9:16</div>
+        <div style="position: absolute; top: 62px; left: 16px; right: 16px; display: flex; align-items: center; gap: 8px; z-index: 30;">
+          <div onClick="{{ leaveRoom }}" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(0,0,0,.3); backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: center; cursor: pointer;"><span style="font-family: 'Material Symbols Rounded'; font-size: 24px; line-height: 1;">keyboard_arrow_down</span></div>
+          <span style="display: flex; align-items: center; gap: 5px; height: 30px; padding: 0 11px; border-radius: 999px; background: #AE5115; font-size: 12px; font-weight: 700; letter-spacing: .05em;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #FFFFFF;"></span>EN VIVO</span>
+          <span style="display: flex; align-items: center; gap: 4px; height: 30px; padding: 0 11px; border-radius: 999px; background: rgba(0,0,0,.3); font-size: 13px; font-weight: 600;"><span style="font-family: 'Material Symbols Rounded'; font-size: 15px; line-height: 1;">visibility</span>{{ r.viewers }}</span>
+          <span style="flex: 1;"></span>
+          <span onClick="{{ openCatalog }}" style="display: flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px; border-radius: 999px; background: rgba(0,0,0,.3); backdrop-filter: blur(20px); font-size: 14px; font-weight: 600; cursor: pointer;"><span style="font-family: 'Material Symbols Rounded'; font-size: 17px; line-height: 1;">inventory_2</span>Catálogo <span style="min-width: 20px; height: 20px; border-radius: 10px; background: #FFFFFF; color: #0A3B31; font-size: 12px; display: flex; align-items: center; justify-content: center;">{{ r.lotsCount }}</span></span>
+        </div>
+        <div style="position: absolute; top: 118px; left: 16px; right: 16px; display: flex; align-items: center; gap: 10px; z-index: 30;">
+          <div style="width: 38px; height: 38px; border-radius: 50%; background: {{ r.av }}; color: {{ r.avFg }}; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center;">{{ r.ini }}</div>
+          <div style="flex: 1;"><div style="font-size: 15px; font-weight: 600;">{{ r.seller }}</div><div style="font-size: 12px; color: #E9A23B;">{{ r.rating }}</div></div>
+          <div onClick="{{ r.follow }}" style="height: 32px; padding: 0 14px; border-radius: 999px; border: 1px solid {{ r.followBorder }}; background: {{ r.followBg }}; font-size: 14px; font-weight: 600; display: flex; align-items: center; cursor: pointer;">{{ r.followText }}</div>
+        </div>
+        <div style="position: absolute; left: 16px; right: 100px; bottom: {{ r.chatBottom }}; display: flex; flex-direction: column; gap: 6px; z-index: 30; font-size: 14px; line-height: 1.35;">
+          <sc-for list="{{ r.chat }}" as="m" hint-placeholder-count="4">
+            <sc-if value="{{ m.sys }}" hint-placeholder-val="{{ false }}"><div style="align-self: flex-start; padding: 5px 10px; border-radius: 999px; background: rgba(174,81,21,.88); font-size: 13px; font-weight: 600; opacity: {{ m.op }};">{{ m.pill }}</div></sc-if>
+            <sc-if value="{{ m.plain }}" hint-placeholder-val="{{ true }}"><div style="opacity: {{ m.op }}; text-shadow: 0 1px 2px rgba(0,0,0,.4);"><strong style="color: {{ m.whoColor }};">{{ m.who }}</strong> {{ m.text }}</div></sc-if>
+          </sc-for>
+        </div>
+        <div style="position: absolute; right: 16px; bottom: {{ r.railBottom }}; display: flex; flex-direction: column; gap: 14px; z-index: 30;">
+          <div onClick="{{ r.follow }}" style="width: 48px; height: 48px; border-radius: 50%; background: rgba(0,0,0,.3); backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: center; cursor: pointer; color: {{ r.heartColor }};"><span style="font-family: 'Material Symbols Rounded'; font-size: 24px; line-height: 1; font-variation-settings: {{ r.heartFill }};">favorite</span></div>
+          <div onClick="{{ share }}" style="width: 48px; height: 48px; border-radius: 50%; background: rgba(0,0,0,.3); backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: center; cursor: pointer;"><span style="font-family: 'Material Symbols Rounded'; font-size: 24px; line-height: 1;">ios_share</span></div>
+          <div onClick="{{ pip }}" style="width: 48px; height: 48px; border-radius: 50%; background: rgba(0,0,0,.3); backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: center; cursor: pointer;"><span style="font-family: 'Material Symbols Rounded'; font-size: 24px; line-height: 1;">picture_in_picture_alt</span></div>
+        </div>
+        <div style="position: absolute; left: 16px; right: 16px; bottom: {{ r.composerBottom }}; height: 44px; z-index: 30; border-radius: 999px; background: rgba(0,0,0,.3); backdrop-filter: blur(20px); border: .5px solid rgba(255,255,255,.18); display: flex; align-items: center; padding: 0 6px 0 16px; box-sizing: border-box;">
+          <input value="{{ r.draft }}" onChange="{{ r.onDraft }}" onKeyDown="{{ r.onKey }}" placeholder="Escribí un comentario…" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; font: inherit; font-size: 15px; color: #FFFFFF;">
+          <div onClick="{{ r.send }}" style="width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,.18); display: flex; align-items: center; justify-content: center; cursor: pointer;"><span style="font-family: 'Material Symbols Rounded'; font-size: 18px; line-height: 1;">arrow_upward</span></div>
+        </div>
+        <div style="position: absolute; left: 10px; right: 10px; bottom: 24px; border-radius: 34px; background: {{ r.dockBg }}; backdrop-filter: blur(30px) saturate(160%); border: .5px solid rgba(255,255,255,.14); padding: 18px 18px 16px; z-index: 30;">
+          <div style="display: flex; align-items: flex-start; gap: 12px;">
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-size: 12px; font-weight: 600; letter-spacing: .05em; color: #B9CCC5;">{{ r.label }}</div>
+              <div style="font-size: 36px; font-weight: 700; letter-spacing: -.6px; line-height: 1.1; font-variant-numeric: tabular-nums;">{{ r.price }}</div>
+              <div style="font-size: 14px; color: {{ r.subColor }}; margin-top: 2px; font-weight: 500;">{{ r.sub }}</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 12px; font-weight: 600; letter-spacing: .05em; color: #B9CCC5;">QUEDAN</div>
+              <div style="font-size: 30px; font-weight: 600; color: {{ r.rightColor }}; font-variant-numeric: tabular-nums; line-height: 1.15;">{{ r.right }}</div>
+              <div style="font-size: 12px; color: #B9CCC5;">{{ r.rightSub }}</div>
+            </div>
+          </div>
+          <sc-if value="{{ r.showProgress }}" hint-placeholder-val="{{ false }}"><div style="height: 4px; border-radius: 2px; background: rgba(255,255,255,.16); margin-top: 12px; overflow: hidden;"><div style="width: {{ r.progress }}; height: 100%; background: #7FD8B8; transition: width .4s;"></div></div></sc-if>
+          <div style="display: flex; align-items: center; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: .5px solid rgba(255,255,255,.14);">
+            <div style="width: 40px; height: 40px; border-radius: 10px; background: {{ r.thumb }}; flex: none;"></div>
+            <div style="flex: 1; min-width: 0;"><div style="font-size: 15px; font-weight: 600;">{{ r.product }}</div><div style="font-size: 13px; color: #B9CCC5;">{{ r.productSub }}</div></div>
+          </div>
+          <sc-if value="{{ r.hasClosed }}" hint-placeholder-val="{{ false }}"><div style="margin-top: 12px; padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,.12); font-size: 14px; font-weight: 600; text-align: center;">{{ r.closed }} · sigue el próximo</div></sc-if>
+          <div onClick="{{ r.act }}" style="height: 56px; margin-top: 14px; border-radius: 999px; background: {{ r.ctaBg }}; display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 700; cursor: pointer; opacity: {{ r.ctaOp }}; box-shadow: {{ r.ctaGlow }}; transition: box-shadow .3s;" style-active="transform: scale(.97);">{{ r.cta }}</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.orders }}" hint-placeholder-val="{{ false }}">
+      <div style="min-height: 100%; background: #F4F2EE; box-sizing: border-box; padding: 62px 0 120px;">
+        <div style="padding: 52px 20px 0; font-size: 34px; font-weight: 700; letter-spacing: -.4px; line-height: 41px;">Compras</div>
+        <div style="padding: 2px 20px 0; font-size: 15px; color: #6B6455;">Todo se paga por transferencia QR</div>
+        <sc-for list="{{ orders.pending }}" as="o" hint-placeholder-count="0">
+          <div style="margin: 16px 16px 0; background: #FFFFFF; border-radius: 22px; padding: 14px;">
+            <div style="display: flex; gap: 12px;">
+              <div style="width: 60px; height: 60px; border-radius: 14px; background: {{ o.thumb }}; flex: none;"></div>
+              <div style="flex: 1; min-width: 0;">
+                <div style="display: flex; justify-content: space-between; gap: 8px;"><span style="font-size: 16px; font-weight: 600;">{{ o.product }}</span><span style="font-size: 16px; font-weight: 700; color: #0A6350;">{{ o.total }}</span></div>
+                <div style="font-size: 14px; color: #6B6455; margin-top: 1px;">{{ o.seller }} · {{ o.ref }}</div>
+                <div style="display: flex; margin-top: 8px;"><span style="padding: 3px 9px; border-radius: 999px; background: #FBE9DC; color: #8E4211; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums;">Pendiente de pago · {{ o.deadline }}</span></div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 14px;">
+              <div onClick="{{ o.pay }}" style="flex: 1; height: 40px; border-radius: 999px; background: #AE5115; color: #FFFFFF; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: pointer;" style-active="opacity: .75;">Pagar ahora</div>
+              <div onClick="{{ o.chat }}" style="width: 40px; height: 40px; border-radius: 50%; background: #F2EEE7; display: flex; align-items: center; justify-content: center; cursor: pointer;"><span style="font-family: 'Material Symbols Rounded'; font-size: 20px; line-height: 1;">chat_bubble</span></div>
+            </div>
+          </div>
+        </sc-for>
+        <div style="padding: 22px 32px 6px; font-size: 13px; font-weight: 600; color: #6B6455; text-transform: uppercase; letter-spacing: .03em;">Anteriores</div>
+        <div style="margin: 0 16px; background: #FFFFFF; border-radius: 22px; overflow: hidden;">
+          <sc-for list="{{ orders.past }}" as="o" hint-placeholder-count="3">
+            <div onClick="{{ o.chat }}" style="display: flex; gap: 12px; align-items: center; padding: 12px 16px; border-bottom: .5px solid #EEE8DF; cursor: pointer;" style-active="background: #F4F2EE;">
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: {{ o.thumb }}; flex: none;"></div>
+              <div style="flex: 1; min-width: 0;"><div style="display: flex; justify-content: space-between; gap: 8px;"><span style="font-size: 16px; font-weight: 600;">{{ o.product }}</span><span style="font-size: 15px; font-weight: 600;">{{ o.total }}</span></div><div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;"><span style="padding: 2px 8px; border-radius: 999px; background: {{ o.sBg }}; color: {{ o.sFg }}; font-size: 12px; font-weight: 600; transition: background .3s;">{{ o.sLabel }}</span><span style="font-size: 13px; color: #6B6455;">{{ o.seller }}</span></div></div>
+              <span style="font-family: 'Material Symbols Rounded'; font-size: 20px; line-height: 1; color: #B0A797;">chevron_right</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.favs }}" hint-placeholder-val="{{ false }}">
+      <div style="min-height: 100%; background: #F4F2EE; box-sizing: border-box; padding: 62px 0 120px;">
+        <div style="padding: 52px 20px 0; font-size: 34px; font-weight: 700; letter-spacing: -.4px; line-height: 41px;">Favoritos</div>
+        <div style="padding: 2px 20px 0; font-size: 15px; color: #6B6455;">Los vendedores que seguís</div>
+        <div style="padding: 22px 32px 6px; font-size: 13px; font-weight: 600; color: #8E4211; text-transform: uppercase; letter-spacing: .03em;">En vivo ahora</div>
+        <sc-if value="{{ favs.empty }}" hint-placeholder-val="{{ false }}"><div style="margin: 0 16px; padding: 22px; background: #FFFFFF; border-radius: 22px; font-size: 15px; color: #6B6455; text-align: center;">Tocá el corazón en un vivo para tenerlo acá.</div></sc-if>
+        <div style="margin: 0 16px; background: #FFFFFF; border-radius: 22px; overflow: hidden;">
+          <sc-for list="{{ favs.live }}" as="f" hint-placeholder-count="2">
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: .5px solid #EEE8DF;">
+              <div style="width: 50px; height: 50px; border-radius: 50%; background: {{ f.av }}; color: {{ f.avFg }}; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2.5px #FFFFFF, 0 0 0 4.5px #AE5115; flex: none;">{{ f.ini }}</div>
+              <div style="flex: 1; min-width: 0;"><div style="font-size: 16px; font-weight: 600;">{{ f.seller }}</div><div style="font-size: 13px; color: #8E4211;">{{ f.sub }}</div></div>
+              <div onClick="{{ f.enter }}" style="height: 34px; padding: 0 14px; border-radius: 999px; background: #AE5115; color: #FFFFFF; font-size: 14px; font-weight: 600; display: flex; align-items: center; cursor: pointer;">Entrar</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="padding: 22px 32px 6px; font-size: 13px; font-weight: 600; color: #6B6455; text-transform: uppercase; letter-spacing: .03em;">Sin transmisión</div>
+        <div style="margin: 0 16px; background: #FFFFFF; border-radius: 22px; overflow: hidden;">
+          <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px;">
+            <div style="width: 50px; height: 50px; border-radius: 50%; background: #6B6455; color: #FFFFFF; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center;">VP</div>
+            <div style="flex: 1;"><div style="font-size: 16px; font-weight: 600;">Vinilos El Prado</div><div style="font-size: 13px; color: #6B6455;">Próximo vivo: jueves 20:00</div></div>
+            <span onClick="{{ toggleBell }}" style="font-family: 'Material Symbols Rounded'; font-size: 24px; line-height: 1; color: {{ favs.bellColor }}; font-variation-settings: {{ favs.bellFill }}; cursor: pointer;">{{ favs.bellIcon }}</span>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.thread }}" hint-placeholder-val="{{ false }}">
+      <div style="height: 874px; background: #FFFFFF; display: flex; flex-direction: column; box-sizing: border-box; padding-top: 58px;">
+        <div style="display: flex; align-items: center; gap: 10px; padding: 6px 16px 10px; border-bottom: .5px solid #E4DCD0;">
+          <div onClick="{{ th.back }}" style="width: 44px; height: 44px; border-radius: 50%; background: #F2EEE7; display: flex; align-items: center; justify-content: center; cursor: pointer;"><span style="font-family: 'Material Symbols Rounded'; font-size: 22px; line-height: 1;">arrow_back_ios_new</span></div>
+          <div style="flex: 1; display: flex; flex-direction: column; align-items: center;"><div style="width: 32px; height: 32px; border-radius: 50%; background: {{ th.av }}; color: {{ th.avFg }}; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center;">{{ th.ini }}</div><div style="font-size: 13px; font-weight: 600; margin-top: 2px;">{{ th.title }}</div></div>
+          <div onClick="{{ call }}" style="width: 44px; height: 44px; border-radius: 50%; background: #F2EEE7; display: flex; align-items: center; justify-content: center; cursor: pointer;"><span style="font-family: 'Material Symbols Rounded'; font-size: 22px; line-height: 1;">call</span></div>
+        </div>
+        <sc-if value="{{ th.hasPinned }}" hint-placeholder-val="{{ false }}">
+          <div style="margin: 12px 16px 0; padding: 10px 12px; border-radius: 16px; background: #F4F2EE; display: flex; align-items: center; gap: 10px;">
+            <div style="width: 36px; height: 36px; border-radius: 9px; background: {{ th.pThumb }};"></div>
+            <div style="flex: 1; min-width: 0;"><div style="font-size: 14px; font-weight: 600;">{{ th.pTitle }}</div><div style="font-size: 12px; color: #6B6455;">{{ th.pRef }}</div></div>
+            <span style="padding: 3px 9px; border-radius: 999px; background: {{ th.pBg }}; color: {{ th.pFg }}; font-size: 12px; font-weight: 600; transition: background .3s;">{{ th.pLabel }}</span>
+          </div>
+        </sc-if>
+        <div ref="{{ threadRef }}" style="flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 8px; font-size: 16px; line-height: 1.35;">
+          <div style="text-align: center; font-size: 12px; color: #6B6455; margin-bottom: 4px;">Coordiná la entrega directo acá</div>
+          <sc-for list="{{ th.msgs }}" as="m" hint-placeholder-count="3">
+            <div style="align-self: {{ m.align }}; max-width: 76%; padding: 9px 13px; border-radius: 20px; background: {{ m.bg }}; color: {{ m.fg }};">{{ m.text }}</div>
+          </sc-for>
+        </div>
+        <div style="padding: 8px 12px 40px; display: flex; align-items: center; gap: 8px;">
+          <div onClick="{{ attach }}" style="width: 40px; height: 40px; border-radius: 50%; background: #F2EEE7; display: flex; align-items: center; justify-content: center; cursor: pointer; flex: none;"><span style="font-family: 'Material Symbols Rounded'; font-size: 22px; line-height: 1;">add</span></div>
+          <div style="flex: 1; height: 40px; border-radius: 999px; border: 1px solid #E4DCD0; display: flex; align-items: center; padding: 0 14px;"><input value="{{ th.draft }}" onChange="{{ th.onDraft }}" onKeyDown="{{ th.onKey }}" placeholder="{{ th.placeholder }}" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; font: inherit; font-size: 16px; color: #201F1B;"></div>
+          <div onClick="{{ th.send }}" style="width: 40px; height: 40px; border-radius: 50%; background: #0E7C66; color: #FFFFFF; display: flex; align-items: center; justify-content: center; cursor: pointer; flex: none; opacity: {{ th.sendOp }};"><span style="font-family: 'Material Symbols Rounded'; font-size: 20px; line-height: 1;">arrow_upward</span></div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.sHome }}" hint-placeholder-val="{{ false }}">
+      <div style="min-height: 100%; background: #F4F2EE; box-sizing: border-box; padding: 62px 0 120px;">
+        <div style="padding: 4px 16px 0 20px; display: flex; align-items: center; gap: 10px;">
+          <span style="flex: 1; font-size: 15px; color: #6B6455;">{{ me.name }}</span>
+          <div onClick="{{ noAlerts }}" style="width: 44px; height: 44px; border-radius: 50%; background: #FFFFFF; display: flex; align-items: center; justify-content: center; cursor: pointer;"><span style="font-family: 'Material Symbols Rounded'; font-size: 22px; line-height: 1;">notifications</span></div>
+          <div onClick="{{ openAccount }}" style="width: 44px; height: 44px; border-radius: 50%; background: #E9A23B; color: #0A3B31; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; cursor: pointer;">{{ me.ini }}</div>
+        </div>
+        <div style="padding: 6px 20px 0; font-size: 34px; font-weight: 700; letter-spacing: -.4px; line-height: 41px;">Resumen</div>
+        <div style="margin: 14px 16px 0; height: 36px; border-radius: 999px; background: #E6E1D8; display: flex; padding: 2px; box-sizing: border-box;">
+          <sc-for list="{{ k.periods }}" as="pp" hint-placeholder-count="3">
+            <div onClick="{{ pp.pick }}" style="flex: 1; border-radius: 999px; background: {{ pp.bg }}; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: {{ pp.fw }}; cursor: pointer;">{{ pp.label }}</div>
+          </sc-for>
+        </div>
+        <div style="margin: 14px 16px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div style="grid-column: span 2; border-radius: 22px; background: #0A3B31; color: #FFFFFF; padding: 18px;">
+            <div style="font-size: 14px; color: #A9C3BA;">Ingresos verificados</div>
+            <div style="font-size: 38px; font-weight: 700; letter-spacing: -.8px; margin-top: 2px; font-variant-numeric: tabular-nums;">{{ k.revenue }}</div>
+            <div style="display: flex; align-items: flex-end; gap: 8px; height: 76px; margin-top: 14px;">
+              <sc-for list="{{ k.bars }}" as="b" hint-placeholder-count="7">
+                <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 5px; height: 100%;"><div style="width: 100%; height: {{ b.h }}; border-radius: 6px; background: {{ b.bg }}; transition: height .4s;"></div><span style="font-size: 11px; color: #A9C3BA;">{{ b.d }}</span></div>
+              </sc-for>
+            </div>
+          </div>
+          <div onClick="{{ toSOrders }}" style="border-radius: 22px; background: #FFFFFF; padding: 16px; cursor: pointer;" style-active="opacity: .7;"><div style="font-size: 13px; color: #6B6455;">Por verificar</div><div style="font-size: 24px; font-weight: 700; color: #8E4211; margin-top: 2px;">{{ k.pending }}</div><div style="font-size: 13px; color: #8E4211; margin-top: 2px;">{{ k.pendingCount }}</div></div>
+          <div style="border-radius: 22px; background: #FFFFFF; padding: 16px;"><div style="font-size: 13px; color: #6B6455;">Ticket promedio</div><div style="font-size: 24px; font-weight: 700; margin-top: 2px;">{{ k.avg }}</div><div style="font-size: 13px; color: #6B6455; margin-top: 2px;">{{ k.count }}</div></div>
+        </div>
+        <div style="padding: 22px 32px 6px; font-size: 13px; font-weight: 600; color: #6B6455; text-transform: uppercase; letter-spacing: .03em;">Por forma de venta</div>
+        <div style="margin: 0 16px; background: #FFFFFF; border-radius: 22px; padding: 16px; display: flex; flex-direction: column; gap: 14px;">
+          <div><div style="display: flex; justify-content: space-between; font-size: 15px; margin-bottom: 6px;"><span>Subasta</span><strong>{{ k.auction }}</strong></div><div style="height: 8px; border-radius: 4px; background: #F2EEE7; overflow: hidden;"><div style="width: {{ k.auctionPct }}; height: 100%; background: #AE5115;"></div></div></div>
+          <div><div style="display: flex; justify-content: space-between; font-size: 15px; margin-bottom: 6px;"><span>Precio fijo</span><strong>{{ k.fixed }}</strong></div><div style="height: 8px; border-radius: 4px; background: #F2EEE7; overflow: hidden;"><div style="width: {{ k.fixedPct }}; height: 100%; background: #0E7C66;"></div></div></div>
+        </div>
+        <div style="padding: 22px 32px 6px; font-size: 13px; font-weight: 600; color: #6B6455; text-transform: uppercase; letter-spacing: .03em;">Mejores compradores</div>
+        <div style="margin: 0 16px; background: #FFFFFF; border-radius: 22px; overflow: hidden;">
+          <div style="display: flex; justify-content: space-between; padding: 13px 16px; border-bottom: .5px solid #EEE8DF; font-size: 15px;"><span style="color: #0A6350; font-weight: 600;">@marcoq</span><span style="color: #6B6455;">8 órdenes · <strong style="color: #201F1B;">Bs 3.420</strong></span></div>
+          <div style="display: flex; justify-content: space-between; padding: 13px 16px; font-size: 15px;"><span style="color: #0A6350; font-weight: 600;">@ana.q</span><span style="color: #6B6455;">5 órdenes · <strong style="color: #201F1B;">Bs 1.260</strong></span></div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.sProducts }}" hint-placeholder-val="{{ false }}">
+      <div style="min-height: 100%; background: #F4F2EE; box-sizing: border-box; padding: 62px 0 120px;">
+        <div style="padding: 4px 16px 0; display: flex; justify-content: flex-end; gap: 10px;">
+          <div onClick="{{ newProduct }}" style="width: 44px; height: 44px; border-radius: 50%; background: #0E7C66; color: #FFFFFF; display: flex; align-items: center; justify-content: center; cursor: pointer;" style-active="opacity: .75;"><span style="font-family: 'Material Symbols Rounded'; font-size: 24px; line-height: 1;">add</span></div>
+        </div>
+        <div style="padding: 6px 20px 0; font-size: 34px; font-weight: 700; letter-spacing: -.4px; line-height: 41px;">Productos</div>
+        <div style="padding: 2px 20px 0; font-size: 15px; color: #6B6455;">{{ prod.count }} · tocá una fila para editar o borrar</div>
+        <div style="margin: 12px 16px 0; display: flex; gap: 8px;">
+          <sc-for list="{{ prod.filters }}" as="f" hint-placeholder-count="3">
+            <span onClick="{{ f.pick }}" style="height: 34px; padding: 0 14px; border-radius: 999px; background: {{ f.bg }}; color: {{ f.fg }}; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; cursor: pointer;"><span style="width: 7px; height: 7px; border-radius: 50%; background: {{ f.dot }};"></span>{{ f.label }}</span>
+          </sc-for>
+        </div>
+        <div style="margin: 16px 16px 0; background: #FFFFFF; border-radius: 22px; overflow: hidden;">
+          <sc-for list="{{ prod.items }}" as="p" hint-placeholder-count="5">
+            <div style="display: flex; align-items: stretch; border-bottom: .5px solid #EEE8DF; overflow: hidden;">
+              <div onClick="{{ p.tap }}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; flex: none; width: 100%; box-sizing: border-box; background: #FFFFFF; margin-left: {{ p.ml }}; transition: margin-left .25s ease; cursor: pointer; opacity: {{ p.op }};">
+                <div style="width: 52px; height: 52px; border-radius: 12px; background: {{ p.thumb }}; flex: none;"></div>
+                <div style="flex: 1; min-width: 0;"><div style="font-size: 16px; font-weight: 600;">{{ p.name }}</div><div style="display: flex; align-items: center; gap: 6px; margin-top: 3px;"><span style="padding: 2px 8px; border-radius: 999px; background: {{ p.chipBg }}; color: {{ p.chipFg }}; font-size: 12px; font-weight: 600;">{{ p.chip }}</span><span style="font-size: 13px; color: #6B6455;">{{ p.sub }}</span></div></div>
+              </div>
+              <div onClick="{{ p.edit }}" style="width: 75px; flex: none; background: #8E877B; color: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 12px; cursor: pointer;"><span style="font-family: 'Material Symbols Rounded'; font-size: 22px; line-height: 1;">edit</span>Editar</div>
+              <div onClick="{{ p.del }}" style="width: 75px; flex: none; background: #D23B2C; color: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 12px; cursor: pointer;"><span style="font-family: 'Material Symbols Rounded'; font-size: 22px; line-height: 1;">delete</span>Borrar</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.sOrders }}" hint-placeholder-val="{{ false }}">
+      <div style="min-height: 100%; background: #F4F2EE; box-sizing: border-box; padding: 62px 0 120px;">
+        <div style="padding: 52px 20px 0; font-size: 34px; font-weight: 700; letter-spacing: -.4px; line-height: 41px;">Órdenes</div>
+        <div style="margin: 12px 0 0; padding: 0 16px; display: flex; gap: 8px; overflow-x: auto;">
+          <sc-for list="{{ so.chips }}" as="f" hint-placeholder-count="4">
+            <span onClick="{{ f.pick }}" style="height: 34px; padding: 0 14px; border-radius: 999px; background: {{ f.bg }}; color: {{ f.fg }}; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; flex: none; cursor: pointer;">{{ f.label }}<span style="font-size: 12px; opacity: .7;">{{ f.n }}</span></span>
+          </sc-for>
+        </div>
+        <div style="padding: 8px 32px 0; font-size: 13px; color: #6B6455;">Verificá el comprobante antes de despachar.</div>
+        <sc-if value="{{ so.empty }}" hint-placeholder-val="{{ false }}"><div style="margin: 14px 16px 0; padding: 22px; background: #FFFFFF; border-radius: 22px; font-size: 15px; color: #6B6455; text-align: center;">No hay órdenes en este filtro.</div></sc-if>
+        <div style="margin: 12px 16px 0; display: flex; flex-direction: column; gap: 10px;">
+          <sc-for list="{{ so.items }}" as="o" hint-placeholder-count="3">
+            <div style="background: #FFFFFF; border-radius: 22px; padding: 14px;">
+              <div style="display: flex; gap: 12px;">
+                <div style="width: 52px; height: 52px; border-radius: 12px; background: {{ o.thumb }}; flex: none;"></div>
+                <div style="flex: 1; min-width: 0;"><div style="display: flex; justify-content: space-between; gap: 8px;"><span style="font-size: 16px; font-weight: 600;">{{ o.product }}</span><span style="font-size: 16px; font-weight: 700;">{{ o.total }}</span></div><div style="font-size: 13px; color: #6B6455; margin-top: 2px;">{{ o.meta }}</div><div style="display: flex; margin-top: 6px;"><span style="padding: 2px 8px; border-radius: 999px; background: {{ o.sBg }}; color: {{ o.sFg }}; font-size: 12px; font-weight: 600;">{{ o.sLabel }}</span></div></div>
+              </div>
+              <div style="display: flex; gap: 8px; margin-top: 12px;">
+                <div onClick="{{ o.chat }}" style="width: 40px; height: 40px; border-radius: 50%; background: #F2EEE7; display: flex; align-items: center; justify-content: center; cursor: pointer; flex: none;"><span style="font-family: 'Material Symbols Rounded'; font-size: 20px; line-height: 1;">chat_bubble</span></div>
+                <sc-if value="{{ o.canVerify }}" hint-placeholder-val="{{ false }}"><div onClick="{{ o.verify }}" style="flex: 1; height: 40px; border-radius: 999px; background: #0E7C66; color: #FFFFFF; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: pointer;" style-active="opacity: .75;">Revisar y verificar</div></sc-if>
+                <sc-if value="{{ o.canShip }}" hint-placeholder-val="{{ false }}"><div onClick="{{ o.ship }}" style="flex: 1; height: 40px; border-radius: 999px; border: 1px solid #0A6350; color: #0A6350; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: pointer;" style-active="opacity: .75;">Marcar enviado</div></sc-if>
+                <sc-if value="{{ o.waiting }}" hint-placeholder-val="{{ false }}"><div style="flex: 1; height: 40px; display: flex; align-items: center; font-size: 14px; color: #6B6455;">Esperando comprobante…</div></sc-if>
+                <sc-if value="{{ o.done }}" hint-placeholder-val="{{ false }}"><div style="flex: 1; height: 40px; display: flex; align-items: center; gap: 6px; font-size: 14px; color: #6B6455;"><span style="font-family: 'Material Symbols Rounded'; font-size: 18px; line-height: 1;">local_shipping</span>En camino</div></sc-if>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.sCustomers }}" hint-placeholder-val="{{ false }}">
+      <div style="min-height: 100%; background: #F4F2EE; box-sizing: border-box; padding: 62px 0 120px;">
+        <div style="padding: 52px 20px 0; font-size: 34px; font-weight: 700; letter-spacing: -.4px; line-height: 41px;">Clientes</div>
+        <div style="padding: 2px 20px 0; font-size: 15px; color: #6B6455;">Cada fila abre el chat con ese comprador</div>
+        <div style="margin: 16px 16px 0; background: #FFFFFF; border-radius: 22px; overflow: hidden;">
+          <sc-for list="{{ customers }}" as="c" hint-placeholder-count="5">
+            <div onClick="{{ c.open }}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: .5px solid #EEE8DF; cursor: pointer;" style-active="background: #F4F2EE;">
+              <div style="width: 44px; height: 44px; border-radius: 50%; background: {{ c.av }}; color: {{ c.fg }}; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none;">{{ c.ini }}</div>
+              <div style="flex: 1; min-width: 0;"><div style="display: flex; justify-content: space-between;"><span style="font-size: 16px; font-weight: 600;">@{{ c.h }}</span><span style="font-size: 13px; color: #6B6455;">{{ c.when }}</span></div><div style="font-size: 14px; color: #6B6455; margin-top: 1px;">{{ c.last }}</div></div>
+              <span style="width: 10px; height: 10px; border-radius: 50%; background: {{ c.dot }}; flex: none;"></span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.bc }}" hint-placeholder-val="{{ false }}">
+      <div style="height: 874px; background: repeating-linear-gradient(135deg, #2E2A25 0 16px, #35302A 16px 32px); color: #FFFFFF;">
+        <div style="position: absolute; top: 250px; left: 0; right: 0; text-align: center; font-size: 13px; color: rgba(255,255,255,.45); font-family: ui-monospace, Menlo, monospace;">{{ bc.camLabel }}</div>
+        <div style="position: absolute; top: 62px; left: 16px; right: 16px; display: flex; align-items: center; gap: 8px; z-index: 30;">
+          <span style="display: flex; align-items: center; gap: 5px; height: 30px; padding: 0 11px; border-radius: 999px; background: #AE5115; font-size: 12px; font-weight: 700; letter-spacing: .05em; font-variant-numeric: tabular-nums;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #FFFFFF;"></span>AL AIRE · {{ bc.elapsed }}</span>
+          <span style="display: flex; align-items: center; gap: 4px; height: 30px; padding: 0 11px; border-radius: 999px; background: rgba(0,0,0,.35); font-size: 13px; font-weight: 600;"><span style="font-family: 'Material Symbols Rounded'; font-size: 15px; line-height: 1;">visibility</span>{{ bc.viewers }}</span>
+          <span style="flex: 1;"></span>
+          <span onClick="{{ endBc }}" style="height: 34px; padding: 0 14px; border-radius: 999px; background: #D23B2C; font-size: 14px; font-weight: 600; display: flex; align-items: center; cursor: pointer;">Terminar</span>
+        </div>
+        <div style="position: absolute; right: 16px; top: 116px; display: flex; flex-direction: column; gap: 12px; z-index: 30;">
+          <div onClick="{{ flip }}" style="width: 46px; height: 46px; border-radius: 50%; background: rgba(0,0,0,.35); backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: center; cursor: pointer;"><span style="font-family: 'Material Symbols Rounded'; font-size: 22px; line-height: 1;">flip_camera_ios</span></div>
+          <div onClick="{{ toggleMute }}" style="width: 46px; height: 46px; border-radius: 50%; background: {{ bc.micBg }}; backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: center; cursor: pointer;"><span style="font-family: 'Material Symbols Rounded'; font-size: 22px; line-height: 1;">{{ bc.micIcon }}</span></div>
+        </div>
+        <div style="position: absolute; left: 16px; right: 80px; bottom: {{ bc.chatBottom }}; display: flex; flex-direction: column; gap: 6px; z-index: 30; font-size: 14px; line-height: 1.35;">
+          <sc-for list="{{ bc.chat }}" as="m" hint-placeholder-count="3">
+            <div style="opacity: {{ m.op }}; text-shadow: 0 1px 2px rgba(0,0,0,.4);"><strong>{{ m.who }}</strong> {{ m.text }}</div>
+          </sc-for>
+        </div>
+        <div style="position: absolute; left: 10px; right: 10px; bottom: 24px; border-radius: 34px; background: rgba(250,247,242,.95); backdrop-filter: blur(30px); padding: 16px 18px; z-index: 30; color: #201F1B;">
+          <sc-if value="{{ bc.hasLot }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; align-items: center; gap: 8px;"><span style="padding: 3px 9px; border-radius: 999px; background: {{ bc.lot.chipBg }}; color: #FFFFFF; font-size: 12px; font-weight: 600;">{{ bc.lot.chip }}</span><span style="font-size: 15px; font-weight: 600;">{{ bc.lot.name }}</span></div>
+            <div style="display: flex; align-items: flex-end; justify-content: space-between; margin-top: 8px;">
+              <div><div style="font-size: 32px; font-weight: 700; letter-spacing: -.5px; line-height: 1.1; font-variant-numeric: tabular-nums;">{{ bc.lot.price }}</div><div style="font-size: 14px; color: #6B6455;">{{ bc.lot.sub }}</div></div>
+              <div style="font-size: 30px; font-weight: 600; color: {{ bc.lot.rightColor }}; font-variant-numeric: tabular-nums;">{{ bc.lot.right }}</div>
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 12px;">
+              <div onClick="{{ closeLot }}" style="flex: 1; height: 46px; border-radius: 999px; border: 1px solid #201F1B; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: pointer;" style-active="opacity: .7;">{{ bc.lot.closeText }}</div>
+              <sc-if value="{{ bc.lot.isA }}" hint-placeholder-val="{{ false }}"><div onClick="{{ addTime }}" style="flex: 1; height: 46px; border-radius: 999px; background: #F2EEE7; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer;" style-active="opacity: .7;"><span style="font-family: 'Material Symbols Rounded'; font-size: 18px; line-height: 1;">add</span>30 s</div></sc-if>
+            </div>
+          </sc-if>
+          <sc-if value="{{ bc.noLot }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size: 17px; font-weight: 600;">{{ bc.outTitle }}</div>
+            <div style="font-size: 14px; color: #6B6455; margin-top: 4px; line-height: 1.4;">{{ bc.outText }}</div>
+          </sc-if>
+          <div style="display: flex; align-items: center; gap: 10px; margin-top: 14px; padding-top: 12px; border-top: .5px solid #E4DCD0;">
+            <div style="width: 38px; height: 38px; border-radius: 9px; background: {{ bc.nextThumb }}; flex: none;"></div>
+            <div style="flex: 1; min-width: 0;"><div style="font-size: 12px; color: #6B6455;">{{ bc.nextLabel }}</div><div style="font-size: 15px; font-weight: 600;">{{ bc.nextName }}</div></div>
+            <div onClick="{{ bc.nextAct }}" style="height: 36px; padding: 0 14px; border-radius: 999px; background: {{ bc.nextBg }}; color: #FFFFFF; font-size: 14px; font-weight: 600; display: flex; align-items: center; cursor: pointer; opacity: {{ bc.nextOp }};" style-active="opacity: .7;">{{ bc.nextCta }}</div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ showBuyerTabs }}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; left: 16px; right: 90px; bottom: 26px; height: 62px; border-radius: 999px; background: rgba(255,255,255,.8); backdrop-filter: blur(24px) saturate(180%); border: .5px solid rgba(0,0,0,.08); box-shadow: 0 8px 28px rgba(0,0,0,.08); display: flex; align-items: center; padding: 0 5px; z-index: 40;">
+        <sc-for list="{{ buyerTabs }}" as="t" hint-placeholder-count="3">
+          <div onClick="{{ t.go }}" style="flex: 1; height: 52px; border-radius: 999px; background: {{ t.bg }}; color: {{ t.fg }}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; cursor: pointer; position: relative; transition: background .2s;">
+            <span style="font-family: 'Material Symbols Rounded'; font-size: 24px; line-height: 1; font-variation-settings: {{ t.fill }};">{{ t.icon }}</span><span style="font-size: 10px; font-weight: {{ t.fw }};">{{ t.label }}</span>
+            <sc-if value="{{ t.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; top: 4px; left: 54%; min-width: 18px; height: 18px; border-radius: 9px; background: #AE5115; color: #FFFFFF; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center;">{{ t.badge }}</span></sc-if>
+          </div>
+        </sc-for>
+      </div>
+      <div onClick="{{ focusSearch }}" style="position: absolute; right: 16px; bottom: 26px; width: 62px; height: 62px; border-radius: 50%; background: rgba(255,255,255,.8); backdrop-filter: blur(24px) saturate(180%); border: .5px solid rgba(0,0,0,.08); box-shadow: 0 8px 28px rgba(0,0,0,.08); display: flex; align-items: center; justify-content: center; z-index: 40; cursor: pointer;"><span style="font-family: 'Material Symbols Rounded'; font-size: 26px; line-height: 1;">search</span></div>
+    </sc-if>
+
+    <sc-if value="{{ showSellerTabs }}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; left: 16px; right: 90px; bottom: 26px; height: 62px; border-radius: 999px; background: rgba(255,255,255,.8); backdrop-filter: blur(24px) saturate(180%); border: .5px solid rgba(0,0,0,.08); box-shadow: 0 8px 28px rgba(0,0,0,.08); display: flex; align-items: center; padding: 0 5px; z-index: 40;">
+        <sc-for list="{{ sellerTabs }}" as="t" hint-placeholder-count="4">
+          <div onClick="{{ t.go }}" style="flex: 1; height: 52px; border-radius: 999px; background: {{ t.bg }}; color: {{ t.fg }}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; cursor: pointer; position: relative; transition: background .2s;">
+            <span style="font-family: 'Material Symbols Rounded'; font-size: 24px; line-height: 1; font-variation-settings: {{ t.fill }};">{{ t.icon }}</span><span style="font-size: 10px; font-weight: {{ t.fw }};">{{ t.label }}</span>
+            <sc-if value="{{ t.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="position: absolute; top: 4px; left: 54%; min-width: 18px; height: 18px; border-radius: 9px; background: #AE5115; color: #FFFFFF; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center;">{{ t.badge }}</span></sc-if>
+          </div>
+        </sc-for>
+      </div>
+      <div onClick="{{ openLineup }}" style="position: absolute; right: 16px; bottom: 26px; width: 62px; height: 62px; border-radius: 50%; background: #AE5115; color: #FFFFFF; box-shadow: 0 8px 28px rgba(174,81,21,.35); display: flex; align-items: center; justify-content: center; z-index: 40; cursor: pointer;" style-active="transform: scale(.94);"><span style="font-family: 'Material Symbols Rounded'; font-size: 28px; line-height: 1; font-variation-settings: 'FILL' 1;">videocam</span></div>
+    </sc-if>
+
+    <sc-if value="{{ sh.any }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeSheet }}" style="position: absolute; inset: 0; background: rgba(0,0,0,.4); z-index: 45;"></div>
+    </sc-if>
+
+    <sc-if value="{{ sh.catalog }}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; left: 8px; right: 8px; bottom: 8px; height: 480px; border-radius: 38px; background: #FFFFFF; z-index: 50; padding: 8px 0 0; box-sizing: border-box; color: #201F1B; overflow: hidden;">
+        <div style="width: 36px; height: 5px; border-radius: 3px; background: #D4CCBF; margin: 0 auto;"></div>
+        <div style="display: flex; align-items: flex-start; gap: 12px; padding: 14px 20px 0;">
+          <div style="flex: 1;"><div style="font-size: 22px; font-weight: 600;">Catálogo de este vivo</div><div style="font-size: 14px; color: #6B6455; margin-top: 3px;">Salen al aire en este orden.</div></div>
+          <div onClick="{{ closeSheet }}" style="width: 36px; height: 36px; border-radius: 50%; background: #F2EEE7; display: flex; align-items: center; justify-content: center; cursor: pointer;"><span style="font-family: 'Material Symbols Rounded'; font-size: 20px; line-height: 1;">close</span></div>
+        </div>
+        <div style="margin-top: 14px;">
+          <sc-for list="{{ r.lots }}" as="l" hint-placeholder-count="3">
+            <div style="display: flex; align-items: center; gap: 12px; padding: 10px 20px; background: {{ l.bg }}; border-bottom: .5px solid #EEE8DF;">
+              <span style="width: 18px; font-size: 13px; color: {{ l.numColor }}; font-weight: 700; text-align: right;">{{ l.num }}</span>
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: {{ l.thumb }}; flex: none;"></div>
+              <div style="flex: 1; min-width: 0;"><div style="font-size: 16px; font-weight: 600;">{{ l.name }}</div><div style="display: flex; align-items: center; gap: 6px; margin-top: 3px;"><span style="padding: 2px 8px; border-radius: 999px; background: {{ l.chipBg }}; color: {{ l.chipFg }}; font-size: 12px; font-weight: 600;">{{ l.chip }}</span><span style="font-size: 13px; color: {{ l.subColor }}; font-weight: 500;">{{ l.sub }}</span></div></div>
+              <span onClick="{{ l.bell }}" style="font-family: 'Material Symbols Rounded'; font-size: 22px; line-height: 1; color: #6B6455; cursor: pointer;">notifications</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ sh.pay }}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; left: 0; right: 0; top: 58px; bottom: 0; border-radius: 38px 38px 0 0; background: #F4F2EE; z-index: 50; overflow: hidden; color: #201F1B; display: flex; flex-direction: column;">
+        <div style="flex: 1; overflow-y: auto; padding-bottom: 20px;">
+          <div style="width: 36px; height: 5px; border-radius: 3px; background: #D4CCBF; margin: 8px auto 0;"></div>
+          <div style="display: flex; align-items: center; padding: 10px 16px 0;">
+            <div style="flex: 1;"><div style="font-size: 13px; color: #0A6350; font-weight: 600; display: flex; align-items: center; gap: 4px;"><span style="font-family: 'Material Symbols Rounded'; font-size: 16px; line-height: 1; font-variation-settings: 'FILL' 1;">{{ p.headIcon }}</span>{{ p.head }}</div><div style="font-size: 22px; font-weight: 600; margin-top: 2px;">Pagá tu compra</div></div>
+            <div onClick="{{ closeSheet }}" style="width: 36px; height: 36px; border-radius: 50%; background: #E6E1D8; display: flex; align-items: center; justify-content: center; cursor: pointer;"><span style="font-family: 'Material Symbols Rounded'; font-size: 20px; line-height: 1;">close</span></div>
+          </div>
+          <div style="margin: 14px 16px 0; padding: 12px 14px; border-radius: 18px; background: #FBE9DC; display: flex; align-items: center; gap: 10px;">
+            <span style="font-family: 'Material Symbols Rounded'; font-size: 22px; line-height: 1; color: #8E4211;">timer</span>
+            <div style="flex: 1; font-size: 14px; line-height: 1.35; color: #6E330C;">Tenés <strong style="font-variant-numeric: tabular-nums;">{{ p.deadline }}</strong> para pagar. Si no, el lote puede volver a subasta.</div>
+          </div>
+          <div style="margin: 12px 16px 0; background: #FFFFFF; border-radius: 22px; overflow: hidden;">
+            <div style="display: flex; justify-content: space-between; gap: 10px; padding: 13px 16px; border-bottom: .5px solid #EEE8DF; font-size: 15px;"><span style="color: #6B6455;">{{ p.product }}</span><span style="font-weight: 600;">{{ p.total }}</span></div>
+            <div style="display: flex; justify-content: space-between; padding: 13px 16px; border-bottom: .5px solid #EEE8DF; font-size: 15px;"><span style="color: #6B6455;">Envío</span><span>{{ p.ship }}</span></div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline; padding: 13px 16px;"><span style="font-size: 17px; font-weight: 600;">Total</span><span style="font-size: 24px; font-weight: 700; color: #0A6350;">{{ p.total }}</span></div>
+          </div>
+          <div style="margin: 12px 16px 0; background: #FFFFFF; border-radius: 22px; padding: 16px; display: flex; gap: 14px; align-items: center;">
+            <div style="width: 116px; height: 116px; border-radius: 12px; background: repeating-conic-gradient(#201F1B 0 25%, #FFFFFF 0 50%) 0 0 / 14px 14px; border: 6px solid #FFFFFF; outline: 1px solid #E4DCD0; flex: none;"></div>
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+              <div><div style="font-size: 15px; font-weight: 600;">Banco Unión</div><div style="font-size: 13px; color: #6B6455; line-height: 1.35;">{{ p.seller }}<br>1000-2345-67 · {{ p.ref }}</div></div>
+              <div onClick="{{ saveQr }}" style="height: 36px; border-radius: 999px; border: 1px solid #0A6350; color: #0A6350; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer;" style-active="opacity: .7;"><span style="font-family: 'Material Symbols Rounded'; font-size: 18px; line-height: 1;">download</span>Guardar en Fotos</div>
+            </div>
+          </div>
+          <div style="padding: 18px 32px 6px; font-size: 13px; font-weight: 600; color: #6B6455; text-transform: uppercase; letter-spacing: .03em;">Comprobante</div>
+          <sc-if value="{{ p.hasReceipt }}" hint-placeholder-val="{{ false }}">
+            <div style="margin: 0 16px; background: #E4F0EA; border: 1px solid #C6DED3; border-radius: 22px; padding: 12px 16px; display: flex; align-items: center; gap: 12px;">
+              <div style="width: 44px; height: 44px; border-radius: 10px; background: repeating-linear-gradient(135deg, #E6E3DD 0 6px, #EFECE7 6px 12px); flex: none;"></div>
+              <div style="flex: 1;"><div style="font-size: 15px; font-weight: 600; color: #0A4A3C;">Comprobante listo</div><div style="font-size: 13px; color: #3F5A50;">{{ p.receiptName }}</div></div>
+              <span onClick="{{ clearReceipt }}" style="font-size: 15px; color: #0A6350; font-weight: 600; cursor: pointer;">Cambiar</span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ p.noReceipt }}" hint-placeholder-val="{{ false }}">
+            <div style="margin: 0 16px; background: #FFFFFF; border-radius: 22px; overflow: hidden;">
+              <div onClick="{{ rcPhotos }}" style="display: flex; align-items: center; gap: 12px; padding: 0 16px; height: 50px; border-bottom: .5px solid #EEE8DF; cursor: pointer;" style-active="background: #F4F2EE;"><span style="font-family: 'Material Symbols Rounded'; font-size: 22px; line-height: 1; color: #0E7C66;">photo_library</span><span style="flex: 1; font-size: 17px;">Elegir de Fotos</span><span style="font-family: 'Material Symbols Rounded'; font-size: 20px; line-height: 1; color: #B0A797;">chevron_right</span></div>
+              <div onClick="{{ rcCamera }}" style="display: flex; align-items: center; gap: 12px; padding: 0 16px; height: 50px; border-bottom: .5px solid #EEE8DF; cursor: pointer;" style-active="background: #F4F2EE;"><span style="font-family: 'Material Symbols Rounded'; font-size: 22px; line-height: 1; color: #0E7C66;">photo_camera</span><span style="flex: 1; font-size: 17px;">Sacar foto</span><span style="font-family: 'Material Symbols Rounded'; font-size: 20px; line-height: 1; color: #B0A797;">chevron_right</span></div>
+              <div onClick="{{ rcFiles }}" style="display: flex; align-items: center; gap: 12px; padding: 0 16px; height: 50px; cursor: pointer;" style-active="background: #F4F2EE;"><span style="font-family: 'Material Symbols Rounded'; font-size: 22px; line-height: 1; color: #0E7C66;">folder</span><span style="flex: 1; font-size: 17px;">Archivos (PDF)</span><span style="font-family: 'Material Symbols Rounded'; font-size: 20px; line-height: 1; color: #B0A797;">chevron_right</span></div>
+            </div>
+          </sc-if>
+        </div>
+        <div style="padding: 12px 24px 40px; background: rgba(244,242,238,.94); border-top: .5px solid #E4DCD0;">
+          <div onClick="{{ confirmPay }}" style="height: 54px; border-radius: 999px; background: #0E7C66; color: #FFFFFF; font-size: 17px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: {{ p.op }}; transition: opacity .2s;" style-active="transform: scale(.98);">Confirmar pago · {{ p.total }}</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ sh.np }}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; left: 0; right: 0; top: 58px; bottom: 0; border-radius: 38px 38px 0 0; background: #F4F2EE; z-index: 50; overflow-y: auto; color: #201F1B; padding-bottom: 40px; box-sizing: border-box;">
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 0;">
+          <div onClick="{{ closeSheet }}" style="width: 44px; height: 44px; border-radius: 50%; background: #E6E1D8; display: flex; align-items: center; justify-content: center; cursor: pointer;"><span style="font-family: 'Material Symbols Rounded'; font-size: 22px; line-height: 1;">close</span></div>
+          <span style="font-size: 17px; font-weight: 600;">{{ np.title }}</span>
+          <div onClick="{{ saveNp }}" style="width: 44px; height: 44px; border-radius: 50%; background: #0E7C66; color: #FFFFFF; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: {{ np.op }};"><span style="font-family: 'Material Symbols Rounded'; font-size: 24px; line-height: 1;">check</span></div>
+        </div>
+        <div style="margin: 18px 16px 0; display: flex; gap: 10px;">
+          <div onClick="{{ addPhoto }}" style="width: 84px; height: 84px; border-radius: 16px; border: 1.5px dashed #B0A797; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #0A6350; font-size: 12px; font-weight: 600; gap: 2px; cursor: pointer; box-sizing: border-box;"><span style="font-family: 'Material Symbols Rounded'; font-size: 26px; line-height: 1;">add_photo_alternate</span>Fotos</div>
+          <sc-for list="{{ np.photos }}" as="ph" hint-placeholder-count="0"><div style="width: 84px; height: 84px; border-radius: 16px; background: {{ ph.bg }};"></div></sc-for>
+        </div>
+        <div style="margin: 18px 16px 0; background: #FFFFFF; border-radius: 22px; overflow: hidden;">
+          <div style="display: flex; align-items: center; padding: 0 16px; height: 50px; border-bottom: .5px solid #EEE8DF;"><input value="{{ np.name }}" onChange="{{ np.onName }}" placeholder="Nombre del producto" style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; font: inherit; font-size: 17px; color: #201F1B;"></div>
+          <div onClick="{{ np.cycleCat }}" style="display: flex; align-items: center; padding: 0 16px; height: 50px; cursor: pointer;"><span style="flex: 1; font-size: 17px;">Categoría</span><span style="font-size: 17px; color: #6B6455;">{{ np.cat }}</span><span style="font-family: 'Material Symbols Rounded'; font-size: 20px; line-height: 1; color: #6B6455; margin-left: 4px;">unfold_more</span></div>
+        </div>
+        <div style="padding: 18px 32px 6px; font-size: 13px; font-weight: 600; color: #6B6455; text-transform: uppercase; letter-spacing: .03em;">Forma de venta</div>
+        <div style="margin: 0 16px; height: 36px; border-radius: 999px; background: #E6E1D8; display: flex; padding: 2px; box-sizing: border-box;">
+          <div onClick="{{ np.setA }}" style="flex: 1; border-radius: 999px; background: {{ np.segA.bg }}; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px; font-weight: {{ np.segA.fw }}; cursor: pointer;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #AE5115;"></span>Subasta</div>
+          <div onClick="{{ np.setF }}" style="flex: 1; border-radius: 999px; background: {{ np.segF.bg }}; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px; font-weight: {{ np.segF.fw }}; cursor: pointer;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #0E7C66;"></span>Precio fijo</div>
+        </div>
+        <div style="margin: 10px 16px 0; background: #FFFFFF; border-radius: 22px; overflow: hidden;">
+          <div style="display: flex; align-items: center; padding: 0 16px; height: 50px; border-bottom: .5px solid #EEE8DF;"><span style="flex: 1; font-size: 17px;">{{ np.aLabel }}</span><span style="font-size: 17px; color: #6B6455; margin-right: 4px;">Bs</span><input value="{{ np.a }}" onChange="{{ np.onA }}" inputMode="numeric" placeholder="0" style="width: 90px; text-align: right; border: none; outline: none; background: transparent; font: inherit; font-size: 17px; font-weight: 600; color: #201F1B;"></div>
+          <div style="display: flex; align-items: center; padding: 0 16px; height: 50px;"><span style="flex: 1; font-size: 17px;">{{ np.bLabel }}</span><span style="font-size: 17px; color: #6B6455; margin-right: 4px;">{{ np.bUnit }}</span><input value="{{ np.b }}" onChange="{{ np.onB }}" inputMode="numeric" placeholder="0" style="width: 90px; text-align: right; border: none; outline: none; background: transparent; font: inherit; font-size: 17px; font-weight: 600; color: #201F1B;"></div>
+        </div>
+        <div style="padding: 8px 32px 0; font-size: 13px; color: #6B6455; line-height: 1.4;">{{ np.note }}</div>
+        <div style="padding: 18px 32px 6px; font-size: 13px; font-weight: 600; color: #6B6455; text-transform: uppercase; letter-spacing: .03em;">Envío</div>
+        <div style="margin: 0 16px; background: #FFFFFF; border-radius: 22px; overflow: hidden;">
+          <div onClick="{{ np.setFree }}" style="display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: .5px solid #EEE8DF; cursor: pointer;"><div style="flex: 1;"><div style="font-size: 17px;">Envío gratis</div><div style="font-size: 13px; color: #6B6455;">Lo asumís vos</div></div><span style="font-family: 'Material Symbols Rounded'; font-size: 24px; line-height: 1; color: #0E7C66; opacity: {{ np.freeOp }};">check</span></div>
+          <div onClick="{{ np.setArr }}" style="display: flex; align-items: center; gap: 10px; padding: 12px 16px; cursor: pointer;"><div style="flex: 1;"><div style="font-size: 17px;">A convenir</div><div style="font-size: 13px; color: #6B6455;">Se coordina por chat</div></div><span style="font-family: 'Material Symbols Rounded'; font-size: 24px; line-height: 1; color: #0E7C66; opacity: {{ np.arrOp }};">check</span></div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ sh.receipt }}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; left: 0; right: 0; top: 58px; bottom: 0; border-radius: 38px 38px 0 0; background: #F4F2EE; z-index: 50; overflow: hidden; color: #201F1B;">
+        <div style="width: 36px; height: 5px; border-radius: 3px; background: #D4CCBF; margin: 8px auto 0;"></div>
+        <div style="display: flex; align-items: center; padding: 10px 16px 0;">
+          <div style="flex: 1;"><div style="font-size: 13px; color: #6B6455;">{{ rc.ref }} · @{{ rc.buyer }}</div><div style="font-size: 22px; font-weight: 600; margin-top: 2px;">Revisar comprobante</div></div>
+          <div onClick="{{ closeSheet }}" style="width: 36px; height: 36px; border-radius: 50%; background: #E6E1D8; display: flex; align-items: center; justify-content: center; cursor: pointer;"><span style="font-family: 'Material Symbols Rounded'; font-size: 20px; line-height: 1;">close</span></div>
+        </div>
+        <div style="margin: 16px 16px 0; height: 360px; border-radius: 22px; background: repeating-linear-gradient(135deg, #E6E3DD 0 10px, #EFECE7 10px 20px); display: flex; align-items: center; justify-content: center; color: #6B6455; font-size: 13px; font-family: ui-monospace, Menlo, monospace;">captura de la transferencia</div>
+        <div style="margin: 12px 16px 0; background: #FFFFFF; border-radius: 22px; overflow: hidden;">
+          <div style="display: flex; justify-content: space-between; padding: 13px 16px; border-bottom: .5px solid #EEE8DF; font-size: 15px;"><span style="color: #6B6455;">Monto esperado</span><strong>{{ rc.total }}</strong></div>
+          <div style="display: flex; justify-content: space-between; padding: 13px 16px; border-bottom: .5px solid #EEE8DF; font-size: 15px;"><span style="color: #6B6455;">Producto</span><span>{{ rc.product }}</span></div>
+          <div style="display: flex; justify-content: space-between; padding: 13px 16px; font-size: 15px;"><span style="color: #6B6455;">Subido</span><span>{{ rc.ago }}</span></div>
+        </div>
+        <div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 24px 40px; display: flex; flex-direction: column; gap: 10px; background: rgba(244,242,238,.94); border-top: .5px solid #E4DCD0;">
+          <div onClick="{{ verify }}" style="height: 54px; border-radius: 999px; background: #0E7C66; color: #FFFFFF; font-size: 17px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: pointer;" style-active="transform: scale(.98);">Verificar pago de {{ rc.total }}</div>
+          <div onClick="{{ rc.chat }}" style="height: 44px; border-radius: 999px; color: #0A6350; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: pointer;">Escribir a @{{ rc.buyer }}</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ sh.lineup }}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; left: 0; right: 0; top: 58px; bottom: 0; border-radius: 38px 38px 0 0; background: #F4F2EE; z-index: 50; overflow: hidden; color: #201F1B; display: flex; flex-direction: column;">
+        <div style="flex: 1; overflow-y: auto; padding-bottom: 16px;">
+          <div style="width: 36px; height: 5px; border-radius: 3px; background: #D4CCBF; margin: 8px auto 0;"></div>
+          <div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px 20px 0;">
+            <div style="flex: 1;"><div style="font-size: 28px; font-weight: 700; letter-spacing: -.3px;">¿Qué vendés hoy?</div><div style="font-size: 15px; color: #6B6455; margin-top: 4px; line-height: 1.4;">Tocá en el orden en que van a salir.</div></div>
+            <div onClick="{{ closeSheet }}" style="width: 36px; height: 36px; border-radius: 50%; background: #E6E1D8; display: flex; align-items: center; justify-content: center; cursor: pointer; flex: none;"><span style="font-family: 'Material Symbols Rounded'; font-size: 20px; line-height: 1;">close</span></div>
+          </div>
+          <div style="margin: 16px 16px 0; background: #FFFFFF; border-radius: 22px; overflow: hidden;">
+            <sc-for list="{{ ln.items }}" as="l" hint-placeholder-count="5">
+              <div onClick="{{ l.toggle }}" style="display: flex; align-items: center; gap: 12px; padding: 11px 16px; border-bottom: .5px solid #EEE8DF; cursor: pointer;" style-active="background: #F4F2EE;">
+                <span style="width: 26px; height: 26px; border-radius: 50%; background: {{ l.numBg }}; border: {{ l.numBorder }}; box-sizing: border-box; color: #FFFFFF; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none;">{{ l.num }}</span>
+                <div style="width: 44px; height: 44px; border-radius: 10px; background: {{ l.thumb }}; flex: none;"></div>
+                <div style="flex: 1; min-width: 0;"><div style="font-size: 16px; font-weight: 600;">{{ l.name }}</div><div style="font-size: 13px; color: {{ l.subColor }};">{{ l.sub }}</div></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="padding: 12px 24px 40px; display: flex; flex-direction: column; gap: 8px; background: rgba(244,242,238,.94); border-top: .5px solid #E4DCD0;">
+          <div onClick="{{ goLive }}" style="height: 54px; border-radius: 999px; background: #AE5115; color: #FFFFFF; font-size: 17px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; opacity: {{ ln.op }};" style-active="transform: scale(.98);"><span style="font-family: 'Material Symbols Rounded'; font-size: 22px; line-height: 1; font-variation-settings: 'FILL' 1;">videocam</span>{{ ln.cta }}</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ sh.account }}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; left: 8px; right: 8px; bottom: 8px; border-radius: 38px; background: #FFFFFF; z-index: 50; padding: 8px 0 28px; color: #201F1B;">
+        <div style="width: 36px; height: 5px; border-radius: 3px; background: #D4CCBF; margin: 0 auto;"></div>
+        <div style="display: flex; flex-direction: column; align-items: center; padding: 18px 20px 0;">
+          <div style="width: 72px; height: 72px; border-radius: 50%; background: #0A3B31; color: #FFFFFF; font-size: 26px; font-weight: 600; display: flex; align-items: center; justify-content: center;">{{ me.ini }}</div>
+          <div style="font-size: 22px; font-weight: 600; margin-top: 10px;">{{ me.name }}</div>
+          <div style="font-size: 15px; color: #6B6455;">{{ me.roleLabel }} · +591 {{ me.phone }}</div>
+        </div>
+        <div style="margin: 18px 16px 0; background: #F4F2EE; border-radius: 22px; overflow: hidden;">
+          <div onClick="{{ noAlerts }}" style="display: flex; align-items: center; gap: 12px; padding: 0 16px; height: 50px; border-bottom: .5px solid #E4DCD0; cursor: pointer;"><span style="font-family: 'Material Symbols Rounded'; font-size: 22px; line-height: 1;">notifications</span><span style="flex: 1; font-size: 17px;">Notificaciones</span><span style="font-family: 'Material Symbols Rounded'; font-size: 20px; line-height: 1; color: #B0A797;">chevron_right</span></div>
+          <div onClick="{{ logout }}" style="display: flex; align-items: center; gap: 12px; padding: 0 16px; height: 50px; cursor: pointer; color: #C0392B;"><span style="font-family: 'Material Symbols Rounded'; font-size: 22px; line-height: 1;">logout</span><span style="flex: 1; font-size: 17px;">Cerrar sesión</span></div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; top: 58px; left: 50%; transform: translateX(-50%); max-width: 340px; display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; background: rgba(255,255,255,.95); backdrop-filter: blur(20px); box-shadow: 0 8px 28px rgba(0,0,0,.16); color: #0A3B31; font-size: 14px; font-weight: 600; z-index: 70; white-space: nowrap;"><span style="font-family: 'Material Symbols Rounded'; font-size: 18px; line-height: 1; color: #0E7C66; font-variation-settings: 'FILL' 1;">check_circle</span><span style="overflow: hidden; text-overflow: ellipsis;">{{ toast }}</span></div>
+    </sc-if>
+
+  </x-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const BOTS = ['marcoq', 'lucia.m', 'pedro_lp', 'sofi.cbba', 'jhon_sc', 'ana.v'];
+const CHAT = ['¿tiene caja original?', '¡vamos!', '¿hacen envíos a Cocha?', 'qué lindo 😍', '¿funciona perfecto?', 'saludos desde El Alto', '¿cuánto sale el envío?', '¡ese es mío!', '¿aceptan QR de cualquier banco?'];
+const ST = (a, b, s) => { s = s || 10; return `repeating-linear-gradient(135deg, ${a} 0 ${s}px, ${b} ${s}px ${s * 2}px)`; };
+const TH = { sand: ST('#E9D9C6', '#F1E6D8', 6), mint: ST('#D6E7DF', '#E6EFEA', 6), lilac: ST('#DCDCE6', '#E9E8EE', 6), cream: ST('#E6E0D2', '#F0ECE2', 6) };
+const bs = n => 'Bs ' + String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+const num = n => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+const clock = s => { s = Math.max(0, s); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const STATUS = {
+  pendiente: { label: 'Pendiente de pago', bg: '#FBE9DC', fg: '#8E4211' },
+  en_revision: { label: 'En revisión', bg: '#E4F0EA', fg: '#0A4A3C' },
+  verificado: { label: 'Verificado', bg: '#0E7C66', fg: '#FFFFFF' },
+  enviado: { label: 'Enviado', bg: '#EDE8E0', fg: '#4C463C' },
+};
+const STREAMS = [
+  { id: 's1', seller: 'Relojería Andina', ini: 'RA', av: '#E9A23B', avFg: '#0A3B31', title: 'Seiko y Orient de los 70', mode: 'auction', viewers: 1204, rating: '★ 98 % · 312 ventas', video: ST('#0E4A3D', '#11523F', 16), cover: ST('#E9D9C6', '#F1E6D8'),
+    lots: [{ name: 'Seiko 5 Automático · 1974', start: 850, inc: 50, ship: 'Envío a convenir', thumb: TH.sand }, { name: 'Orient Bambino', start: 600, inc: 50, ship: 'Envío a convenir', thumb: TH.lilac }, { name: 'Casio F-91W dorado', start: 150, inc: 10, ship: 'Envío gratis', thumb: TH.cream }] },
+  { id: 's2', seller: 'Tejidos Wari', ini: 'TW', av: '#0E7C66', avFg: '#FFFFFF', title: 'Aguayos y chompas de alpaca', mode: 'fixed', viewers: 128, rating: '★ 99 % · 1.080 ventas', video: ST('#3A2F24', '#43362A', 16), cover: ST('#D6E7DF', '#E6EFEA'),
+    lots: [{ name: 'Aguayo tradicional · 1,2 m', price: 320, stock: 8, sold: 3, ship: 'Envío gratis', thumb: TH.mint }, { name: 'Chompa de alpaca · talla M', price: 450, stock: 5, sold: 0, ship: 'Envío gratis', thumb: TH.cream }] },
+  { id: 's3', seller: 'Cholita Sneakers', ini: 'CS', av: '#AE5115', avFg: '#FFFFFF', title: 'Jordan 1 y Nike originales', mode: 'auction', viewers: 342, rating: '★ 97 % · 540 ventas', video: ST('#4A2A1A', '#552F1D', 16), cover: ST('#E9D9C6', '#F1E6D8'),
+    lots: [{ name: 'Jordan 1 Mid · talla 42', start: 1200, inc: 100, ship: 'Envío gratis', thumb: TH.sand }, { name: 'Nike Dunk Low · talla 40', start: 800, inc: 50, ship: 'Envío gratis', thumb: TH.cream }] },
+  { id: 's4', seller: 'Retro Gamer La Paz', ini: 'RG', av: '#3D3A6B', avFg: '#FFFFFF', title: 'Consolas y cartuchos', mode: 'auction', viewers: 96, rating: '★ 96 % · 210 ventas', video: ST('#26254A', '#2D2C55', 16), cover: ST('#DCDCE6', '#E9E8EE'),
+    lots: [{ name: 'Game Boy Advance SP', start: 400, inc: 20, ship: 'Envío a convenir', thumb: TH.lilac }, { name: 'Cartucho Pokémon Rojo', start: 180, inc: 10, ship: 'Envío a convenir', thumb: TH.cream }] },
+  { id: 's5', seller: 'Joyas de Potosí', ini: 'JP', av: '#0A3B31', avFg: '#FFFFFF', title: 'Plata 925 hecha a mano', mode: 'fixed', viewers: 61, rating: '★ 99 % · 860 ventas', video: ST('#2F3A36', '#36433E', 16), cover: ST('#E6E0D2', '#F0ECE2'),
+    lots: [{ name: 'Anillo de plata 925', price: 280, stock: 6, sold: 1, ship: 'Envío gratis', thumb: TH.cream }, { name: 'Aretes de filigrana', price: 190, stock: 10, sold: 2, ship: 'Envío gratis', thumb: TH.sand }] },
+];
+const CUSTOMERS = [
+  { h: 'marcoq', ini: 'MQ', av: '#0A3B31', fg: '#FFFFFF', when: '21:12' },
+  { h: 'ana.q', ini: 'AQ', av: '#E9A23B', fg: '#0A3B31', when: 'ayer' },
+  { h: 'lucia.m', ini: 'LM', av: '#6B6455', fg: '#FFFFFF', when: 'lun' },
+  { h: 'pedro_lp', ini: 'PL', av: '#0E7C66', fg: '#FFFFFF', when: '2 oct' },
+  { h: 'sofi.cbba', ini: 'SC', av: '#AE5115', fg: '#FFFFFF', when: '28 sep' },
+];
+const CATS = ['Relojes', 'Accesorios', 'Ropa', 'Electrónica', 'General'];
+let uid = 100;
+const nid = () => 'x' + (uid++);
+const tabStyle = on => on ? { bg: 'rgba(14,124,102,.12)', fg: '#0A6350', fill: "'FILL' 1", fw: '600' } : { bg: 'transparent', fg: '#201F1B', fill: "'FILL' 0", fw: '500' };
+const seg = on => on ? { bg: '#FFFFFF', fw: '600' } : { bg: 'transparent', fw: '400' };
+const chip = on => on ? { bg: '#201F1B', fg: '#FFFFFF' } : { bg: '#FFFFFF', fg: '#201F1B' };
+
+function initial() {
+  return {
+    screen: 'welcome', role: null, userName: '', authMode: 'signup', pickRole: 'buyer', name: '', phone: '', pass: '',
+    filter: 'all', query: '', following: ['s2', 's5'], bell: false, room: null, roomDraft: '', sheet: null, payId: null, toast: null, prevTab: 'feed',
+    orders: [
+      { id: 'o1', ref: '#CM-2041', product: 'Aguayo tradicional', seller: 'Tejidos Wari', total: 320, ship: 'Envío gratis', status: 'en_revision', deadline: 0, thumb: TH.mint, mode: 'fixed' },
+      { id: 'o2', ref: '#CM-2033', product: 'Anillo de plata 925', seller: 'Joyas de Potosí', total: 280, ship: 'Envío gratis', status: 'verificado', deadline: 0, thumb: TH.cream, mode: 'fixed' },
+      { id: 'o3', ref: '#CM-2019', product: 'Game Boy Color', seller: 'Retro Gamer La Paz', total: 450, ship: 'A convenir', status: 'enviado', deadline: 0, thumb: TH.lilac, mode: 'auction' },
+    ],
+    threads: {
+      'Tejidos Wari': [{ from: 'them', text: '¡Hola! Recibí tu comprobante del aguayo, lo reviso en un ratito.' }],
+      'Joyas de Potosí': [{ from: 'them', text: 'Pago verificado ✅ Te lo mando el jueves.' }, { from: 'me', text: '¡Genial, gracias!' }],
+      'Retro Gamer La Paz': [{ from: 'them', text: 'Ya salió tu Game Boy por moto. Llega hoy.' }],
+    },
+    threadKey: null, threadMode: 'buyer', draft: '',
+    products: [
+      { id: 'p1', name: 'Orient Bambino', cat: 'Relojes', mode: 'auction', a: 600, b: 750, ship: 'arranged', thumb: TH.lilac, sold: false },
+      { id: 'p2', name: 'Correas de cuero', cat: 'Accesorios', mode: 'fixed', a: 90, b: 12, ship: 'free', thumb: TH.mint, sold: false },
+      { id: 'p3', name: 'Casio F-91W dorado', cat: 'Relojes', mode: 'auction', a: 150, b: 200, ship: 'arranged', thumb: TH.cream, sold: false },
+      { id: 'p4', name: 'Citizen Eco-Drive', cat: 'Relojes', mode: 'auction', a: 800, b: 1000, ship: 'free', thumb: TH.sand, sold: false },
+      { id: 'p5', name: 'Estuche para 6 relojes', cat: 'Accesorios', mode: 'fixed', a: 220, b: 4, ship: 'free', thumb: TH.mint, sold: false },
+      { id: 'p6', name: 'Seiko 5 Automático', cat: 'Relojes', mode: 'auction', a: 850, b: 800, ship: 'arranged', thumb: TH.sand, sold: true },
+    ],
+    pfilter: 'all', openRow: null, np: null,
+    sOrders: [
+      { id: 'so1', ref: '#CM-2048', product: 'Seiko 5 Automático', buyer: 'marcoq', total: 900, status: 'en_revision', ago: 'hace 3 min', thumb: TH.sand },
+      { id: 'so2', ref: '#CM-2047', product: 'Correas de cuero ×2', buyer: 'ana.q', total: 180, status: 'en_revision', ago: 'hace 12 min', thumb: TH.mint },
+      { id: 'so3', ref: '#CM-2045', product: 'Casio F-91W dorado', buyer: 'lucia.m', total: 270, status: 'en_revision', ago: 'ayer', thumb: TH.cream },
+      { id: 'so4', ref: '#CM-2040', product: 'Citizen Eco-Drive', buyer: 'pedro_lp', total: 1100, status: 'verificado', ago: 'ayer', thumb: TH.sand },
+      { id: 'so5', ref: '#CM-2031', product: 'Estuche para 6 relojes', buyer: 'sofi.cbba', total: 220, status: 'enviado', ago: 'lun', thumb: TH.mint },
+    ],
+    ofilter: 'en_revision', receiptId: null,
+    sThreads: {
+      marcoq: [{ from: 'them', text: 'Ya te mandé el comprobante del Seiko 🙌' }],
+      'ana.q': [{ from: 'them', text: '¿Las correas vienen en marrón?' }],
+      'lucia.m': [{ from: 'me', text: 'Gracias por tu compra, Lucía.' }],
+      pedro_lp: [{ from: 'me', text: 'Tu Citizen sale mañana.' }],
+      'sofi.cbba': [{ from: 'them', text: '¡Llegó perfecto, gracias!' }],
+    },
+    unread: ['marcoq', 'ana.q'],
+    lineup: [], bc: null, extraRevenue: 0, extraAuction: 0, extraFixed: 0, period: 'week',
+  };
+}
+
+class Component extends DCLogic {
+  state = initial();
+  threadRef = React.createRef();
+  searchRef = React.createRef();
+  timers = [];
+
+  componentDidMount() { this.startClock(); }
+  startClock() { if (!this.iv) this.iv = setInterval(() => this.tick(), 1000); }
+  componentWillUnmount() { if (this.iv) clearInterval(this.iv); this.iv = null; clearTimeout(this.tt); this.timers.forEach(clearTimeout); }
+  componentDidUpdate() {
+    const s = this.state; const ps = this._prev || {};
+    if (ps.screen !== s.screen || ps.threadKey !== s.threadKey) {
+      document.querySelectorAll('[data-om-starter="ios-frame"] div').forEach(d => { if (d.scrollTop) d.scrollTop = 0; });
+    }
+    const t = this.threadRef.current;
+    if (t && (ps.threads !== s.threads || ps.sThreads !== s.sThreads || ps.screen !== s.screen)) t.scrollTop = t.scrollHeight;
+    this._prev = { screen: s.screen, threadKey: s.threadKey, threads: s.threads, sThreads: s.sThreads };
+  }
+  later(fn, ms) { this.timers.push(setTimeout(fn, ms)); }
+  flash(msg) { clearTimeout(this.tt); this.setState({ toast: msg }); this.tt = setTimeout(() => this.setState({ toast: null }), 2600); }
+  go(screen, extra) { this.setState(Object.assign({ screen, sheet: null, openRow: null }, extra || {})); }
+  stream(id) { return STREAMS.find(x => x.id === id); }
+  incOf(p) { return p.a >= 500 ? 50 : p.a >= 100 ? 10 : 5; }
+
+  loginAs(role, extra) {
+    this.setState(Object.assign({ role, userName: role === 'seller' ? 'Relojería Andina' : 'Ana Quispe', phone: role === 'seller' ? '70000000' : '71234567', screen: role === 'seller' ? 'sHome' : 'feed', sheet: null, room: null, bc: null }, extra || {}));
+  }
+  authValid() {
+    const s = this.state; const ph = s.phone.replace(/\D/g, '');
+    return s.authMode === 'signup' ? (s.name.trim().length > 1 && ph.length >= 8 && s.pass.length >= 6) : (ph.length >= 8 && s.pass.length >= 6);
+  }
+  submitAuth() {
+    const s = this.state;
+    if (!this.authValid()) { this.flash(s.authMode === 'signup' ? 'Completá nombre, celular y contraseña' : 'Revisá tu celular y contraseña'); return; }
+    const role = s.authMode === 'login' ? (s.phone.replace(/\D/g, '').startsWith('70') ? 'seller' : 'buyer') : s.pickRole;
+    const extra = s.authMode === 'signup' ? { userName: s.name.trim(), phone: s.phone } : { phone: s.phone };
+    this.loginAs(role, extra);
+    this.flash(s.authMode === 'signup' ? '¡Bienvenida a ComprasMío!' : 'Sesión iniciada');
+  }
+
+  makeRoom(sid, idx, prev) {
+    const st = this.stream(sid); const lot = st.lots[idx];
+    const intro = { who: st.seller, seller: true, text: (prev ? 'Sigue: ' : '¡Bienvenidos! Arrancamos con ') + lot.name };
+    return { sid, idx, price: st.mode === 'auction' ? lot.start : lot.price, timer: 25, leader: null, bids: 0, stock: st.mode === 'fixed' ? lot.stock - lot.sold : 0,
+      closed: null, closedT: 0, viewers: prev ? prev.viewers : st.viewers, chat: prev ? [...prev.chat.slice(-6), intro] : [intro] };
+  }
+  enterRoom(sid) {
+    this.setState(s => ({ screen: 'room', sheet: null, roomDraft: '', prevTab: s.screen === 'room' ? s.prevTab : (['feed', 'favs', 'orders'].includes(s.screen) ? s.screen : 'feed'), room: this.makeRoom(sid, 0) }));
+  }
+  newOrder(st, lot, price, count) {
+    return { id: nid(), ref: '#CM-' + (2049 + count), product: lot.name, seller: st.seller, total: price, ship: lot.ship || 'A convenir', status: 'pendiente', deadline: 300, thumb: lot.thumb || TH.sand, mode: st.mode, receipt: false, receiptName: '' };
+  }
+
+  tick() {
+    const s = this.state; const n = {}; let toast = null;
+    if (s.orders.some(o => o.status === 'pendiente' && o.deadline > 0)) n.orders = s.orders.map(o => o.status === 'pendiente' && o.deadline > 0 ? Object.assign({}, o, { deadline: o.deadline - 1 }) : o);
+    if (s.screen === 'room' && s.room) {
+      const r = Object.assign({}, s.room, { chat: [...s.room.chat] }); const st = this.stream(r.sid); const lot = st.lots[r.idx];
+      r.viewers = Math.max(10, r.viewers + Math.round((Math.random() - .42) * 8));
+      if (Math.random() < .22) r.chat.push({ who: pick(BOTS), text: pick(CHAT) });
+      if (r.closed) {
+        r.closedT--;
+        if (r.closedT <= 0) Object.assign(r, this.makeRoom(r.sid, (r.idx + 1) % st.lots.length, r));
+      } else if (st.mode === 'auction') {
+        r.timer--;
+        const p = r.leader === 'Tú' ? .17 : .3;
+        if (r.timer > 1 && r.price + lot.inc <= lot.start * 1.8 && Math.random() < p) {
+          const b = pick(BOTS.filter(x => x !== r.leader)); if (r.leader) r.price += lot.inc;
+          r.leader = b; r.bids++; if (r.timer < 8) r.timer = 8;
+          r.chat.push({ who: b, sys: true, text: 'pujó ' + bs(r.price) });
+        }
+        if (r.timer <= 0) {
+          if (r.leader === 'Tú') {
+            const base = n.orders || s.orders; const o = this.newOrder(st, lot, r.price, base.length);
+            n.orders = [o, ...base]; n.sheet = 'pay'; n.payId = o.id; r.closed = '¡Ganaste ' + lot.name + '!';
+            if (navigator.vibrate) navigator.vibrate([20, 40, 20]);
+          } else r.closed = r.leader ? '@' + r.leader + ' se lo llevó por ' + bs(r.price) : 'Cerró sin pujas';
+          r.closedT = 5;
+        }
+      } else {
+        if (r.stock > 0 && Math.random() < .1) { const b = pick(BOTS); r.stock--; toast = '@' + b + ' compró 1 · ' + lot.name.split(' ·')[0]; }
+        if (r.stock <= 0) { r.closed = 'Se agotó ' + lot.name.split(' ·')[0]; r.closedT = 4; }
+      }
+      r.chat = r.chat.slice(-30);
+      n.room = r;
+    }
+    if (s.screen === 'bc' && s.bc) n.bc = this.tickBc(s.bc, n);
+    this.setState(n);
+    if (toast) this.flash(toast);
+  }
+
+  bid() {
+    const s = this.state, r = s.room; if (!r || r.closed) return;
+    const st = this.stream(r.sid), lot = st.lots[r.idx];
+    if (st.mode === 'fixed') return this.buy();
+    if (r.leader === 'Tú') { this.flash('Ya vas ganando · esperá a que alguien puje'); return; }
+    const price = r.leader ? r.price + lot.inc : r.price;
+    this.setState({ room: Object.assign({}, r, { price, leader: 'Tú', bids: r.bids + 1, timer: Math.max(r.timer, 8), chat: [...r.chat, { who: 'Tú', sys: true, text: 'pujaste ' + bs(price) }] }) });
+    if (navigator.vibrate) navigator.vibrate(12);
+  }
+  buy() {
+    const s = this.state, r = s.room; if (!r || r.closed || r.stock <= 0) return;
+    const st = this.stream(r.sid), lot = st.lots[r.idx]; const o = this.newOrder(st, lot, lot.price, s.orders.length);
+    this.setState({ room: Object.assign({}, r, { stock: r.stock - 1, chat: [...r.chat, { who: 'Tú', sys: true, text: 'compraste 1' }] }), orders: [o, ...s.orders], sheet: 'pay', payId: o.id });
+  }
+  sendRoom() {
+    const s = this.state; const t = s.roomDraft.trim(); if (!t || !s.room) return;
+    this.setState({ roomDraft: '', room: Object.assign({}, s.room, { chat: [...s.room.chat, { who: 'Tú', text: t }] }) });
+  }
+  toggleFollow(id) {
+    const on = this.state.following.includes(id);
+    this.setState(s => ({ following: on ? s.following.filter(x => x !== id) : [...s.following, id] }));
+    this.flash(on ? 'Dejaste de seguir' : 'Ahora seguís a ' + this.stream(id).seller);
+  }
+
+  updOrder(id, patch) { this.setState(s => ({ orders: s.orders.map(o => o.id === id ? Object.assign({}, o, patch) : o) })); }
+  confirmPay() {
+    const s = this.state; const o = s.orders.find(x => x.id === s.payId); if (!o) return;
+    if (!o.receipt) { this.flash('Adjuntá el comprobante primero'); return; }
+    const k = o.seller;
+    this.setState({ orders: s.orders.map(x => x.id === o.id ? Object.assign({}, x, { status: 'en_revision' }) : x), threads: Object.assign({}, s.threads, { [k]: [...(s.threads[k] || []), { from: 'them', text: '¡Gracias por tu compra! Recibí el comprobante de ' + o.product + ', lo reviso ahora.' }] }), sheet: null, payId: null, screen: 'thread', threadKey: k, threadMode: 'buyer', room: null, draft: '' });
+    this.later(() => {
+      this.setState(s2 => ({ orders: s2.orders.map(x => x.id === o.id ? Object.assign({}, x, { status: 'verificado' }) : x), threads: Object.assign({}, s2.threads, { [k]: [...(s2.threads[k] || []), { from: 'them', text: 'Listo, pago verificado ✅ ¿Te lo mando o pasás a recoger?' }] }) }));
+      this.flash(k + ' verificó tu pago');
+    }, 5000);
+  }
+
+  openThread(key, mode) { this.setState(s => ({ screen: 'thread', threadKey: key, threadMode: mode, sheet: null, draft: '', unread: s.unread.filter(u => u !== key) })); }
+  send() {
+    const s = this.state; const t = s.draft.trim(); if (!t) return;
+    const field = s.threadMode === 'buyer' ? 'threads' : 'sThreads'; const k = s.threadKey;
+    this.setState({ [field]: Object.assign({}, s[field], { [k]: [...(s[field][k] || []), { from: 'me', text: t }] }), draft: '' });
+    const reply = field === 'threads' ? pick(['¡Dale! Lo coordinamos.', 'Perfecto 👍', 'Te escribo apenas lo despache.']) : pick(['¡Gracias!', 'Perfecto 🙌', 'Dale, quedo atento.']);
+    this.later(() => this.setState(s2 => ({ [field]: Object.assign({}, s2[field], { [k]: [...(s2[field][k] || []), { from: 'them', text: reply }] }) })), 2200);
+  }
+
+  saveNp() {
+    const s = this.state, np = s.np; if (!np) return;
+    if (!np.name.trim() || !Number(np.a)) { this.flash('Poné nombre y precio'); return; }
+    const data = { name: np.name.trim(), cat: np.cat, mode: np.mode, a: Number(np.a), b: Number(np.b) || (np.mode === 'fixed' ? 1 : 0), ship: np.ship };
+    const products = np.editId ? s.products.map(p => p.id === np.editId ? Object.assign({}, p, data) : p) : [Object.assign({ id: nid(), thumb: pick(Object.values(TH)), sold: false }, data), ...s.products];
+    this.setState({ products, sheet: null, np: null });
+    this.flash(np.editId ? 'Cambios guardados' : 'Producto creado');
+  }
+  setNp(patch) { this.setState(s => ({ np: Object.assign({}, s.np, patch) })); }
+
+  goLive() {
+    const s = this.state; if (!s.lineup.length) { this.flash('Elegí al menos un producto'); return; }
+    const queue = s.lineup.map(id => s.products.find(p => p.id === id)).filter(Boolean);
+    this.setState({ screen: 'bc', sheet: null, bc: { elapsed: 0, viewers: 3, queue, lot: null, outcome: null, chat: [], revenue: 0, muted: false, back: false } });
+    this.flash('¡Estás al aire!');
+  }
+  startNext() {
+    const bc = this.state.bc; if (!bc || bc.lot || !bc.queue.length) return;
+    const [p, ...rest] = bc.queue;
+    this.setState({ bc: Object.assign({}, bc, { queue: rest, outcome: null, lot: { p, price: p.a, timer: p.mode === 'auction' ? 20 : 0, leader: null, bids: 0, sold: 0, stock: p.mode === 'fixed' ? p.b : 0 } }) });
+  }
+  finalize(bc, n) {
+    const s = this.state; const lot = bc.lot; if (!lot) return;
+    if (lot.p.mode === 'auction') {
+      if (lot.leader && lot.price >= (lot.p.b || 0)) {
+        bc.outcome = { title: 'Lote vendido', text: '@' + lot.leader + ' se llevó ' + lot.p.name + ' por ' + bs(lot.price) + '. El pago llega por QR.' };
+        bc.revenue += lot.price; n.extraAuction = (n.extraAuction != null ? n.extraAuction : s.extraAuction) + lot.price;
+        const base = n.sOrders || s.sOrders;
+        const o = { id: nid(), ref: '#CM-' + (2050 + base.length), product: lot.p.name, buyer: lot.leader, total: lot.price, status: 'pendiente', ago: 'ahora', thumb: lot.p.thumb };
+        n.sOrders = [o, ...base];
+        n.products = (n.products || s.products).map(p => p.id === lot.p.id ? Object.assign({}, p, { sold: true }) : p);
+        this.later(() => { this.setState(s2 => ({ sOrders: s2.sOrders.map(x => x.id === o.id ? Object.assign({}, x, { status: 'en_revision', ago: 'hace 1 min' }) : x) })); this.flash('Llegó el comprobante de @' + o.buyer); }, 6000);
+      } else bc.outcome = { title: 'Sin venta', text: lot.leader ? 'La puja llegó a ' + bs(lot.price) + ' y tu mínimo era ' + bs(lot.p.b) + '.' : 'Nadie pujó por ' + lot.p.name + '.' };
+    } else bc.outcome = { title: 'Oferta cerrada', text: 'Vendiste ' + lot.sold + ' u. de ' + lot.p.name + ' por ' + bs(lot.sold * lot.price) + '.' };
+    bc.lot = null;
+  }
+  tickBc(bc0, n) {
+    const bc = Object.assign({}, bc0, { chat: [...bc0.chat] });
+    bc.elapsed++; bc.viewers = Math.min(1400, bc.viewers + Math.floor(Math.random() * 22));
+    if (Math.random() < .3) bc.chat = [...bc.chat.slice(-4), { who: pick(BOTS), text: pick(CHAT) }];
+    if (bc.lot) {
+      const lot = Object.assign({}, bc.lot); bc.lot = lot;
+      if (lot.p.mode === 'auction') {
+        lot.timer--;
+        if (lot.timer > 1 && Math.random() < .38 && lot.price < lot.p.a * 1.8) {
+          const b = pick(BOTS.filter(x => x !== lot.leader)); if (lot.leader) lot.price += this.incOf(lot.p);
+          lot.leader = b; lot.bids++; if (lot.timer < 8) lot.timer = 8;
+        }
+        if (lot.timer <= 0) this.finalize(bc, n);
+      } else if (lot.sold < lot.stock && Math.random() < .22) {
+        lot.sold++; bc.revenue += lot.price; n.extraFixed = (n.extraFixed != null ? n.extraFixed : this.state.extraFixed) + lot.price;
+        const base = n.sOrders || this.state.sOrders; const b = pick(BOTS);
+        n.sOrders = [{ id: nid(), ref: '#CM-' + (2050 + base.length), product: lot.p.name, buyer: b, total: lot.price, status: 'pendiente', ago: 'ahora', thumb: lot.p.thumb }, ...base];
+        if (lot.sold >= lot.stock) this.finalize(bc, n);
+      }
+    }
+    return bc;
+  }
+  closeLot() { const n = {}; const bc = Object.assign({}, this.state.bc); if (!bc.lot) return; this.finalize(bc, n); this.setState(Object.assign(n, { bc })); }
+  endBc() { const rev = this.state.bc ? this.state.bc.revenue : 0; this.setState({ screen: 'sHome', bc: null, sheet: null }); this.flash(rev ? 'Vivo terminado · vendiste ' + bs(rev) : 'Transmisión terminada'); }
+
+  jump(key) {
+    const t = this;
+    const ensurePending = () => {
+      const s = t.state; let o = s.orders.find(x => x.status === 'pendiente');
+      if (!o) { const st = STREAMS[0]; o = t.newOrder(st, st.lots[0], 900, s.orders.length); t.setState({ orders: [o, ...s.orders] }); }
+      return o.id;
+    };
+    if (key === 'welcome') return this.setState(initial());
+    if (key.startsWith('s')) {
+      if (this.state.role !== 'seller') this.loginAs('seller');
+      if (key === 'sHome' || key === 'sProducts' || key === 'sOrders' || key === 'sCustomers') return this.go(key);
+      if (key === 'sLineup') return this.setState({ screen: 'sHome', sheet: 'lineup', lineup: [] });
+      if (key === 'sLive') return this.setState({ lineup: ['p1', 'p2', 'p3'] }, () => this.goLive());
+    }
+    if (this.state.role !== 'buyer') this.loginAs('buyer');
+    if (key === 'feed' || key === 'orders' || key === 'favs') return this.go(key);
+    if (key === 'roomA') return this.enterRoom('s1');
+    if (key === 'roomF') return this.enterRoom('s2');
+    if (key === 'pay') { const id = ensurePending(); return this.setState({ screen: 'orders', sheet: 'pay', payId: id }); }
+    if (key === 'thread') return this.openThread('Tejidos Wari', 'buyer');
+  }
+
+  renderVals() {
+    this.startClock();
+    const s = this.state; const t = this;
+    const sheetFull = ['pay', 'np', 'receipt', 'lineup'].includes(s.sheet);
+    const is = {
+      welcome: s.screen === 'welcome', role: s.screen === 'role', auth: s.screen === 'auth', feed: s.screen === 'feed', room: s.screen === 'room',
+      orders: s.screen === 'orders', favs: s.screen === 'favs', thread: s.screen === 'thread', sHome: s.screen === 'sHome', sProducts: s.screen === 'sProducts',
+      sOrders: s.screen === 'sOrders', sCustomers: s.screen === 'sCustomers', bc: s.screen === 'bc',
+    };
+    const sh = { any: !!s.sheet, catalog: s.sheet === 'catalog', pay: s.sheet === 'pay', np: s.sheet === 'np', receipt: s.sheet === 'receipt', lineup: s.sheet === 'lineup', account: s.sheet === 'account' };
+    const darkStatus = is.room || is.bc || sheetFull;
+    const ini = (s.userName || 'A Q').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    const me = { name: s.userName, ini, roleLabel: s.role === 'seller' ? 'Vendedor' : 'Comprador', phone: s.phone };
+
+    const pendingCount = s.orders.filter(o => o.status === 'pendiente').length;
+    const sReview = s.sOrders.filter(o => o.status === 'en_revision');
+    const buyerTabs = [['feed', 'home', 'Inicio'], ['favs', 'favorite', 'Favoritos'], ['orders', 'shopping_bag', 'Compras']].map(([k, icon, label]) => Object.assign({ icon, label, go: () => t.go(k, { room: null }), hasBadge: k === 'orders' && pendingCount > 0, badge: pendingCount }, tabStyle(s.screen === k)));
+    const sellerTabs = [['sHome', 'bar_chart', 'Resumen'], ['sProducts', 'inventory_2', 'Productos'], ['sOrders', 'receipt_long', 'Órdenes'], ['sCustomers', 'group', 'Clientes']].map(([k, icon, label]) => Object.assign({ icon, label, go: () => t.go(k), hasBadge: k === 'sOrders' && sReview.length > 0, badge: sReview.length }, tabStyle(s.screen === k)));
+
+    const roleUi = {
+      buyerIcon: s.pickRole === 'buyer' ? 'check_circle' : 'radio_button_unchecked', buyerColor: s.pickRole === 'buyer' ? '#0E7C66' : '#C9C1B5', buyerFill: s.pickRole === 'buyer' ? "'FILL' 1" : "'FILL' 0",
+      sellerIcon: s.pickRole === 'seller' ? 'check_circle' : 'radio_button_unchecked', sellerColor: s.pickRole === 'seller' ? '#AE5115' : '#C9C1B5', sellerFill: s.pickRole === 'seller' ? "'FILL' 1" : "'FILL' 0",
+      cta: s.pickRole === 'seller' ? 'Continuar como vendedor' : 'Continuar como comprador',
+    };
+    const isSignup = s.authMode === 'signup';
+    const auth = {
+      isSignup, title: isSignup ? 'Creá tu cuenta' : 'Hola de nuevo', sSignup: seg(isSignup), sLogin: seg(!isSignup),
+      setSignup: () => t.setState({ authMode: 'signup', screen: 'role' }), setLogin: () => t.setState({ authMode: 'login', phone: s.phone || '71234567', pass: s.pass || 'comprar123' }),
+      back: () => t.go(isSignup ? 'role' : 'welcome'),
+      roleLabel: s.pickRole === 'seller' ? 'Cuenta de vendedor' : 'Cuenta de comprador', roleIcon: s.pickRole === 'seller' ? 'videocam' : 'shopping_bag', roleColor: s.pickRole === 'seller' ? '#8E4211' : '#0A6350',
+      name: s.name, phone: s.phone, pass: s.pass,
+      onName: e => t.setState({ name: e.target.value }), onPhone: e => t.setState({ phone: e.target.value.replace(/[^\d ]/g, '').slice(0, 10) }), onPass: e => t.setState({ pass: e.target.value }),
+      foot: isSignup ? 'Te mandamos los avisos de tus pujas y pagos a este número.' : 'Demo: 71234567 entra como compradora · 70000000 como vendedor.',
+      cta: isSignup ? 'Crear cuenta' : 'Iniciar sesión', op: this.authValid() ? '1' : '.45', submit: () => t.submitAuth(),
+    };
+
+    const q = s.query.trim().toLowerCase();
+    const matches = STREAMS.filter(x => (s.filter === 'all' || x.mode === s.filter) && (!q || (x.seller + ' ' + x.title + ' ' + x.lots.map(l => l.name).join(' ')).toLowerCase().includes(q)));
+    const showFeatured = s.filter === 'all' && !q;
+    const cardOf = x => {
+      const l = x.lots[0]; const fav = s.following.includes(x.id);
+      return { seller: x.seller, title: x.title, rating: x.rating, video: x.video, cover: x.cover, viewers: num(x.viewers), modeLabel: x.mode === 'auction' ? 'Subasta' : 'Precio fijo', modeBg: x.mode === 'auction' ? '#AE5115' : '#0E7C66',
+        price: bs(x.mode === 'auction' ? l.start : l.price), note: x.mode === 'auction' ? 'inicial' : (l.stock - l.sold) + ' u.', favColor: fav ? '#E9A23B' : '#FFFFFF', favFill: fav ? "'FILL' 1" : "'FILL' 0",
+        open: () => t.enterRoom(x.id), fav: e => { e.stopPropagation(); t.toggleFollow(x.id); } };
+    };
+    const grid = (showFeatured ? matches.filter(x => x.id !== 's1') : matches).map(cardOf);
+    const feed = {
+      query: s.query, onQuery: e => t.setState({ query: e.target.value }),
+      filters: [['all', 'Todo', 'transparent'], ['auction', 'Subastas', '#AE5115'], ['fixed', 'Precio fijo', '#0E7C66']].map(([k, label, dot]) => Object.assign({ label, dot, pick: () => t.setState({ filter: k }) }, seg(s.filter === k))),
+      showFeatured, featured: cardOf(STREAMS[0]), cards: grid, empty: grid.length === 0 && !showFeatured,
+      heading: q ? 'Resultados' : showFeatured ? 'Para vos' : (s.filter === 'auction' ? 'Subastas' : 'Precio fijo'), count: matches.length + (matches.length === 1 ? ' transmisión' : ' transmisiones'),
+    };
+
+    let r = {};
+    if (s.room) {
+      const st = this.stream(s.room.sid), lot = st.lots[s.room.idx], room = s.room, isA = st.mode === 'auction', closed = !!room.closed;
+      const following = s.following.includes(st.id); const next = room.leader ? room.price + lot.inc : room.price;
+      const leading = room.leader === 'Tú';
+      r = {
+        video: st.video, seller: st.seller, ini: st.ini, av: st.av, avFg: st.avFg, rating: st.rating, viewers: num(room.viewers), lotsCount: st.lots.length,
+        followText: following ? '✓ Siguiendo' : 'Seguir', followBg: following ? 'rgba(255,255,255,.2)' : 'transparent', followBorder: following ? 'transparent' : 'rgba(255,255,255,.6)',
+        heartColor: following ? '#E9A23B' : '#FFFFFF', heartFill: following ? "'FILL' 1" : "'FILL' 0", follow: () => t.toggleFollow(st.id),
+        label: isA ? 'PUJA ACTUAL' : 'PRECIO FIJO', price: bs(room.price),
+        sub: isA ? (leading ? 'Vas ganando' : room.leader ? '@' + room.leader + ' va ganando' : 'Todavía nadie pujó') : 'Lo compra quien llega primero',
+        subColor: leading ? '#7FD8B8' : '#B9CCC5',
+        right: isA ? clock(room.timer) : room.stock + ' u.', rightColor: isA && room.timer <= 5 && !closed ? '#E9A23B' : '#FFFFFF', rightSub: isA ? 'Lote ' + (room.idx + 1) + ' de ' + st.lots.length : 'de ' + lot.stock,
+        product: lot.name, productSub: isA ? lot.ship + ' · sube de a ' + bs(lot.inc) : lot.ship, thumb: lot.thumb,
+        showProgress: !isA, progress: Math.round((lot.stock - room.stock) / lot.stock * 100) + '%',
+        hasClosed: closed, closed: room.closed,
+        cta: closed ? 'Cerrado' : isA ? (leading ? 'Vas ganando · ' + bs(room.price) : '¡Mío! · ' + bs(next)) : (room.stock > 0 ? 'Comprar ya · ' + bs(lot.price) : 'Agotado'),
+        ctaBg: isA ? '#AE5115' : '#0E7C66', ctaOp: closed || leading || (!isA && room.stock <= 0) ? '.55' : '1',
+        ctaGlow: isA && room.timer <= 5 && !closed && !leading ? '0 0 0 6px rgba(233,162,59,.45)' : '0 0 0 0 rgba(0,0,0,0)',
+        act: () => isA ? t.bid() : t.buy(), dockBg: isA ? 'rgba(8,28,23,.62)' : 'rgba(30,24,18,.62)',
+        chatBottom: (isA ? 342 : 356) + (closed ? 52 : 0) + 'px', railBottom: (isA ? 350 : 364) + (closed ? 52 : 0) + 'px', composerBottom: (isA ? 282 : 296) + (closed ? 52 : 0) + 'px',
+        chat: room.chat.slice(-5).map((m, i, a) => ({ who: m.who, pill: m.who === 'Tú' ? 'Vos ' + m.text.replace(/^pujaste/, 'pujaste') : '@' + m.who + ' ' + m.text, text: m.text, sys: !!m.sys, plain: !m.sys, op: String(.4 + .6 * (i + 1) / a.length), whoColor: m.seller ? '#A8D8C6' : '#FFFFFF' })),
+        draft: s.roomDraft, onDraft: e => t.setState({ roomDraft: e.target.value }), onKey: e => { if (e.key === 'Enter') t.sendRoom(); }, send: () => t.sendRoom(),
+        lots: st.lots.map((l, i) => ({ num: i + 1, name: l.name, thumb: l.thumb, bg: i === room.idx ? '#FBF3EC' : '#FFFFFF', numColor: i === room.idx ? '#AE5115' : '#6B6455',
+          chip: isA ? 'Subasta' : 'Precio fijo', chipBg: isA ? '#FBE9DC' : '#E4F0EA', chipFg: isA ? '#8E4211' : '#0A4A3C',
+          sub: i === room.idx ? 'En el aire' : isA ? 'Desde ' + bs(l.start) : bs(l.price) + ' · ' + (l.stock - l.sold) + ' u.', subColor: i === room.idx ? '#8E4211' : '#6B6455',
+          bell: () => t.flash('Te avisamos cuando salga ' + l.name.split(' ·')[0]) })),
+      };
+    }
+
+    const payO = s.orders.find(o => o.id === s.payId);
+    const p = payO ? { product: payO.product, total: bs(payO.total), ship: payO.ship, deadline: clock(payO.deadline), ref: payO.ref, seller: payO.seller,
+      head: payO.mode === 'auction' ? '¡Ganaste el lote!' : 'Compra reservada', headIcon: payO.mode === 'auction' ? 'emoji_events' : 'check_circle',
+      hasReceipt: !!payO.receipt, noReceipt: !payO.receipt, receiptName: payO.receiptName, op: payO.receipt ? '1' : '.45' } : {};
+
+    const orders = {
+      pending: s.orders.filter(o => o.status === 'pendiente').map(o => ({ product: o.product, total: bs(o.total), seller: o.seller, ref: o.ref, thumb: o.thumb, deadline: clock(o.deadline), pay: () => t.setState({ sheet: 'pay', payId: o.id }), chat: () => t.openThread(o.seller, 'buyer') })),
+      past: s.orders.filter(o => o.status !== 'pendiente').map(o => ({ product: o.product, total: bs(o.total), seller: o.seller, thumb: o.thumb, sLabel: STATUS[o.status].label, sBg: STATUS[o.status].bg, sFg: STATUS[o.status].fg, chat: () => t.openThread(o.seller, 'buyer') })),
+    };
+    const liveFavs = STREAMS.filter(x => s.following.includes(x.id));
+    const favs = { live: liveFavs.map(x => ({ seller: x.seller, ini: x.ini, av: x.av, avFg: x.avFg, sub: x.title + ' · ' + num(x.viewers), enter: () => t.enterRoom(x.id) })), empty: liveFavs.length === 0,
+      bellIcon: s.bell ? 'notifications_active' : 'notifications', bellColor: s.bell ? '#0E7C66' : '#6B6455', bellFill: s.bell ? "'FILL' 1" : "'FILL' 0" };
+
+    let th = {};
+    if (s.threadKey) {
+      const buyer = s.threadMode === 'buyer'; const k = s.threadKey;
+      const msgs = (buyer ? s.threads[k] : s.sThreads[k]) || [];
+      let info, pin = null;
+      if (buyer) { const st = STREAMS.find(x => x.seller === k) || { ini: 'VP', av: '#6B6455', avFg: '#FFFFFF' }; info = { title: k, ini: st.ini, av: st.av, avFg: st.avFg }; pin = s.orders.find(o => o.seller === k); }
+      else { const c = CUSTOMERS.find(x => x.h === k) || { ini: k.slice(0, 2).toUpperCase(), av: '#0A3B31', fg: '#FFFFFF' }; info = { title: '@' + k, ini: c.ini, av: c.av, avFg: c.fg }; const so = s.sOrders.find(o => o.buyer === k); if (so) pin = { product: so.product, total: so.total, ref: so.ref, thumb: so.thumb, status: so.status }; }
+      th = Object.assign(info, {
+        msgs: msgs.map(m => ({ text: m.text, align: m.from === 'me' ? 'flex-end' : 'flex-start', bg: m.from === 'me' ? '#0E7C66' : '#EFEBE4', fg: m.from === 'me' ? '#FFFFFF' : '#201F1B' })),
+        hasPinned: !!pin, pTitle: pin ? pin.product + ' · ' + bs(pin.total) : '', pRef: pin ? pin.ref : '', pThumb: pin ? pin.thumb : '', pLabel: pin ? STATUS[pin.status].label : '', pBg: pin ? STATUS[pin.status].bg : '', pFg: pin ? STATUS[pin.status].fg : '',
+        draft: s.draft, onDraft: e => t.setState({ draft: e.target.value }), onKey: e => { if (e.key === 'Enter') t.send(); }, send: () => t.send(), sendOp: s.draft.trim() ? '1' : '.4',
+        placeholder: 'Escribile a ' + info.title + '…', back: () => t.go(buyer ? 'orders' : 'sCustomers'),
+      });
+    }
+
+    const verifiedBase = 12480 + s.extraRevenue;
+    const pendSum = sReview.reduce((a, o) => a + o.total, 0);
+    const mult = s.period === 'today' ? .12 : s.period === 'month' ? 3.9 : 1;
+    const bars = (s.period === 'today' ? [2, 5, 9, 4, 12, 18, 7] : s.period === 'month' ? [40, 55, 38, 62, 70, 48, 66] : [22, 34, 18, 48, 30, 52, 4]);
+    const auctionV = Math.round(8230 * mult) + s.extraAuction, fixedV = Math.round(4250 * mult) + s.extraFixed;
+    const k = {
+      revenue: bs(Math.round(verifiedBase * mult)), pending: bs(pendSum), pendingCount: sReview.length + (sReview.length === 1 ? ' comprobante' : ' comprobantes'),
+      avg: bs(271), count: (Math.round(46 * mult) || 1) + ' órdenes', auction: bs(auctionV), fixed: bs(fixedV),
+      auctionPct: Math.round(auctionV / (auctionV + fixedV) * 100) + '%', fixedPct: Math.round(fixedV / (auctionV + fixedV) * 100) + '%',
+      periods: [['today', 'Hoy'], ['week', 'Semana'], ['month', 'Mes']].map(([key, label]) => Object.assign({ label, pick: () => t.setState({ period: key }) }, seg(s.period === key))),
+      bars: bars.map((v, i) => ({ h: Math.max(4, v) + 'px', bg: i === 5 ? '#7FD8B8' : '#1F6B59', d: (s.period === 'today' ? ['8h', '10h', '12h', '14h', '16h', '18h', '20h'] : s.period === 'month' ? ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7'] : ['L', 'M', 'M', 'J', 'V', 'S', 'D'])[i] })),
+    };
+
+    const visibleProducts = s.products.filter(x => s.pfilter === 'all' || x.mode === s.pfilter);
+    const prod = {
+      count: s.products.length + ' en tu catálogo',
+      filters: [['all', 'Todos', 'transparent'], ['auction', 'Subasta', '#AE5115'], ['fixed', 'Precio fijo', '#0E7C66']].map(([key, label, dot]) => Object.assign({ label, dot, pick: () => t.setState({ pfilter: key }) }, chip(s.pfilter === key))),
+      items: visibleProducts.map(x => ({
+        name: x.name, thumb: x.thumb, op: x.sold ? '.5' : '1', ml: s.openRow === x.id ? '-150px' : '0px',
+        chip: x.sold ? 'Vendido' : x.mode === 'auction' ? 'Subasta' : 'Precio fijo', chipBg: x.sold ? '#EDE8E0' : x.mode === 'auction' ? '#FBE9DC' : '#E4F0EA', chipFg: x.sold ? '#4C463C' : x.mode === 'auction' ? '#8E4211' : '#0A4A3C',
+        sub: x.mode === 'auction' ? 'Desde ' + bs(x.a) + (x.b ? ' · mín. ' + bs(x.b) : '') : bs(x.a) + ' · ' + x.b + ' u.',
+        tap: () => t.setState(st => ({ openRow: st.openRow === x.id ? null : x.id })),
+        edit: () => t.setState({ sheet: 'np', openRow: null, np: { editId: x.id, name: x.name, cat: x.cat, mode: x.mode, a: String(x.a), b: String(x.b), ship: x.ship, photos: 1 } }),
+        del: () => { t.setState(st => ({ products: st.products.filter(y => y.id !== x.id), openRow: null })); t.flash('Producto borrado'); },
+      })),
+    };
+    let np = {};
+    if (s.np) {
+      const isA = s.np.mode === 'auction';
+      np = { title: s.np.editId ? 'Editar producto' : 'Nuevo producto', name: s.np.name, cat: s.np.cat, a: s.np.a, b: s.np.b,
+        segA: seg(isA), segF: seg(!isA), aLabel: isA ? 'Precio inicial' : 'Precio', bLabel: isA ? 'Precio mínimo' : 'Unidades', bUnit: isA ? 'Bs' : 'u.',
+        note: isA ? 'El mínimo solo lo ves vos. Si la puja no llega, el lote cierra sin venta.' : 'Se vende hasta agotar las unidades durante el vivo.',
+        freeOp: s.np.ship === 'free' ? '1' : '0', arrOp: s.np.ship === 'arranged' ? '1' : '0', op: s.np.name.trim() && Number(s.np.a) ? '1' : '.45',
+        photos: Array.from({ length: s.np.photos || 0 }, (_, i) => ({ bg: Object.values(TH)[i % 4] })),
+        onName: e => t.setNp({ name: e.target.value }), onA: e => t.setNp({ a: e.target.value.replace(/\D/g, '') }), onB: e => t.setNp({ b: e.target.value.replace(/\D/g, '') }),
+        setA: () => t.setNp({ mode: 'auction' }), setF: () => t.setNp({ mode: 'fixed' }), setFree: () => t.setNp({ ship: 'free' }), setArr: () => t.setNp({ ship: 'arranged' }),
+        cycleCat: () => t.setNp({ cat: CATS[(CATS.indexOf(s.np.cat) + 1) % CATS.length] }) };
+    }
+
+    const oCount = key => s.sOrders.filter(o => key === 'all' || o.status === key).length;
+    const soList = s.sOrders.filter(o => s.ofilter === 'all' || o.status === s.ofilter);
+    const so = {
+      chips: [['all', 'Todas'], ['en_revision', 'En revisión'], ['pendiente', 'Sin pagar'], ['verificado', 'Verificadas'], ['enviado', 'Enviadas']].map(([key, label]) => Object.assign({ label, n: oCount(key), pick: () => t.setState({ ofilter: key }) }, chip(s.ofilter === key))),
+      empty: soList.length === 0,
+      items: soList.map(o => ({ product: o.product, total: bs(o.total), thumb: o.thumb, meta: '@' + o.buyer + ' · ' + o.ref + ' · ' + o.ago, sLabel: STATUS[o.status].label, sBg: STATUS[o.status].bg, sFg: STATUS[o.status].fg,
+        canVerify: o.status === 'en_revision', canShip: o.status === 'verificado', waiting: o.status === 'pendiente', done: o.status === 'enviado',
+        verify: () => t.setState({ sheet: 'receipt', receiptId: o.id }),
+        ship: () => { t.setState(st => ({ sOrders: st.sOrders.map(x => x.id === o.id ? Object.assign({}, x, { status: 'enviado' }) : x) })); t.flash('Marcado como enviado · @' + o.buyer + ' recibe el aviso'); },
+        chat: () => t.openThread(o.buyer, 'seller') })),
+    };
+    const rcO = s.sOrders.find(o => o.id === s.receiptId);
+    const rc = rcO ? { ref: rcO.ref, buyer: rcO.buyer, total: bs(rcO.total), product: rcO.product, ago: rcO.ago, chat: () => t.openThread(rcO.buyer, 'seller') } : {};
+    const customers = CUSTOMERS.map(c => { const m = s.sThreads[c.h] || []; const last = m[m.length - 1]; return Object.assign({}, c, { last: last ? (last.from === 'me' ? 'Vos: ' : '') + last.text : 'Sin mensajes', dot: s.unread.includes(c.h) ? '#0E7C66' : 'transparent', open: () => t.openThread(c.h, 'seller') }); });
+
+    const avail = s.products.filter(x => !x.sold);
+    const ln = {
+      items: avail.map(x => { const i = s.lineup.indexOf(x.id); const sel = i >= 0; return { name: x.name, thumb: x.thumb, num: sel ? i + 1 : '', numBg: sel ? '#0E7C66' : 'transparent', numBorder: sel ? '0px solid transparent' : '1.5px solid #C9C1B5',
+        sub: x.mode === 'auction' ? 'Subasta · desde ' + bs(x.a) : 'Precio fijo · ' + bs(x.a) + ' · ' + x.b + ' u.', subColor: x.mode === 'auction' ? '#8E4211' : '#0A6350',
+        toggle: () => t.setState(st => ({ lineup: st.lineup.includes(x.id) ? st.lineup.filter(y => y !== x.id) : [...st.lineup, x.id] })) }; }),
+      cta: s.lineup.length ? 'Salir al aire con ' + s.lineup.length + (s.lineup.length === 1 ? ' producto' : ' productos') : 'Elegí productos', op: s.lineup.length ? '1' : '.45',
+    };
+
+    let bc = {};
+    if (s.bc) {
+      const b = s.bc, lot = b.lot, nxt = b.queue[0];
+      bc = {
+        elapsed: clock(b.elapsed), viewers: num(b.viewers), camLabel: b.back ? 'cámara trasera · vista previa' : 'cámara frontal · vista previa',
+        micIcon: b.muted ? 'mic_off' : 'mic', micBg: b.muted ? '#AE5115' : 'rgba(0,0,0,.35)',
+        chat: b.chat.map((m, i, a) => ({ who: m.who, text: m.text, op: String(.45 + .55 * (i + 1) / a.length) })),
+        hasLot: !!lot, noLot: !lot, chatBottom: lot ? '330px' : '300px',
+        outTitle: b.outcome ? b.outcome.title : 'Estás al aire', outText: b.outcome ? b.outcome.text : (nxt ? 'Saludá a la sala y abrí el primer lote cuando quieras.' : 'No te quedan productos en la cola.'),
+        nextLabel: nxt ? 'SIGUE · ' + b.queue.length + ' en cola' : 'COLA VACÍA', nextName: nxt ? nxt.name : 'Sumá productos desde Productos', nextThumb: nxt ? nxt.thumb : '#E6E1D8',
+        nextCta: nxt ? (nxt.mode === 'auction' ? 'Iniciar subasta' : 'Abrir oferta') : 'Terminar', nextBg: nxt ? (nxt.mode === 'auction' ? '#AE5115' : '#0E7C66') : '#201F1B', nextOp: lot ? '.4' : '1',
+        nextAct: () => { if (lot) { t.flash('Cerrá el lote actual primero'); return; } nxt ? t.startNext() : t.endBc(); },
+        lot: lot ? { isA: lot.p.mode === 'auction', chip: lot.p.mode === 'auction' ? 'Subasta' : 'Precio fijo', chipBg: lot.p.mode === 'auction' ? '#AE5115' : '#0E7C66', name: lot.p.name, price: bs(lot.price),
+          sub: lot.p.mode === 'auction' ? (lot.leader ? '@' + lot.leader + ' va ganando · ' + lot.bids + (lot.bids === 1 ? ' puja' : ' pujas') : 'Esperando la primera puja') : lot.sold + ' de ' + lot.stock + ' vendidas · ' + bs(lot.sold * lot.price),
+          right: lot.p.mode === 'auction' ? clock(lot.timer) : (lot.stock - lot.sold) + ' u.', rightColor: lot.p.mode === 'auction' && lot.timer <= 5 ? '#8E4211' : '#201F1B', closeText: lot.p.mode === 'auction' ? 'Cerrar lote' : 'Cerrar oferta' } : {},
+      };
+    }
+
+    const jumps = [
+      ['welcome', 'Bienvenida y registro', '#B0A797', is.welcome || is.role || is.auth],
+      ['feed', 'Comprador · Inicio', '#0E7C66', is.feed], ['roomA', 'Sala en vivo · subasta', '#AE5115', is.room && s.room && s.room.sid === 's1'],
+      ['roomF', 'Sala en vivo · precio fijo', '#0E7C66', is.room && s.room && s.room.sid === 's2'], ['pay', 'Pago por QR', '#0E7C66', sh.pay],
+      ['orders', 'Compras', '#0E7C66', is.orders && !sh.pay], ['thread', 'Mensajes', '#0E7C66', is.thread && s.threadMode === 'buyer'], ['favs', 'Favoritos', '#0E7C66', is.favs],
+      ['sHome', 'Vendedor · Resumen', '#AE5115', is.sHome && !sh.lineup], ['sProducts', 'Vendedor · Productos', '#AE5115', is.sProducts], ['sOrders', 'Vendedor · Órdenes', '#AE5115', is.sOrders],
+      ['sCustomers', 'Vendedor · Clientes', '#AE5115', is.sCustomers || (is.thread && s.threadMode === 'seller')], ['sLineup', 'Armar transmisión', '#AE5115', sh.lineup], ['sLive', 'Al aire', '#AE5115', is.bc],
+    ].map(([key, label, dot, active]) => ({ label, dot, bg: active ? '#E4F0EA' : '#FFFFFF', go: () => t.jump(key) }));
+
+    return {
+      is, sh, darkStatus, me, roleUi, auth, feed, r, p, orders, favs, th, k, prod, np, so, rc, customers, ln, bc, jumps,
+      showBuyerTabs: s.role === 'buyer' && (is.feed || is.favs || is.orders), showSellerTabs: s.role === 'seller' && (is.sHome || is.sProducts || is.sOrders || is.sCustomers),
+      buyerTabs, sellerTabs, toast: s.toast, hasToast: !!s.toast, threadRef: this.threadRef, searchRef: this.searchRef,
+      reset: () => { t.timers.forEach(clearTimeout); t.timers = []; t.setState(initial()); },
+      toSignup: () => t.setState({ screen: 'role', authMode: 'signup', name: '', phone: '', pass: '' }),
+      toLogin: () => t.setState({ screen: 'auth', authMode: 'login', phone: '71234567', pass: 'comprar123' }),
+      toWelcome: () => t.go('welcome'), toAuth: () => t.go('auth'),
+      pickBuyer: () => t.setState({ pickRole: 'buyer' }), pickSeller: () => t.setState({ pickRole: 'seller' }),
+      noAlerts: () => t.flash('No tenés avisos nuevos'), openAccount: () => t.setState({ sheet: 'account' }),
+      logout: () => { t.setState(Object.assign(initial(), { toast: null })); },
+      focusSearch: () => { t.go('feed'); setTimeout(() => t.searchRef.current && t.searchRef.current.focus(), 60); },
+      leaveRoom: () => t.go(s.prevTab || 'feed', { room: null }), openCatalog: () => t.setState({ sheet: 'catalog' }),
+      share: () => t.flash('Enlace del vivo copiado'), pip: () => t.flash('Picture in Picture activado'), call: () => t.flash('Llamando por WhatsApp…'), attach: () => t.flash('Se abrirían tus Fotos'),
+      closeSheet: () => t.setState({ sheet: null }), saveQr: () => t.flash('QR guardado en Fotos'),
+      rcPhotos: () => t.updOrder(s.payId, { receipt: true, receiptName: 'IMG_2048.jpg · desde Fotos' }), rcCamera: () => t.updOrder(s.payId, { receipt: true, receiptName: 'Foto tomada ahora' }),
+      rcFiles: () => t.updOrder(s.payId, { receipt: true, receiptName: 'transferencia.pdf' }), clearReceipt: () => t.updOrder(s.payId, { receipt: false, receiptName: '' }),
+      confirmPay: () => t.confirmPay(), toggleBell: () => { t.setState({ bell: !s.bell }); t.flash(s.bell ? 'Aviso desactivado' : 'Te avisamos cuando salga en vivo'); },
+      newProduct: () => t.setState({ sheet: 'np', openRow: null, np: { editId: null, name: '', cat: 'Relojes', mode: 'auction', a: '', b: '', ship: 'arranged', photos: 0 } }),
+      addPhoto: () => t.setNp({ photos: Math.min(3, ((s.np && s.np.photos) || 0) + 1) }), saveNp: () => t.saveNp(),
+      toSOrders: () => t.go('sOrders', { ofilter: 'en_revision' }),
+      verify: () => { const o = rcO; if (!o) return; t.setState(st => ({ sOrders: st.sOrders.map(x => x.id === o.id ? Object.assign({}, x, { status: 'verificado' }) : x), extraRevenue: st.extraRevenue + o.total, sheet: null })); t.flash('Pago verificado · @' + o.buyer + ' ya lo ve'); },
+      openLineup: () => t.setState({ sheet: 'lineup', lineup: [] }), goLive: () => t.goLive(),
+      endBc: () => t.endBc(), closeLot: () => t.closeLot(), addTime: () => s.bc && s.bc.lot && t.setState({ bc: Object.assign({}, s.bc, { lot: Object.assign({}, s.bc.lot, { timer: s.bc.lot.timer + 30 }) }) }),
+      toggleMute: () => { t.setState({ bc: Object.assign({}, s.bc, { muted: !s.bc.muted }) }); t.flash(s.bc.muted ? 'Micrófono activado' : 'Micrófono silenciado'); },
+      flip: () => t.setState({ bc: Object.assign({}, s.bc, { back: !s.bc.back }) }),
+    };
+  }
+}
+</script>
+</body>
+</html>

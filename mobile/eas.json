@@ -1,0 +1,28 @@
+{
+  "cli": {
+    "version": ">= 12.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": { "EXPO_PUBLIC_API_URL": "http://192.168.1.100:4000" }
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": { "EXPO_PUBLIC_API_URL": "https://comprasmio.onrender.com" }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": { "EXPO_PUBLIC_API_URL": "https://comprasmio.onrender.com" }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "ascAppId": "COMPLETAR_CON_EL_APPLE_ID_DE_LA_APP"
+      }
+    }
+  }
+}

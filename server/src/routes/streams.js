@@ -179,6 +179,17 @@ router.post('/:id/queue/next', requireSeller, (req, res) => {
   res.status(201).json({ lot });
 });
 
+router.post('/:id/lot/extend', requireSeller, (req, res) => {
+  const stream = db.find('streams', (s) => s.id === req.params.id);
+  if (!stream || stream.sellerId !== req.user.sellerId)
+    return res.status(404).json({ error: 'Esa transmisión no existe.' });
+
+  const seconds = Math.min(Math.max(Number(req.body?.seconds) || 30, 5), 60);
+  const result = engine.extendLot(stream.id, seconds);
+  if (result.error) return res.status(409).json(result);
+  res.json(result);
+});
+
 router.delete('/:id/lot', requireSeller, (req, res) => {
   const stream = db.find('streams', (s) => s.id === req.params.id);
   if (!stream || stream.sellerId !== req.user.sellerId)

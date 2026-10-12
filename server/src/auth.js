@@ -50,4 +50,5 @@ export const publicUser = (u) =>
     sellerId: u.sellerId || null,
     address: u.address || null,
     initials: u.initials,
+    blocked: u.blocked || [],
   };

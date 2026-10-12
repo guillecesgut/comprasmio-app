@@ -77,6 +77,12 @@ router.get('/customers', requireSeller, (req, res) => {
     if (o.createdAt > row.lastOrderAt) row.lastOrderAt = o.createdAt;
     map.set(o.buyerId, row);
   }
+  // Último mensaje del hilo, para la vista previa de la lista de Clientes en la app.
+  for (const row of map.values()) {
+    const thread = db.filter('threads', (t) => t.sellerId === req.user.sellerId && t.buyerId === row.id);
+    const last = thread[thread.length - 1];
+    row.lastMessage = last ? { text: last.text, from: last.from, at: last.at } : null;
+  }
   res.json({ customers: [...map.values()].sort((a, b) => b.spend - a.spend) });
 });
 

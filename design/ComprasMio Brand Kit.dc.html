@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #FAF7F2; color: #201F1B; -webkit-font-smoothing: antialiased; }
+  a { color: #0A6350; text-decoration: none; }
+  a:hover { color: #073F33; text-decoration: underline; }
+  @keyframes cmLive { 0%,100% { opacity: 1 } 50% { opacity: .25 } }
+</style>
+</helmet>
+
+<div style="font-family: 'Public Sans', system-ui, sans-serif; max-width: 1160px; margin: 0 auto; padding: 0 24px 96px; box-sizing: border-box;">
+
+  <header style="padding: 84px 0 52px; border-bottom: 1px solid #E4DCD0;">
+    <div style="display: flex; align-items: center; gap: 12px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: #6B6455;">
+      <span style="width: 8px; height: 8px; border-radius: 50%; background: #0E7C66;"></span>
+      <span>Brand kit v1.0 · iOS &amp; Android · 2026</span>
+    </div>
+    <h1 style="font-weight: 700; font-size: clamp(42px, 7.5vw, 82px); line-height: 1; letter-spacing: -.035em; margin: 26px 0 0; text-wrap: pretty;">ComprasMío<span style="color: #AE5115;">!</span></h1>
+    <p style="font-size: clamp(19px, 2.3vw, 23px); line-height: 1.5; max-width: 660px; margin: 20px 0 0; color: #56514A; text-wrap: pretty;">El marketplace donde la gente se conoce vendiendo. Subastas en vivo y compra directa de catálogo, sostenidas por tres promesas: <strong style="color:#201F1B; font-weight:600;">compra segura</strong>, <strong style="color:#201F1B; font-weight:600;">pagos transparentes</strong> y <strong style="color:#201F1B; font-weight:600;">un entorno hecho para vender</strong>.</p>
+  </header>
+
+  <section style="padding: 68px 0; border-bottom: 1px solid #E4DCD0;">
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: #6B6455; margin-bottom: 26px;">01 — Esencia</div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1px; background: #E4DCD0; border: 1px solid #E4DCD0;">
+      <div style="background: #FFFDFA; padding: 30px 26px;">
+        <div style="font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: #0A6350; font-weight: 700;">Propósito</div>
+        <p style="margin: 13px 0 0; font-size: 17px; line-height: 1.55;">Que pujar o comprar a un desconocido dé la misma tranquilidad que comprarle a un vecino, y que quien vende tenga herramientas de profesional desde su primer lote.</p>
+      </div>
+      <div style="background: #FFFDFA; padding: 30px 26px;">
+        <div style="font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: #AE5115; font-weight: 700;">Posicionamiento</div>
+        <p style="margin: 13px 0 0; font-size: 17px; line-height: 1.55;">La emoción del directo con la calma de una compra protegida. Subasta cuando quieras el momento; catálogo cuando quieras decidir tú.</p>
+      </div>
+      <div style="background: #FFFDFA; padding: 30px 26px;">
+        <div style="font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: #6B6455; font-weight: 700;">Carácter</div>
+        <p style="margin: 13px 0 0; font-size: 17px; line-height: 1.55;">Cálida y de barrio, nunca ingenua. Cercanía en el tono y en los neutros; rigor en cada cifra que toca el dinero.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding: 68px 0; border-bottom: 1px solid #E4DCD0;">
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: #6B6455; margin-bottom: 26px;">02 — Logotipo</div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px;">
+      <div style="background: #FFFDFA; border: 1px solid #E4DCD0; padding: 42px 34px; display: flex; flex-direction: column; gap: 26px;">
+        <div style="display: flex; align-items: center; gap: 15px;">
+          <div style="width: 52px; height: 52px; border-radius: 16px; background: #0E7C66; display: flex; align-items: center; justify-content: center; flex: none;">
+            <div style="display: flex; flex-direction: column; align-items: center;">
+              <div style="width: 13px; height: 7px; border: 2.6px solid #FFFDFA; border-bottom: none; border-radius: 8px 8px 0 0; box-sizing: border-box; margin-bottom: -1px;"></div>
+              <div style="width: 24px; height: 20px; background: #FFFDFA; border-radius: 3px 3px 6px 6px; display: flex; align-items: center; justify-content: center;"><div style="width: 6px; height: 6px; border-radius: 50%; background: #E9A23B;"></div></div>
+            </div>
+          </div>
+          <div style="font-weight: 700; font-size: 31px; letter-spacing: -.03em; line-height: 1;">ComprasMío<span style="color: #AE5115;">!</span></div>
+        </div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #6B6455; letter-spacing: .06em;">PRINCIPAL / HORIZONTAL · uso por defecto</div>
+      </div>
+      <div style="background: #0A3B31; border: 1px solid #0A3B31; padding: 42px 34px; display: flex; flex-direction: column; gap: 26px;">
+        <div style="display: flex; align-items: center; gap: 15px;">
+          <div style="width: 52px; height: 52px; border-radius: 16px; background: #FFFDFA; display: flex; align-items: center; justify-content: center; flex: none;">
+            <div style="display: flex; flex-direction: column; align-items: center;">
+              <div style="width: 13px; height: 7px; border: 2.6px solid #0A3B31; border-bottom: none; border-radius: 8px 8px 0 0; box-sizing: border-box; margin-bottom: -1px;"></div>
+              <div style="width: 24px; height: 20px; background: #0A3B31; border-radius: 3px 3px 6px 6px; display: flex; align-items: center; justify-content: center;"><div style="width: 6px; height: 6px; border-radius: 50%; background: #AE5115;"></div></div>
+            </div>
+          </div>
+          <div style="font-weight: 700; font-size: 31px; letter-spacing: -.03em; line-height: 1; color: #FFFDFA;">ComprasMío<span style="color: #E9A23B;">!</span></div>
+        </div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #94B8AC; letter-spacing: .06em;">INVERSO · sobre verde bosque o foto oscura</div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; margin-top: 18px;">
+      <div style="background: #FFFDFA; border: 1px solid #E4DCD0; padding: 30px; display: flex; flex-direction: column; align-items: center; gap: 20px;">
+        <div style="width: 96px; height: 96px; border-radius: 26px; background: #0E7C66; display: flex; align-items: center; justify-content: center;">
+          <div style="display: flex; flex-direction: column; align-items: center;">
+              <div style="width: 24.05px; height: 12.950000000000001px; border: 4.8100000000000005px solid #FFFDFA; border-bottom: none; border-radius: 14.8px 14.8px 0 0; box-sizing: border-box; margin-bottom: -1.85px;"></div>
+              <div style="width: 44.400000000000006px; height: 37px; background: #FFFDFA; border-radius: 5.550000000000001px 5.550000000000001px 11.100000000000001px 11.100000000000001px; display: flex; align-items: center; justify-content: center;"><div style="width: 11.100000000000001px; height: 11.100000000000001px; border-radius: 50%; background: #E9A23B;"></div></div>
+            </div>
+        </div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #6B6455; letter-spacing: .06em; text-align: center;">APP ICON · iOS &amp; Android</div>
+      </div>
+      <div style="background: #FFFDFA; border: 1px solid #E4DCD0; padding: 30px; display: flex; flex-direction: column; align-items: center; gap: 20px;">
+        <div style="font-weight: 700; font-size: 54px; color: #0A6350; line-height: 1;">Cm<span style="color:#AE5115;">!</span></div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #6B6455; letter-spacing: .06em; text-align: center;">MONOGRAMA · avatares, favicon, sellos</div>
+      </div>
+      <div style="background: #FFFDFA; border: 1px solid #E4DCD0; padding: 30px; display: flex; flex-direction: column; gap: 12px; justify-content: center;">
+        <div style="font-weight: 700; font-size: 17px;">Reglas de uso</div>
+        <ul style="margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.6; color: #56514A;">
+          <li>Aire mínimo alrededor = altura de la bolsa.</li>
+          <li>Altura mínima del logotipo: 20 px en pantalla.</li>
+          <li>La bolsa nunca sin su punto ámbar: es el lote dentro.</li>
+          <li>La exclamación siempre en ámbar, nunca en verde.</li>
+          <li>Un solo peso: Public Sans Bold. Sin cursiva ni contorno.</li>
+        </ul>
+      </div>
+    </div>
+
+    <sc-if value="{{ mostrarUsosIncorrectos }}" hint-placeholder-val="{{ true }}">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 18px; margin-top: 18px;">
+        <div style="background: #FFFDFA; border: 1px solid #E4DCD0; padding: 24px; display: flex; flex-direction: column; gap: 16px; align-items: flex-start;">
+          <div style="font-weight: 700; font-size: 23px; background-image: linear-gradient(90deg,#0E7C66,#AE5115); -webkit-background-clip: text; background-clip: text; color: transparent;">ComprasMío!</div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #A33718; letter-spacing: .06em;">✕ NUNCA CON DEGRADADO</div>
+        </div>
+        <div style="background: #FFFDFA; border: 1px solid #E4DCD0; padding: 24px; display: flex; flex-direction: column; gap: 16px; align-items: flex-start;">
+          <div style="font-weight: 700; font-size: 23px; transform: scaleX(.6); transform-origin: left;">ComprasMío!</div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #A33718; letter-spacing: .06em;">✕ NUNCA DEFORMADO</div>
+        </div>
+        <div style="background: #FFFDFA; border: 1px solid #E4DCD0; padding: 24px; display: flex; flex-direction: column; gap: 16px; align-items: flex-start;">
+          <div style="font-family: Georgia, serif; font-style: italic; font-weight: 700; font-size: 23px; color: #0A6350;">ComprasMío!</div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #A33718; letter-spacing: .06em;">✕ NUNCA OTRA TIPOGRAFÍA</div>
+        </div>
+        <div style="background: #E9A23B; border: 1px solid #E9A23B; padding: 24px; display: flex; flex-direction: column; gap: 16px; align-items: flex-start;">
+          <div style="font-weight: 700; font-size: 23px; color: #0E7C66;">ComprasMío!</div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5A3403; letter-spacing: .06em;">✕ NUNCA VERDE SOBRE ÁMBAR</div>
+        </div>
+      </div>
+    </sc-if>
+  </section>
+
+  <section style="padding: 68px 0; border-bottom: 1px solid #E4DCD0;">
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: #6B6455; margin-bottom: 12px;">03 — Color</div>
+    <p style="max-width: 640px; margin: 0 0 30px; font-size: 17px; line-height: 1.6; color: #56514A;">Psicología del color aplicada al comercio digital: el <strong style="font-weight:600; color:#201F1B;">verde</strong> baja el riesgo percibido y confirma que el dinero está en su sitio; el <strong style="font-weight:600; color:#201F1B;">ámbar</strong> activa la decisión mientras corre el reloj; los <strong style="font-weight:600; color:#201F1B;">neutros cálidos</strong> hacen de la app un mercado, no un banco. Dos acentos con papeles separados: ámbar para pujar, verde para comprar ya.</p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(205px, 1fr)); gap: 18px;">
+      <div style="border: 1px solid #E4DCD0; background: #FFFDFA;">
+        <div style="background: #0E7C66; height: 128px;"></div>
+        <div style="padding: 18px;">
+          <div style="font-weight: 700; font-size: 18px;">Verde Mercado</div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #6B6455; margin-top: 5px;">#0E7C66 · oklch(.51 .09 168)</div>
+          <p style="font-size: 14.5px; line-height: 1.55; color: #56514A; margin: 11px 0 0;">Color de marca. Identidad, navegación activa, superficies de confianza.</p>
+        </div>
+      </div>
+      <div style="border: 1px solid #E4DCD0; background: #FFFDFA;">
+        <div style="background: #0A3B31; height: 128px;"></div>
+        <div style="padding: 18px;">
+          <div style="font-weight: 700; font-size: 18px;">Verde Bosque</div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #6B6455; margin-top: 5px;">#0A3B31 · oklch(.31 .05 168)</div>
+          <p style="font-size: 14.5px; line-height: 1.55; color: #56514A; margin: 11px 0 0;">Fondos oscuros del directo, cabeceras, sellos de garantía y texto sobre verde claro.</p>
+        </div>
+      </div>
+      <div style="border: 1px solid #E4DCD0; background: #FFFDFA;">
+        <div style="background: #AE5115; height: 128px;"></div>
+        <div style="padding: 18px;">
+          <div style="font-weight: 700; font-size: 18px;">Ámbar Puja</div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #6B6455; margin-top: 5px;">#AE5115 · oklch(.51 .13 47)</div>
+          <p style="font-size: 14.5px; line-height: 1.55; color: #56514A; margin: 11px 0 0;">Solo subasta: pujar, cuenta atrás, «en vivo». Máx. 10 % de la pantalla.</p>
+        </div>
+      </div>
+      <div style="border: 1px solid #E4DCD0; background: #FFFDFA;">
+        <div style="background: #E9A23B; height: 128px;"></div>
+        <div style="padding: 18px;">
+          <div style="font-weight: 700; font-size: 18px;">Ámbar Claro</div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #6B6455; margin-top: 5px;">#E9A23B · oklch(.75 .13 67)</div>
+          <p style="font-size: 14.5px; line-height: 1.55; color: #56514A; margin: 11px 0 0;">Solo sobre fondo oscuro: cifras de puja, detalle del icono, destellos de comunidad.</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 1px; margin-top: 18px; border: 1px solid #E4DCD0; background: #E4DCD0;">
+      <div style="background: #FAF7F2; padding: 17px 15px;"><div style="font-size: 14px; font-weight: 600;">Lienzo</div><div style="font-family:'IBM Plex Mono',monospace; font-size: 11.5px; color:#6B6455; margin-top:4px;">#FAF7F2</div></div>
+      <div style="background: #FFFDFA; padding: 17px 15px;"><div style="font-size: 14px; font-weight: 600;">Superficie</div><div style="font-family:'IBM Plex Mono',monospace; font-size: 11.5px; color:#6B6455; margin-top:4px;">#FFFDFA</div></div>
+      <div style="background: #E4F0EA; padding: 17px 15px;"><div style="font-size: 14px; font-weight: 600;">Verde Niebla</div><div style="font-family:'IBM Plex Mono',monospace; font-size: 11.5px; color:#3F5A50; margin-top:4px;">#E4F0EA</div></div>
+      <div style="background: #E4DCD0; padding: 17px 15px;"><div style="font-size: 14px; font-weight: 600;">Borde</div><div style="font-family:'IBM Plex Mono',monospace; font-size: 11.5px; color:#4C463C; margin-top:4px;">#E4DCD0</div></div>
+      <div style="background: #56514A; padding: 17px 15px;"><div style="font-size: 14px; font-weight: 600; color:#FFFDFA;">Texto 2.º</div><div style="font-family:'IBM Plex Mono',monospace; font-size: 11.5px; color:#D6CFC5; margin-top:4px;">#56514A</div></div>
+      <div style="background: #201F1B; padding: 17px 15px;"><div style="font-size: 14px; font-weight: 600; color:#FFFDFA;">Tinta</div><div style="font-family:'IBM Plex Mono',monospace; font-size: 11.5px; color:#D6CFC5; margin-top:4px;">#201F1B</div></div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-top: 18px;">
+      <div style="background: #E4F0EA; border: 1px solid #C6DED3; padding: 26px;">
+        <div style="font-weight: 700; font-size: 17px; margin-bottom: 10px;">Proporción 60 / 30 / 10</div>
+        <div style="display: flex; height: 14px; margin-bottom: 13px;">
+          <div style="flex: 60; background: #FAF7F2; border: 1px solid #C6DED3; box-sizing: border-box;"></div>
+          <div style="flex: 30; background: #0E7C66;"></div>
+          <div style="flex: 10; background: #AE5115;"></div>
+        </div>
+        <p style="margin: 0; font-size: 14.5px; line-height: 1.55; color: #0A4A3C;">60 % neutros cálidos para que el producto mande, 30 % verde de estructura y estado, 10 % ámbar reservado a la subasta.</p>
+      </div>
+      <div style="background: #FFFDFA; border: 1px solid #E4DCD0; padding: 26px;">
+        <div style="font-weight: 700; font-size: 17px; margin-bottom: 12px;">Contraste comprobado</div>
+        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 14.5px;">
+          <div style="display: flex; justify-content: space-between; gap: 12px; padding-bottom: 8px; border-bottom: 1px solid #F2ECE3;"><span>Tinta sobre lienzo</span><span style="font-family:'IBM Plex Mono',monospace; color:#0A6350;">14.9:1 AAA</span></div>
+          <div style="display: flex; justify-content: space-between; gap: 12px; padding-bottom: 8px; border-bottom: 1px solid #F2ECE3;"><span>Blanco sobre Verde Bosque</span><span style="font-family:'IBM Plex Mono',monospace; color:#0A6350;">10.2:1 AAA</span></div>
+          <div style="display: flex; justify-content: space-between; gap: 12px; padding-bottom: 8px; border-bottom: 1px solid #F2ECE3;"><span>Blanco sobre Ámbar Puja</span><span style="font-family:'IBM Plex Mono',monospace; color:#0A6350;">5.1:1 AA</span></div>
+          <div style="display: flex; justify-content: space-between; gap: 12px;"><span>Ámbar Claro sobre Verde Bosque</span><span style="font-family:'IBM Plex Mono',monospace; color:#0A6350;">6.8:1 AA</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding: 68px 0; border-bottom: 1px solid #E4DCD0;">
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: #6B6455; margin-bottom: 26px;">04 — Tipografía</div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px;">
+      <div style="background: #FFFDFA; border: 1px solid #E4DCD0; padding: 30px;">
+        <div style="font-weight: 700; font-size: 66px; line-height: 1; letter-spacing: -.035em;">Aa</div>
+        <div style="font-weight: 700; font-size: 20px; margin-top: 18px;">Public Sans</div>
+        <p style="font-size: 15px; line-height: 1.55; color: #56514A; margin: 8px 0 0;">Titulares, precios y toda la interfaz. Humanista, abierta, legible en móvil. Pesos 400 / 600 / 700.</p>
+      </div>
+      <div style="background: #FFFDFA; border: 1px solid #E4DCD0; padding: 30px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-weight: 500; font-size: 66px; line-height: 1;">Aa</div>
+        <div style="font-weight: 700; font-size: 20px; margin-top: 18px;">IBM Plex Mono</div>
+        <p style="font-size: 15px; line-height: 1.55; color: #56514A; margin: 8px 0 0;">Trazabilidad: id de lote, cuenta atrás, referencias de pago y envío. Nunca en texto corrido.</p>
+      </div>
+      <div style="background: #0A3B31; border: 1px solid #0A3B31; padding: 30px; color: #FFFDFA;">
+        <div style="font-weight: 700; font-size: 17px;">Reglas</div>
+        <ul style="margin: 12px 0 0; padding-left: 18px; font-size: 15px; line-height: 1.65; color: #C7DDD5;">
+          <li>Tracking −3 % de 32 px en adelante.</li>
+          <li>Interlínea 1.5 en cuerpo, 1.1 en display.</li>
+          <li>Mínimo 15 px en app; 12 px solo en mono de dato.</li>
+          <li>Cifras tabulares en precios y pujas.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="background: #FFFDFA; border: 1px solid #E4DCD0; margin-top: 18px;">
+      <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 18px; padding: 24px 26px; border-bottom: 1px solid #F2ECE3;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size: 11.5px; color: #6B6455; width: 200px; flex: none;">DISPLAY / 700 · 44–72</div>
+        <div style="font-weight: 700; font-size: 44px; line-height: 1.05; letter-spacing: -.035em;">Puja en vivo</div>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 18px; padding: 24px 26px; border-bottom: 1px solid #F2ECE3;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size: 11.5px; color: #6B6455; width: 200px; flex: none;">TÍTULO / 600 · 28</div>
+        <div style="font-weight: 600; font-size: 28px; letter-spacing: -.02em;">Lotes que cierran hoy</div>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 18px; padding: 24px 26px; border-bottom: 1px solid #F2ECE3;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size: 11.5px; color: #6B6455; width: 200px; flex: none;">CUERPO / 400 · 17</div>
+        <div style="font-size: 17px; line-height: 1.55; max-width: 470px;">Tu dinero queda retenido hasta que confirmas que has recibido el artículo.</div>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 18px; padding: 24px 26px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size: 11.5px; color: #6B6455; width: 200px; flex: none;">DATO / Mono 500 · 14</div>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size: 14px; letter-spacing: .04em;">LOTE #A-4471 · CIERRA EN 00:38</div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding: 68px 0; border-bottom: 1px solid #E4DCD0;">
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: #6B6455; margin-bottom: 26px;">05 — Componentes</div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px;">
+      <div style="background: #FFFDFA; border: 1px solid #E4DCD0; padding: 28px; display: flex; flex-direction: column; gap: 14px;">
+        <div style="font-weight: 700; font-size: 17px;">Acciones</div>
+        <button style="font-family:'Public Sans',sans-serif; font-weight: 600; font-size: 17px; color: #FFFDFA; background: #AE5115; border: none; border-radius: 14px; padding: 15px 20px; min-height: 48px; cursor: pointer;" style-hover="background: #8E4211;">Pujar 250 €</button>
+        <button style="font-family:'Public Sans',sans-serif; font-weight: 600; font-size: 17px; color: #FFFDFA; background: #0A6350; border: none; border-radius: 14px; padding: 15px 20px; min-height: 48px; cursor: pointer;" style-hover="background: #074C3E;">Comprar ya</button>
+        <button style="font-family:'Public Sans',sans-serif; font-weight: 600; font-size: 17px; color: #0A3B31; background: transparent; border: 1.5px solid #0A3B31; border-radius: 14px; padding: 15px 20px; min-height: 48px; cursor: pointer;" style-hover="background: #E4F0EA;">Seguir vendedor</button>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size: 11.5px; color: #6B6455;">Radio 14 · altura mín. 48 px · un solo botón ámbar por pantalla</div>
+      </div>
+
+      <div style="background: #FFFDFA; border: 1px solid #E4DCD0; padding: 28px; display: flex; flex-direction: column; gap: 16px;">
+        <div style="font-weight: 700; font-size: 17px;">Estados y pagos</div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <span style="display: inline-flex; align-items: center; gap: 7px; background: #AE5115; color: #FFFDFA; font-family:'IBM Plex Mono',monospace; font-size: 12px; letter-spacing: .08em; padding: 7px 10px; border-radius: 7px;"><span style="width:7px; height:7px; border-radius:50%; background:#FFFDFA; animation: cmLive 1.4s ease-in-out infinite;"></span>EN VIVO</span>
+          <span style="background: #E4F0EA; color: #0A4A3C; font-family:'IBM Plex Mono',monospace; font-size: 12px; letter-spacing: .08em; padding: 7px 10px; border-radius: 7px;">PAGO RETENIDO</span>
+          <span style="background: #E4F0EA; color: #0A4A3C; font-family:'IBM Plex Mono',monospace; font-size: 12px; letter-spacing: .08em; padding: 7px 10px; border-radius: 7px;">VENDEDOR VERIFICADO</span>
+          <span style="background: #F2ECE3; color: #56514A; font-family:'IBM Plex Mono',monospace; font-size: 12px; letter-spacing: .08em; padding: 7px 10px; border-radius: 7px;">CATÁLOGO</span>
+        </div>
+        <div style="border-top: 1px solid #F2ECE3; padding-top: 14px; display: flex; flex-direction: column; gap: 9px;">
+          <div style="display: flex; justify-content: space-between; font-size: 15px;"><span style="color:#56514A;">Precio del lote</span><span style="font-family:'IBM Plex Mono',monospace;">240,00 €</span></div>
+          <div style="display: flex; justify-content: space-between; font-size: 15px;"><span style="color:#56514A;">Comisión ComprasMío! (3 %)</span><span style="font-family:'IBM Plex Mono',monospace;">7,20 €</span></div>
+          <div style="display: flex; justify-content: space-between; font-size: 15px;"><span style="color:#56514A;">Envío asegurado</span><span style="font-family:'IBM Plex Mono',monospace;">4,90 €</span></div>
+          <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: 700; border-top: 1px solid #E4DCD0; padding-top: 9px;"><span>Total</span><span style="font-family:'IBM Plex Mono',monospace;">252,10 €</span></div>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size: 11.5px; color: #6B6455;">Desglose completo antes de confirmar. Nunca letra pequeña.</div>
+      </div>
+
+      <div style="background: #FFFDFA; border: 1px solid #E4DCD0; padding: 28px; display: flex; flex-direction: column; gap: 16px;">
+        <div style="font-weight: 700; font-size: 17px;">Tarjeta de lote</div>
+        <div style="border: 1px solid #E4DCD0; border-radius: 16px; overflow: hidden;">
+          <div style="height: 138px; background-image: repeating-linear-gradient(135deg, #E4F0EA 0 8px, #F2ECE3 8px 16px); display: flex; align-items: center; justify-content: center; position: relative;">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size: 11px; color: #6B8078;">foto del lote 4:3</span>
+            <span style="position: absolute; top: 10px; left: 10px; background: #AE5115; color: #FFFDFA; font-family:'IBM Plex Mono',monospace; font-size: 10.5px; padding: 5px 8px; border-radius: 6px; letter-spacing: .08em;">00:38</span>
+          </div>
+          <div style="padding: 14px;">
+            <div style="font-weight: 600; font-size: 16px; line-height: 1.25;">Cámara Rollei 35 · años 70</div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 9px;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size: 11px; color: #6B6455;">14 PUJAS</span>
+              <span style="font-weight: 700; font-size: 20px; color: #0A3B31;">240 €</span>
+            </div>
+          </div>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size: 11.5px; color: #6B6455;">Radio 16 · borde en vez de sombra</div>
+      </div>
+    </div>
+  </section>
+
+  <sc-if value="{{ mostrarPantallas }}" hint-placeholder-val="{{ true }}">
+  <section style="padding: 68px 0; border-bottom: 1px solid #E4DCD0;">
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: #6B6455; margin-bottom: 26px;">06 — La marca en la app</div>
+    <div style="display: flex; flex-wrap: wrap; gap: 30px;">
+
+      <div style="flex: 0 0 auto; display: flex; flex-direction: column; gap: 12px;">
+        <div style="width: 320px; height: 640px; border-radius: 42px; background: #201F1B; padding: 10px; box-sizing: border-box;">
+          <div style="width: 100%; height: 100%; border-radius: 33px; overflow: hidden; background: #0A3B31; display: flex; flex-direction: column;">
+            <div style="height: 148px; background-image: repeating-linear-gradient(135deg, #0E4A3D 0 10px, #125546 10px 20px); display: flex; align-items: center; justify-content: center; position: relative;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size: 11px; color: #94B8AC;">vídeo del directo</span>
+              <span style="position: absolute; top: 14px; left: 14px; display: inline-flex; align-items: center; gap: 6px; background: #AE5115; color: #FFFDFA; font-family:'IBM Plex Mono',monospace; font-size: 10.5px; padding: 5px 9px; border-radius: 6px; letter-spacing: .08em;"><span style="width:6px;height:6px;border-radius:50%;background:#FFFDFA;animation: cmLive 1.4s ease-in-out infinite;"></span>EN VIVO · 1.204</span>
+            </div>
+            <div style="flex: 1; padding: 18px; display: flex; flex-direction: column; gap: 14px;">
+              <div>
+                <div style="font-family:'IBM Plex Mono',monospace; font-size: 10.5px; color: #94B8AC; letter-spacing: .08em;">LOTE #A-4471 · @tallerdeana</div>
+                <div style="font-weight: 700; font-size: 21px; color: #FFFDFA; margin-top: 6px; line-height: 1.2;">Cámara Rollei 35</div>
+              </div>
+              <div style="display: flex; align-items: flex-end; justify-content: space-between; background: #0E4A3D; border-radius: 16px; padding: 14px;">
+                <div>
+                  <div style="font-family:'IBM Plex Mono',monospace; font-size: 10.5px; color: #94B8AC; letter-spacing: .08em;">PUJA ACTUAL</div>
+                  <div style="font-weight: 700; font-size: 30px; color: #FFFDFA; line-height: 1.1;">240 €</div>
+                </div>
+                <div style="font-family:'IBM Plex Mono',monospace; font-size: 22px; color: #E9A23B;">00:38</div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; font-size: 13px; color: #DCEAE4;"><span>anaviajera</span><span style="font-family:'IBM Plex Mono',monospace;">240 €</span></div>
+                <div style="display: flex; justify-content: space-between; font-size: 13px; color: #94B8AC;"><span>tomas_87</span><span style="font-family:'IBM Plex Mono',monospace;">230 €</span></div>
+                <div style="display: flex; justify-content: space-between; font-size: 13px; color: #94B8AC;"><span>lauracc</span><span style="font-family:'IBM Plex Mono',monospace;">220 €</span></div>
+              </div>
+              <div style="margin-top: auto; display: flex; flex-direction: column; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #A8D8C6;"><span style="width: 7px; height: 7px; background: #E9A23B; border-radius: 50%;"></span>Pago retenido hasta la entrega</div>
+                <button style="font-family:'Public Sans',sans-serif; font-weight: 600; font-size: 17px; color: #FFFDFA; background: #AE5115; border: none; border-radius: 14px; padding: 15px; min-height: 48px; cursor: pointer;">Pujar 250 €</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size: 11.5px; color: #6B6455;">SUBASTA EN VIVO · ámbar solo en la acción</div>
+      </div>
+
+      <div style="flex: 0 0 auto; display: flex; flex-direction: column; gap: 12px;">
+        <div style="width: 320px; height: 640px; border-radius: 42px; background: #201F1B; padding: 10px; box-sizing: border-box;">
+          <div style="width: 100%; height: 100%; border-radius: 33px; overflow: hidden; background: #FAF7F2; display: flex; flex-direction: column;">
+            <div style="padding: 20px 18px 14px; background: #FFFDFA; border-bottom: 1px solid #E4DCD0;">
+              <div style="display: flex; align-items: center; gap: 9px;">
+                <div style="width: 26px; height: 26px; border-radius: 9px; background: #0E7C66; display: flex; align-items: center; justify-content: center; flex: none;">
+                  <div style="display: flex; flex-direction: column; align-items: center;"><div style="width: 6.5px; height: 3.5px; border: 1.3px solid #FFFDFA; border-bottom: none; border-radius: 4px 4px 0 0; box-sizing: border-box; margin-bottom: -0.5px;"></div><div style="width: 12px; height: 10px; background: #FFFDFA; border-radius: 1.5px 1.5px 3px 3px; display: flex; align-items: center; justify-content: center;"><div style="width: 3px; height: 3px; border-radius: 50%; background: #E9A23B;"></div></div></div>
+                </div>
+                <div style="font-weight: 700; font-size: 17px; letter-spacing: -.03em;">ComprasMío<span style="color:#AE5115;">!</span></div>
+              </div>
+              <div style="margin-top: 14px; background: #F2ECE3; border-radius: 12px; padding: 11px 13px; font-size: 14px; color: #6B6455;">Buscar en catálogo…</div>
+              <div style="display: flex; gap: 8px; margin-top: 12px;">
+                <span style="background: #0A6350; color: #FFFDFA; font-size: 12.5px; padding: 7px 12px; border-radius: 20px;">Catálogo</span>
+                <span style="background: #FFFDFA; border: 1px solid #E4DCD0; color: #56514A; font-size: 12.5px; padding: 7px 12px; border-radius: 20px;">Directos</span>
+                <span style="background: #FFFDFA; border: 1px solid #E4DCD0; color: #56514A; font-size: 12.5px; padding: 7px 12px; border-radius: 20px;">Cerca de ti</span>
+              </div>
+            </div>
+            <div style="flex: 1; padding: 16px 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-content: start;">
+              <div style="border: 1px solid #E4DCD0; border-radius: 14px; overflow: hidden; background: #FFFDFA;">
+                <div style="height: 82px; background-image: repeating-linear-gradient(135deg, #E4F0EA 0 8px, #F2ECE3 8px 16px);"></div>
+                <div style="padding: 10px;"><div style="font-size: 13px; line-height: 1.3;">Sneakers 42</div><div style="font-weight: 700; font-size: 15px; color: #0A3B31; margin-top: 5px;">89 €</div><div style="font-family:'IBM Plex Mono',monospace; font-size: 9.5px; color: #0A6350; margin-top: 5px;">COMPRA DIRECTA</div></div>
+              </div>
+              <div style="border: 1px solid #E4DCD0; border-radius: 14px; overflow: hidden; background: #FFFDFA;">
+                <div style="height: 82px; background-image: repeating-linear-gradient(135deg, #E4F0EA 0 8px, #F2ECE3 8px 16px);"></div>
+                <div style="padding: 10px;"><div style="font-size: 13px; line-height: 1.3;">Vinilo 1978</div><div style="font-weight: 700; font-size: 15px; color: #0A3B31; margin-top: 5px;">24 €</div><div style="font-family:'IBM Plex Mono',monospace; font-size: 9.5px; color: #0A6350; margin-top: 5px;">COMPRA DIRECTA</div></div>
+              </div>
+              <div style="border: 1px solid #E4DCD0; border-radius: 14px; overflow: hidden; background: #FFFDFA;">
+                <div style="height: 82px; background-image: repeating-linear-gradient(135deg, #E4F0EA 0 8px, #F2ECE3 8px 16px); position: relative;"><span style="position:absolute; top:8px; left:8px; background:#AE5115; color:#FFFDFA; font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 6px; border-radius:5px;">01:12</span></div>
+                <div style="padding: 10px;"><div style="font-size: 13px; line-height: 1.3;">Reloj Seiko</div><div style="font-weight: 700; font-size: 15px; color: #0A3B31; margin-top: 5px;">175 €</div><div style="font-family:'IBM Plex Mono',monospace; font-size: 9.5px; color: #8E4211; margin-top: 5px;">SUBASTA · 9 PUJAS</div></div>
+              </div>
+              <div style="border: 1px solid #E4DCD0; border-radius: 14px; overflow: hidden; background: #FFFDFA;">
+                <div style="height: 82px; background-image: repeating-linear-gradient(135deg, #E4F0EA 0 8px, #F2ECE3 8px 16px);"></div>
+                <div style="padding: 10px;"><div style="font-size: 13px; line-height: 1.3;">Lámpara 60s</div><div style="font-weight: 700; font-size: 15px; color: #0A3B31; margin-top: 5px;">140 €</div><div style="font-family:'IBM Plex Mono',monospace; font-size: 9.5px; color: #0A6350; margin-top: 5px;">COMPRA DIRECTA</div></div>
+              </div>
+            </div>
+            <div style="border-top: 1px solid #E4DCD0; background: #FFFDFA; padding: 12px 18px; display: flex; justify-content: space-between; font-family:'IBM Plex Mono',monospace; font-size: 10px; letter-spacing: .06em; color: #6B6455;">
+              <span style="color: #0A6350;">INICIO</span><span>DIRECTOS</span><span>VENDER</span><span>PEDIDOS</span><span>TÚ</span>
+            </div>
+          </div>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size: 11.5px; color: #6B6455;">CATÁLOGO · verde para compra directa</div>
+      </div>
+    </div>
+  </section>
+  </sc-if>
+
+  <sc-if value="{{ mostrarTonoDeVoz }}" hint-placeholder-val="{{ true }}">
+  <section style="padding: 68px 0;">
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: #6B6455; margin-bottom: 26px;">07 — Tono de voz</div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(255px, 1fr)); gap: 18px;">
+      <div style="background: #0A3B31; padding: 30px; color: #FFFDFA;">
+        <div style="font-weight: 700; font-size: 21px; line-height: 1.3;">Hablamos como un vecino que sabe de esto.</div>
+        <p style="font-size: 15.5px; line-height: 1.6; color: #C7DDD5; margin: 14px 0 0;">Tuteo, frases cortas, cero jerga legal. Cada cifra se explica sin letra pequeña, y la urgencia la pone el reloj real de la subasta: nunca el copy.</p>
+      </div>
+      <div style="background: #FFFDFA; border: 1px solid #E4DCD0; padding: 30px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size: 11.5px; color: #0A6350; letter-spacing: .08em; margin-bottom: 13px;">✓ SÍ</div>
+        <div style="display: flex; flex-direction: column; gap: 11px; font-size: 16px; line-height: 1.45;">
+          <div>«Tu pago queda retenido hasta que recibes el artículo.»</div>
+          <div>«Cierra en 38 segundos.»</div>
+          <div>«Comisión 3 %. Sin cargos sorpresa.»</div>
+          <div>«Ana vende aquí desde 2024. 312 envíos.»</div>
+        </div>
+      </div>
+      <div style="background: #FFFDFA; border: 1px solid #E4DCD0; padding: 30px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size: 11.5px; color: #A33718; letter-spacing: .08em; margin-bottom: 13px;">✕ NO</div>
+        <div style="display: flex; flex-direction: column; gap: 11px; font-size: 16px; line-height: 1.45; color: #56514A;">
+          <div>«¡¡Chollo del siglo!! No lo dejes escapar 🔥»</div>
+          <div>«Condiciones aplicables según términos vigentes.»</div>
+          <div>«Últimas unidades» cuando no lo son.</div>
+          <div>«Usuario 4471» en vez del nombre del vendedor.</div>
+        </div>
+      </div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1px; margin-top: 18px; background: #E4DCD0; border: 1px solid #E4DCD0;">
+      <div style="background: #FFFDFA; padding: 24px;"><div style="font-family:'IBM Plex Mono',monospace; font-size: 11px; color: #6B6455; letter-spacing: .08em;">CLAIM</div><div style="font-weight: 700; font-size: 19px; margin-top: 8px; line-height: 1.3;">Compra con gente, no con anuncios.</div></div>
+      <div style="background: #FFFDFA; padding: 24px;"><div style="font-family:'IBM Plex Mono',monospace; font-size: 11px; color: #6B6455; letter-spacing: .08em;">SUBASTA</div><div style="font-weight: 700; font-size: 19px; margin-top: 8px; line-height: 1.3;">El precio lo pone la sala.</div></div>
+      <div style="background: #FFFDFA; padding: 24px;"><div style="font-family:'IBM Plex Mono',monospace; font-size: 11px; color: #6B6455; letter-spacing: .08em;">VENDEDORES</div><div style="font-weight: 700; font-size: 19px; margin-top: 8px; line-height: 1.3;">Tu tienda abre en cinco minutos.</div></div>
+      <div style="background: #FFFDFA; padding: 24px;"><div style="font-family:'IBM Plex Mono',monospace; font-size: 11px; color: #6B6455; letter-spacing: .08em;">CONFIANZA</div><div style="font-weight: 700; font-size: 19px; margin-top: 8px; line-height: 1.3;">El dinero espera contigo.</div></div>
+    </div>
+  </section>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;mostrarUsosIncorrectos&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Secciones&quot;},&quot;mostrarPantallas&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Secciones&quot;},&quot;mostrarTonoDeVoz&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Secciones&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      mostrarUsosIncorrectos: this.props.mostrarUsosIncorrectos ?? true,
+      mostrarPantallas: this.props.mostrarPantallas ?? true,
+      mostrarTonoDeVoz: this.props.mostrarTonoDeVoz ?? true,
+    };
+  }
+}
+</script>
+</body>
+</html>
