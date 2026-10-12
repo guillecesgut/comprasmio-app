@@ -6,6 +6,13 @@ services:
     # Corre desde la raíz del repo: compila la web y después instala el servidor.
     buildCommand: cd web && npm install && npm run build && cd ../server && npm install
     startCommand: node server/src/index.js
+    # La app iOS (Expo) y el handoff de diseño no se despliegan acá: un cambio
+    # solo en esas carpetas no redespliega el servicio (ni vacía la base del
+    # plan gratuito). La app se publica aparte con `eas update`.
+    buildFilter:
+      ignoredPaths:
+        - mobile/**
+        - design/**
     envVars:
       - key: JWT_SECRET
         generateValue: true
