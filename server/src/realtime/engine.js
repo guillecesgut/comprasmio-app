@@ -37,7 +37,7 @@ function publicLot(lot) {
     price: lot.price,
   };
   return lot.mode === 'auction'
-    ? { ...base, increment: lot.increment, timer: lot.timer, leaderId: lot.leaderId, leaderHandle: lot.leaderHandle }
+    ? { ...base, increment: lot.increment, timer: lot.timer, leaderId: lot.leaderId, leaderHandle: lot.leaderHandle, bids: lot.bids || 0 }
     : { ...base, stock: lot.stock, sold: lot.sold, lastBuyerHandle: lot.lastBuyerHandle };
 }
 
@@ -209,10 +209,20 @@ export function placeBid(streamId, user, amount) {
   lot.price = amount;
   lot.leaderId = user.id;
   lot.leaderHandle = user.handle;
-  lot.timer = BID_WINDOW; // anti-snipe
+  lot.timer = Math.max(lot.timer, BID_WINDOW); // anti-snipe (sin acortar una extensión del vendedor)
+  lot.bids = (lot.bids || 0) + 1;
 
   broadcastLot(streamId);
   systemMessage(streamId, user.handle, `Pujó Bs ${amount}`);
+  return { lot: publicLot(lot) };
+}
+
+/** "+30 s" del vendedor en la app: alarga la subasta abierta, con un tope de 5 minutos. */
+export function extendLot(streamId, seconds = 30) {
+  const lot = lots.get(streamId);
+  if (!lot || lot.mode !== 'auction' || !lot.running) return { error: 'No hay una subasta abierta.' };
+  lot.timer = Math.min(lot.timer + seconds, 300);
+  broadcastLot(streamId);
   return { lot: publicLot(lot) };
 }
 
