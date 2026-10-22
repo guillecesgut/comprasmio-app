@@ -11,7 +11,8 @@
     "seed": "node scripts/seed.js",
     "import:v1": "node scripts/import-v1.js",
     "test": "node scripts/test.js",
-    "check": "node check-livekit.mjs"
+    "check": "node check-livekit.mjs",
+    "check:storage": "node scripts/check-storage.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1155.0",
