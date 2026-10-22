@@ -1,156 +1,172 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Link, NavLink, Navigate, useLocation } from 'react-router-dom';
-import { SessionProvider, useSession } from './session';
-import { Logomark, Wordmark, Icon, UserBadge } from './components/shared';
-import { Feed } from './buyer/Feed';
-import { Room } from './buyer/Room';
-import { Orders, Favorites } from './buyer/Account';
-import { Messages } from './buyer/Messages';
-import { Welcome } from './Welcome';
-import { NotificationBell } from './NotificationBell';
-import { SellerArea } from './seller/SellerArea';
+import { NavLink, Navigate, Route, Routes } from 'react-router-dom';
+import { api, onSocket } from './api';
+import { useSession } from './session';
+import { ErrorLine } from './ui';
+import Dashboard from './pages/Dashboard';
+import Payments from './pages/Payments';
+import Orders from './pages/Orders';
+import Payouts from './pages/Payouts';
+import Claims from './pages/Claims';
+import { Sellers, Buyers, Subscriptions } from './pages/People';
+import { Moderation, Categories, Banners } from './pages/Content';
+import { Plans, Config, Team, Audit } from './pages/Settings';
 
-const BUYER_NAV = [
-  { to: '/', label: 'Inicio', icon: 'home' as const, end: true },
-  { to: '/favoritos', label: 'Favoritos', icon: 'heart' as const },
-  { to: '/compras', label: 'Compras', icon: 'bag' as const },
+type Counts = { payments: number; claims: number };
+
+/** Ítems de la barra lateral por grupo; `roles` vacío = visible para todo el equipo. */
+const NAV: { group: string; items: { to: string; label: string; roles: string[]; count?: keyof Counts }[] }[] = [
+  {
+    group: 'Operación',
+    items: [
+      { to: '/', label: 'Inicio', roles: [] },
+      { to: '/pagos', label: 'Pagos por verificar', roles: ['pagos'], count: 'payments' },
+      { to: '/pedidos', label: 'Pedidos', roles: ['pagos'] },
+      { to: '/liquidaciones', label: 'Liquidaciones', roles: ['pagos'] },
+      { to: '/reclamos', label: 'Reclamos', roles: ['pagos'], count: 'claims' },
+    ],
+  },
+  {
+    group: 'Personas',
+    items: [
+      { to: '/vendedores', label: 'Vendedores', roles: ['pagos', 'moderador'] },
+      { to: '/compradores', label: 'Compradores', roles: ['moderador'] },
+      { to: '/suscripciones', label: 'Suscripciones', roles: ['pagos'] },
+    ],
+  },
+  {
+    group: 'Contenido',
+    items: [
+      { to: '/moderacion', label: 'Catálogo y reportes', roles: ['moderador'] },
+      { to: '/categorias', label: 'Categorías', roles: ['moderador'] },
+      { to: '/banners', label: 'Banners y destacados', roles: ['moderador'] },
+    ],
+  },
+  {
+    group: 'Ajustes',
+    items: [
+      { to: '/planes', label: 'Planes y comisiones', roles: ['__admin'] },
+      { to: '/configuracion', label: 'Configuración y QR', roles: ['__admin'] },
+      { to: '/equipo', label: 'Equipo', roles: ['__admin'] },
+      { to: '/registro', label: 'Registro de cambios', roles: ['__admin'] },
+    ],
+  },
 ];
 
-function Shell({ children }: { children: React.ReactNode }) {
-  const { user, loading, logout, online } = useSession();
-  const location = useLocation();
+const ROLE_LABEL: Record<string, string> = { admin: 'Administración', pagos: 'Pagos', moderador: 'Moderación' };
 
-  // Mientras se resuelve la sesión, nada de menú todavía: evita el parpadeo
-  // de ver el menú de comprador un instante antes de saber quién es.
-  if (loading) {
-    return (
-      <div style={{ minHeight: '100dvh', display: 'grid', placeItems: 'center' }}>
-        <Logomark size={48} radius={16} />
-      </div>
-    );
-  }
-
-  const WELCOME_PATHS = ['/', '/entrar', '/crear-cuenta'];
-  const bare =
-    location.pathname.startsWith('/vivo/') ||
-    location.pathname.startsWith('/vender/transmitir') ||
-    (!user && WELCOME_PATHS.includes(location.pathname));
-
-  if (bare) return <>{children}</>;
-
-  const isSeller = user?.role === 'seller';
-
+function Login() {
+  const { login } = useSession();
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [error, setError] = React.useState<string | null>(null);
+  const [busy, setBusy] = React.useState(false);
   return (
-    <>
-      <header className="topbar">
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none' }}>
-          <Logomark size={30} radius={10} />
-          <Wordmark size={19} />
-        </Link>
-
-        {/* La navegación de Inicio/Favoritos/Compras es del comprador. El vendedor
-            ya tiene su propio menú arriba de cada sección, dentro de /vender. */}
-        {!isSeller && (
-          <nav className="topbar__nav">
-            {BUYER_NAV.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.end}
-                className={({ isActive }) => `topbar__link${isActive ? ' is-active' : ''}`}
-              >
-                {item.label}
-              </NavLink>
-            ))}
-          </nav>
-        )}
-
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
-          {!online && <span className="offline-dot" title="Sin conexión con el servidor" />}
-          {user ? (
-            <>
-              {user.role === 'seller' && (
-                <Link to="/vender" className="btn btn--sm btn--outline" style={{ textDecoration: 'none', display: 'grid', placeItems: 'center' }}>
-                  Vender
-                </Link>
-              )}
-              <NotificationBell />
-              <UserBadge name={user.name} />
-              <button className="icon-btn icon-btn--sm" onClick={logout} aria-label="Cerrar sesión">
-                <Icon name="logout" size={16} />
-              </button>
-            </>
-          ) : (
-            <Link to="/entrar" className="btn btn--sm" style={{ textDecoration: 'none', display: 'grid', placeItems: 'center' }}>
-              Entrar
-            </Link>
-          )}
+    <div className="login">
+      <form onSubmit={async (e) => {
+        e.preventDefault();
+        setBusy(true);
+        setError(null);
+        try { await login(email, password); } catch (err: any) { setError(err.message); } finally { setBusy(false); }
+      }}>
+        <div>
+          <div className="wordmark" style={{ color: 'var(--forest)' }}>ComprasMío<b>!</b></div>
+          <p className="muted">Panel del equipo</p>
         </div>
-      </header>
-
-      <main className={`page${isSeller ? ' page--seller' : ''}`}>{children}</main>
-
-      {!isSeller && (
-        <nav className="bottombar">
-          {BUYER_NAV.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              className={({ isActive }) => `bottombar__link${isActive ? ' is-active' : ''}`}
-            >
-              <Icon name={item.icon} size={20} />
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
-      )}
-    </>
+        <label className="field"><span>Email</span>
+          <input type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        </label>
+        <label className="field"><span>Contraseña</span>
+          <input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        </label>
+        <ErrorLine error={error} />
+        <button className="btn primary" disabled={busy}>{busy ? 'Entrando…' : 'Entrar'}</button>
+      </form>
+    </div>
   );
 }
 
-function Protected({ children, seller }: { children: React.ReactNode; seller?: boolean }) {
-  const { user, loading } = useSession();
-  const location = useLocation();
+function Layout({ children }: { children: React.ReactNode }) {
+  const { user, logout, can } = useSession();
+  const [counts, setCounts] = React.useState<Counts>({ payments: 0, claims: 0 });
 
-  if (loading) return <p style={{ color: 'var(--muted)' }}>Cargando…</p>;
-  if (!user) return <Navigate to="/entrar" state={{ from: location.pathname }} replace />;
-  if (seller && user.role !== 'seller') return <Navigate to="/" replace />;
-  return <>{children}</>;
-}
+  const refresh = React.useCallback(() => {
+    api.get('/dashboard').then((d) => setCounts({ payments: d.toVerify.count, claims: d.openClaims })).catch(() => {});
+  }, []);
+  React.useEffect(() => {
+    refresh();
+    const t = window.setInterval(refresh, 60_000);
+    const off = [onSocket('payment:new', refresh), onSocket('claim:new', refresh), onSocket('admin:refresh', refresh)];
+    window.addEventListener('admin:changed', refresh);
+    return () => { window.clearInterval(t); off.forEach((f) => f()); window.removeEventListener('admin:changed', refresh); };
+  }, [refresh]);
 
-/** Si ya tenés sesión, no hay nada que hacer en /entrar o /crear-cuenta. */
-function GuestOnly({ children }: { children: React.ReactNode }) {
-  const { user } = useSession();
-  if (user) return <Navigate to="/" replace />;
-  return <>{children}</>;
-}
+  const visible = (roles: string[]) =>
+    roles.length === 0 || (roles.includes('__admin') ? user?.adminRole === 'admin' : can(...roles));
 
-function Root() {
-  const { user } = useSession();
-  if (!user) return <Welcome initialTab="signup" />;
-  // Cada rol tiene su interfaz fija: el vendedor nunca aterriza en el feed de compras.
-  return user.role === 'seller' ? <Navigate to="/vender" replace /> : <Feed />;
+  return (
+    <div className="shell">
+      <aside className="sidebar">
+        <div className="brand">
+          <div>
+            <div className="wordmark">ComprasMío<b>!</b></div>
+            <small>Panel</small>
+          </div>
+        </div>
+        <nav aria-label="Secciones" className="stack" style={{ gap: 16 }}>
+          {NAV.map((g) => {
+            const items = g.items.filter((i) => visible(i.roles));
+            if (!items.length) return null;
+            return (
+              <div className="nav-group" key={g.group}>
+                <span>{g.group}</span>
+                {items.map((i) => (
+                  <NavLink key={i.to} to={i.to} end={i.to === '/'} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+                    {i.label}
+                    {i.count && counts[i.count] > 0 && <span className="nav-count">{counts[i.count]}</span>}
+                  </NavLink>
+                ))}
+              </div>
+            );
+          })}
+        </nav>
+        <div className="sidebar-foot">
+          <div><strong style={{ color: '#FFFDFA' }}>{user?.name}</strong><br />{ROLE_LABEL[user?.adminRole || 'admin']}</div>
+          <button type="button" onClick={logout}>Cerrar sesión</button>
+        </div>
+      </aside>
+      <main className="main">{children}</main>
+    </div>
+  );
 }
 
 export default function App() {
+  const { user, loading, can } = useSession();
+  if (loading) return <div className="empty">Cargando…</div>;
+  if (!user) return <Login />;
+  const isAdmin = user.adminRole === 'admin';
+  const guard = (ok: boolean, el: React.ReactElement) => (ok ? el : <Navigate to="/" replace />);
   return (
-    <BrowserRouter>
-      <SessionProvider>
-        <Shell>
-          <Routes>
-            <Route path="/" element={<Root />} />
-            <Route path="/vivo/:id" element={<Room />} />
-            <Route path="/entrar" element={<GuestOnly><Welcome initialTab="login" /></GuestOnly>} />
-            <Route path="/crear-cuenta" element={<GuestOnly><Welcome initialTab="signup" /></GuestOnly>} />
-            <Route path="/compras" element={<Protected><Orders /></Protected>} />
-            <Route path="/mensajes/:sellerId" element={<Protected><Messages /></Protected>} />
-            <Route path="/favoritos" element={<Protected><Favorites /></Protected>} />
-            <Route path="/vender/*" element={<Protected seller><SellerArea /></Protected>} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Shell>
-      </SessionProvider>
-    </BrowserRouter>
+    <Layout>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/pagos" element={guard(can('pagos'), <Payments />)} />
+        <Route path="/pedidos" element={guard(can('pagos'), <Orders />)} />
+        <Route path="/liquidaciones" element={guard(can('pagos'), <Payouts />)} />
+        <Route path="/reclamos" element={guard(can('pagos'), <Claims />)} />
+        <Route path="/vendedores" element={guard(can('pagos', 'moderador'), <Sellers />)} />
+        <Route path="/compradores" element={guard(can('moderador'), <Buyers />)} />
+        <Route path="/suscripciones" element={guard(can('pagos'), <Subscriptions />)} />
+        <Route path="/moderacion" element={guard(can('moderador'), <Moderation />)} />
+        <Route path="/categorias" element={guard(can('moderador'), <Categories />)} />
+        <Route path="/banners" element={guard(can('moderador'), <Banners />)} />
+        <Route path="/planes" element={guard(isAdmin, <Plans />)} />
+        <Route path="/configuracion" element={guard(isAdmin, <Config />)} />
+        <Route path="/equipo" element={guard(isAdmin, <Team />)} />
+        <Route path="/registro" element={guard(isAdmin, <Audit />)} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Layout>
   );
 }
+

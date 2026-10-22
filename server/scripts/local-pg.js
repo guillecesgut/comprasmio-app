@@ -90,6 +90,13 @@ export async function startLocalPg({ dir, port = 54329, quiet = true } = {}) {
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const port = Number(process.env.LOCAL_PG_PORT || 54329);
   const pg = await startLocalPg({ port, quiet: false });
+  // La primera vez crea la base de la app para que `npm run seed` y `npm run dev` funcionen sin más pasos.
+  const { default: pgLib } = await import('pg');
+  const admin = new pgLib.Client({ connectionString: pg.url('postgres') });
+  await admin.connect();
+  const exists = await admin.query(`SELECT 1 FROM pg_database WHERE datname = 'comprasmio'`);
+  if (!exists.rowCount) await admin.query('CREATE DATABASE comprasmio');
+  await admin.end();
   console.log(`Postgres local listo → ${pg.url('comprasmio')}`);
   const stop = async () => { await pg.stop(); process.exit(0); };
   process.on('SIGINT', stop);

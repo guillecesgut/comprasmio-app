@@ -1,84 +1,54 @@
 import React from 'react';
-import { api, setToken, getToken, realtime } from './api';
+import { api, setToken, getToken, handleUnauthorized, connectSocket, closeSocket } from './api';
+
+export type AdminUser = { id: string; name: string; email: string; role: string; adminRole: 'admin' | 'pagos' | 'moderador' };
 
 type Session = {
-  user: any | null;
+  user: AdminUser | null;
   loading: boolean;
-  favorites: string[];
-  online: boolean;
-  login: (phone: string, password: string) => Promise<any>;
-  signup: (payload: { name: string; phone: string; password: string; role: string }) => Promise<any>;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  toggleFavorite: (streamId: string) => Promise<void>;
+  can: (...roles: string[]) => boolean;
 };
 
 const Ctx = React.createContext<Session>(null as any);
 export const useSession = () => React.useContext(Ctx);
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = React.useState<any>(null);
+  const [user, setUser] = React.useState<AdminUser | null>(null);
   const [loading, setLoading] = React.useState(true);
-  const [favorites, setFavorites] = React.useState<string[]>([]);
-  const [online, setOnline] = React.useState(false);
 
-  const adopt = React.useCallback(async (user: any) => {
-    setUser(user);
-    realtime.reset();
-    realtime.connect();
-    // El vendedor escucha su propio canal para ver entrar los pedidos al instante.
-    if (user?.sellerId) realtime.subscribe(`seller:${user.sellerId}`);
-    const { favorites } = await api.favorites().catch(() => ({ favorites: [] as string[] }));
-    setFavorites(favorites);
+  const logout = React.useCallback(() => {
+    setToken(null);
+    closeSocket();
+    setUser(null);
   }, []);
 
   React.useEffect(() => {
-    const off = realtime.on('connection', ({ online }) => setOnline(online));
-    if (!getToken()) {
-      setLoading(false);
-      return off;
-    }
-    api.me()
-      .then(({ user }) => adopt(user))
+    handleUnauthorized(logout);
+    if (!getToken()) { setLoading(false); return; }
+    api.get('/auth/me')
+      .then(({ user }) => {
+        if (user.role !== 'admin') throw new Error('no admin');
+        setUser(user);
+        connectSocket();
+      })
       .catch(() => setToken(null))
       .finally(() => setLoading(false));
-    return off;
-  }, [adopt]);
+  }, [logout]);
 
   const value: Session = {
     user,
     loading,
-    favorites,
-    online,
-    async login(phone, password) {
-      const { token, user } = await api.login(phone, password);
+    async login(email, password) {
+      const { token, user } = await api.post('/auth/login', { email, password });
+      if (user.role !== 'admin') throw new Error('Esta cuenta no es del equipo de ComprasMío!.');
       setToken(token);
-      await adopt(user);
-      return user;
+      setUser(user);
+      connectSocket();
     },
-    async signup(payload) {
-      const { token, user } = await api.signup(payload);
-      setToken(token);
-      await adopt(user);
-      return user;
-    },
-    logout() {
-      setToken(null);
-      realtime.reset();
-      setUser(null);
-      setFavorites([]);
-    },
-    async toggleFavorite(streamId) {
-      const previous = favorites;
-      // Optimista: el corazón responde al instante y se revierte si el servidor falla.
-      setFavorites(previous.includes(streamId) ? previous.filter((id) => id !== streamId) : [...previous, streamId]);
-      try {
-        const { favorites } = await api.toggleFavorite(streamId);
-        setFavorites(favorites);
-      } catch {
-        setFavorites(previous);
-      }
-    },
+    logout,
+    can: (...roles) => Boolean(user && (user.adminRole === 'admin' || roles.includes(user.adminRole))),
   };
-
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
