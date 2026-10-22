@@ -4,3 +4,5 @@ dist/
 server/data/
 server/uploads/
 .env
+.pgdata/
+.pgtest/

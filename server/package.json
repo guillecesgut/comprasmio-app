@@ -2,15 +2,19 @@
   "name": "comprasmio-server",
   "version": "1.0.0",
   "type": "module",
-  "description": "API + realtime para ComprasM\u00edo! (live commerce Bolivia)",
+  "description": "API + realtime para ComprasMío! (live commerce Bolivia)",
   "main": "src/index.js",
   "scripts": {
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
     "seed": "node src/seed.js --reset",
-    "check": "node check-livekit.mjs"
+    "check": "node check-livekit.mjs",
+    "test": "node scripts/test.js",
+    "db": "node scripts/local-pg.js"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1155.0",
+    "@aws-sdk/s3-request-presigner": "^3.1155.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^17.4.2",
@@ -18,7 +22,11 @@
     "jsonwebtoken": "^9.0.2",
     "livekit-server-sdk": "^2.19.0",
     "multer": "^1.4.5-lts.1",
+    "pg": "^8.23.1",
     "qrcode": "^1.5.3",
     "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "embedded-postgres": "^17.10.0-beta.17"
   }
 }

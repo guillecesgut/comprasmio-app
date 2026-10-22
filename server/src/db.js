@@ -1,103 +1,83 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import pg from 'pg';
+import crypto from 'node:crypto';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = path.join(__dirname, '..', 'data');
-const DB_FILE = path.join(DATA_DIR, 'comprasmio.json');
+// bigint y numeric llegan como string por defecto; acá son conteos y promedios chicos.
+pg.types.setTypeParser(20, (v) => Number(v));
+pg.types.setTypeParser(1700, (v) => Number(v));
 
-const EMPTY = {
-  users: [],
-  sellers: [],
-  products: [],
-  streams: [],
-  orders: [],
-  messages: [],
-  threads: [],
-  notifications: [],
-  reports: [],
-  meta: { orderSeq: 10482, lotSeq: 4 },
+let pool = null;
+
+export function connect(url) {
+  const needsSsl = /render\.com|neon\.tech|sslmode=require/.test(url) && !/sslmode=disable/.test(url);
+  pool = new pg.Pool({
+    connectionString: url,
+    max: Number(process.env.PG_POOL_MAX || 10),
+    ssl: needsSsl ? { rejectUnauthorized: false } : undefined,
+  });
+  pool.on('error', (err) => console.error('[db] conexión caída', err.message));
+  return pool;
+}
+
+export const getPool = () => {
+  if (!pool) throw new Error('La base no está conectada (db.connect).');
+  return pool;
 };
 
-let db = structuredClone(EMPTY);
-let writeTimer = null;
+export async function close() {
+  await pool?.end();
+  pool = null;
+}
 
-export function load() {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-  if (fs.existsSync(DB_FILE)) {
+/** `q` puede ser el pool o un cliente dentro de una transacción. */
+export const query = (text, params, q = getPool()) => q.query(text, params);
+export const one = async (text, params, q) => (await query(text, params, q)).rows[0] || null;
+export const many = async (text, params, q) => (await query(text, params, q)).rows;
+
+/**
+ * Ejecuta `fn(client)` dentro de una transacción. Ante un conflicto de serialización o un
+ * deadlock reintenta: pasa cuando dos compras pelean la última unidad al mismo tiempo.
+ */
+export async function tx(fn, { retries = 3 } = {}) {
+  for (let attempt = 0; ; attempt++) {
+    const client = await getPool().connect();
     try {
-      db = { ...structuredClone(EMPTY), ...JSON.parse(fs.readFileSync(DB_FILE, 'utf8')) };
-    } catch {
-      console.warn('[db] archivo corrupto, se reinicia');
-      db = structuredClone(EMPTY);
+      await client.query('BEGIN');
+      client.onCommit = [];
+      const result = await fn(client);
+      await client.query('COMMIT');
+      // Efectos que solo deben ocurrir si la transacción se confirmó (avisos por socket, borrar archivos).
+      for (const effect of client.onCommit) {
+        await Promise.resolve().then(effect).catch((e) => console.error('[db] efecto posterior', e.message));
+      }
+      return result;
+    } catch (err) {
+      await client.query('ROLLBACK').catch(() => {});
+      if (attempt < retries && (err.code === '40001' || err.code === '40P01')) continue;
+      throw err;
+    } finally {
+      client.release();
     }
   }
-  return db;
 }
 
-/** Escritura diferida: las pujas llegan cada pocos ms y no queremos un fsync por evento. */
-export function persist() {
-  if (writeTimer) return;
-  writeTimer = setTimeout(() => {
-    writeTimer = null;
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-    fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
-  }, 250);
+/**
+ * Ejecuta `effect` cuando la transacción `q` se confirme (o ya mismo si `q` no es una
+ * transacción). Para avisos por socket y notificaciones: nunca avisar de algo que se deshizo.
+ */
+export function afterCommit(q, effect) {
+  if (q && Array.isArray(q.onCommit)) q.onCommit.push(effect);
+  else Promise.resolve().then(effect).catch((e) => console.error('[db] efecto posterior', e.message));
 }
 
-export function flush() {
-  if (writeTimer) { clearTimeout(writeTimer); writeTimer = null; }
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-  fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
+/** IDs de texto con prefijo, como en la v1: usr_…, prd_… */
+export const id = (prefix) => `${prefix}_${Date.now().toString(36)}${crypto.randomBytes(4).toString('hex')}`;
+
+/** Error con status HTTP para responder al cliente con un mensaje claro. */
+export class HttpError extends Error {
+  constructor(status, message, extra) {
+    super(message);
+    this.status = status;
+    this.extra = extra;
+  }
 }
-
-export function reset() {
-  db = structuredClone(EMPTY);
-  flush();
-  return db;
-}
-
-export const get = () => db;
-
-export const id = (prefix) =>
-  `${prefix}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
-
-/** Referencia visible para el comprador: #SM-10482 */
-export function nextOrderRef() {
-  db.meta.orderSeq += 1;
-  persist();
-  return `#SM-${db.meta.orderSeq}`;
-}
-
-/** Número de lote dentro de una transmisión: #004 (subasta) / #F-217 (precio fijo) */
-export function nextLotNo(mode) {
-  db.meta.lotSeq += 1;
-  return mode === 'fixed'
-    ? `#F-${200 + db.meta.lotSeq}`
-    : `#${String(db.meta.lotSeq).padStart(3, '0')}`;
-}
-
-export const find = (col, fn) => db[col].find(fn);
-export const filter = (col, fn) => db[col].filter(fn);
-
-export function insert(col, row) {
-  db[col].push(row);
-  persist();
-  return row;
-}
-
-export function update(col, matchId, patch) {
-  const row = db[col].find((r) => r.id === matchId);
-  if (!row) return null;
-  Object.assign(row, patch);
-  persist();
-  return row;
-}
-
-export function remove(col, matchId) {
-  const i = db[col].findIndex((r) => r.id === matchId);
-  if (i === -1) return false;
-  db[col].splice(i, 1);
-  persist();
-  return true;
-}
+export const fail = (status, message, extra) => { throw new HttpError(status, message, extra); };
