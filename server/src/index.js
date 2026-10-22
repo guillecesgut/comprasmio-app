@@ -7,10 +7,13 @@ import * as hub from './realtime/hub.js';
 import * as live from './services/live.js';
 import { ensureAdmin } from './services/users.js';
 import { startJobs } from './jobs.js';
+import { ensureCategories } from '../scripts/categories.js';
 
 db.connect(config.databaseUrl);
 await migrate();
 await live.recoverAfterRestart();
+// Base nueva (primer despliegue): carga las categorías iniciales. Después las maneja el panel.
+if (!(await db.one('SELECT 1 FROM categories LIMIT 1'))) await ensureCategories();
 const adminId = await ensureAdmin({ email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD, name: process.env.ADMIN_NAME });
 if (adminId) console.log(`Panel           →  administrador ${process.env.ADMIN_EMAIL}`);
 

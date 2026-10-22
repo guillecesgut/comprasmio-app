@@ -1,68 +1,66 @@
 # ComprasMío! — app iOS (Expo)
 
 App nativa para compradores y vendedores, construida sobre el handoff de diseño de `../design/`
-(ver `design/README.md`). Usa **el mismo backend** que la web (`../server/`): API REST,
-WebSocket y LiveKit.
+(ver `design/README.md`). Usa el backend de `../server/`: API REST, WebSocket y LiveKit.
 
 **Stack:** Expo SDK 57 · React Native 0.86 · expo-router · SF Symbols (`expo-symbols`) ·
 LiveKit (`@livekit/react-native`) · TypeScript estricto.
 
-## Estado
+## Estado (v2: marketplace + vivos)
 
 | Verificado | Cómo |
 |---|---|
 | Tipos | `npm run typecheck` sin errores |
-| Dependencias alineadas con el SDK | `npm run doctor` → 21/21 |
 | El JavaScript de iOS compila | `npx expo export --platform ios` |
-| Endpoints nuevos del servidor | prueba contra una copia del servidor con datos de ejemplo |
+| Flujos contra el servidor real | vista web de prueba con datos de ejemplo: compra con variantes → checkout → pago QR → mis compras; vendedor: pedidos, catálogo, editor, stock; vivo completo (armar, precio fijo, subasta, resumen) |
 
-**Todavía no se ejecutó en un iPhone ni en el simulador** (hace falta una Mac o una build de EAS).
-Es el próximo paso, y lo más probable es que aparezcan ajustes visuales al verla en un dispositivo.
+**Todavía no se ejecutó en un iPhone.** Diálogos nativos (`Alert.prompt`, hojas de acciones),
+cámara y video solo se pueden probar en el dispositivo o en una build de EAS.
 
 ## Pantallas
 
 | ID | Pantalla | Archivo |
 |---|---|---|
 | A1–A3 | Bienvenida, rol, crear cuenta / iniciar sesión | `app/(auth)/` |
-| B1 | Inicio | `app/(buyer)/inicio.tsx` |
-| B2/B3 | Sala en vivo (subasta / precio fijo) | `app/vivo/[id].tsx` |
-| B4 | Catálogo del vivo (hoja) | `app/catalogo/[id].tsx` |
-| B5 | Pago por QR (hoja) | `app/pago/[orderId].tsx` |
-| B6 | Compras | `app/(buyer)/compras.tsx` |
-| B7 | Mensajes con el vendedor | `app/mensajes/[sellerId].tsx` |
-| B8 | Favoritos | `app/(buyer)/favoritos.tsx` |
-| C1 | Resumen | `app/(seller)/resumen.tsx` |
-| C2 | Productos (deslizar: editar / borrar) | `app/(seller)/productos.tsx` |
-| C3 | Nuevo / editar producto (hoja) | `app/producto/[id].tsx` |
-| C4 | Órdenes | `app/(seller)/ordenes.tsx` |
-| C5 | Revisar comprobante (hoja) | `app/comprobante/[orderId].tsx` |
-| C6 | Armar la transmisión (hoja) | `app/transmitir/armar.tsx` |
-| C7 | Al aire | `app/transmitir/[id].tsx` |
-| C8 | Clientes + hilo | `app/(seller)/clientes.tsx`, `app/cliente/[buyerId].tsx` |
-| — | Cuenta (cerrar sesión, **borrar cuenta**) · Notificaciones | `app/cuenta.tsx`, `app/notificaciones.tsx` |
+| D1 | Inicio | `app/(buyer)/inicio.tsx` |
+| D2 | Categoría | `app/categoria/[id].tsx` |
+| D3/D4 | Buscar y resultados | `app/(buyer)/buscar.tsx` |
+| D5 | Producto | `app/producto/[id].tsx` |
+| D6 | Carrito | `app/(buyer)/carrito.tsx` |
+| D7 | Checkout | `app/checkout.tsx` |
+| D8 / D8b | Pago por QR / comprobante enviado | `app/pago/[id].tsx`, `app/pago/listo.tsx` |
+| D9 | Tienda pública | `app/tienda/[slug].tsx` |
+| D10 | Cuenta | `app/(buyer)/cuenta.tsx` |
+| B6 / D11 | Mis compras / detalle | `app/compras/` |
+| D12 / D13 | Recepción y reseña / reclamo | `app/pedido/recepcion/[id].tsx`, `app/pedido/reclamo/[id].tsx` |
+| D14–D16b | Deseos, seguidos, direcciones | `app/deseos.tsx`, `app/seguidos.tsx`, `app/direcciones/` |
+| B1 | Vivos | `app/(buyer)/vivos.tsx` |
+| B2/B3 · B4 | Sala · catálogo del vivo | `app/vivo/[id].tsx`, `app/vivo/catalogo/[id].tsx` |
+| B7 | Mensajes | `app/mensajes.tsx`, `app/chat/[sellerId].tsx` |
+| C1 | Resumen del vendedor | `app/(seller)/resumen.tsx` |
+| E1 / E2 / E3 | Catálogo / editor de producto / stock | `app/(seller)/catalogo.tsx`, `app/vendedor/producto.tsx`, `app/variante/[id].tsx` |
+| E4 / E4b | Paquetes / editor | `app/vendedor/paquetes.tsx`, `app/vendedor/paquete.tsx` |
+| E5 / E6 | Pedidos / detalle | `app/(seller)/pedidos.tsx`, `app/vendedor/pedidos/[id].tsx` |
+| E7 / E8 | Cobros / datos para cobrar | `app/vendedor/cobros/` |
+| E10 / E11 / E11b / E12 | Mi tienda / mi plan / Premium / reseñas | `app/vendedor/` , `app/plan/premium.tsx` |
+| C8 | Mensajes del vendedor | `app/(seller)/mensajes.tsx`, `app/vendedor/mensajes/[buyerId].tsx` |
+| E9 / C7 / C7b | Armar el vivo / al aire / fin | `app/transmitir/` |
 
-El código compartido vive en `src/`: `api.ts` (REST + socket), `session.tsx`, `live.tsx`
-(LiveKit), `ui.tsx` (componentes del sistema visual), `theme.ts` (tokens), `TabBar.tsx`,
-`Thread.tsx` (chat comprador ↔ vendedor).
+Código compartido en `src/`: `api.ts` (REST + socket), `session.tsx` (sesión y badges),
+`hooks.ts`, `live.tsx` (LiveKit), `ui.tsx` (componentes), `theme.ts` (tokens), `Thread.tsx`.
 
-## Cambios en el servidor para la app
+## Pendiente
 
-- `DELETE /api/auth/me` — borrar la cuenta pidiendo la contraseña (requisito de Apple).
-- `PUT /api/auth/me/blocked/:handle` y `POST /api/auth/report` — bloquear y reportar en el
-  chat de la sala (requisito de Apple para contenido de usuarios). Los reportes quedan en la
-  colección `reports` de la base para revisión manual.
-- `POST /api/streams/:id/lot/extend` — botón "+30 s" del vendedor (tope de 5 min).
-- Las subastas cuentan pujas (`lot.bids`) y `/api/seller/customers` trae el último mensaje.
+- Notificaciones push (`expo-notifications`): hoy los avisos se ven dentro de la app.
+- "Avisarme cuando salga" por lote (B4) y "Avisarme si vuelve" en productos agotados.
+- Reordenar la cola arrastrando (E9): hoy con flechas ↑ ↓.
+- Fotos arrastrables en el editor (E2): la portada se elige tocando la foto.
 
-## Lo que el handoff pide y no está (necesita backend nuevo)
-
-- Notificaciones push (`expo-notifications` + registrar el token del dispositivo).
-- Live Activity / Dynamic Island (B9): target de WidgetKit en Swift + pushes de ActivityKit.
-- "Avisarme cuando salga" por producto (B4) y "Próximo vivo" de favoritos sin transmisión (B8).
-- Fotos de producto (C3): hoy se muestran las rayas de color del prototipo.
-- Reordenar la cola arrastrando (C6): el orden es el de los toques.
-- Picture in Picture y linterna en la sala/transmisión.
-- Filtro por período (Hoy / Semana / Mes) en Resumen: hoy solo cambia el gráfico.
+**Revisión de Apple — plan Premium.** El handoff cobra Premium por QR, fuera de la app. Apple
+suele exigir su compra integrada cuando un pago desbloquea funciones *dentro* de la app (aquí,
+transmitir). Antes de enviar a revisión conviene decidir entre: cobrar Premium solo desde la
+web/panel sin mencionarlo en la app, ofrecerlo también por compra integrada, o consultar a
+Apple. Las compras de productos físicos sí pueden pagarse por QR (guía 3.1.3(e)).
 
 ## Desarrollo
 
@@ -97,7 +95,7 @@ Instalá en el iPhone la build que te da EAS y corré `npm start`. En `eas.json`
 conoce `localhost`). El servidor tiene que estar corriendo (`cd server && npm run dev`).
 
 Cuentas de prueba (con `npm run seed` en el servidor): compradora `71234567` / `comprar123`,
-vendedor `70000000` / `vender123`.
+vendedor Premium `70000000` / `vender123`, vendedores Básico `70000001` y `70000002` / `vender123`.
 
 ## Publicar en la App Store
 
