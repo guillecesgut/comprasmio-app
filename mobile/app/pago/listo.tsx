@@ -12,7 +12,6 @@ export default function Listo() {
   const { id = '' } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
   const { data: p } = useData(() => api.payment(id).then((r) => r.payment), [id]);
-  const plan = p?.kind === 'plan';
   const approved = p?.status === 'approved';
 
   return (
@@ -24,12 +23,12 @@ export default function Listo() {
         <Text style={[T.title1, { textAlign: 'center' }]}>{approved ? 'Pago confirmado' : 'Recibimos tu comprobante'}</Text>
         <Text style={[T.body, { color: C.secondary, textAlign: 'center' }]}>
           {approved
-            ? plan ? 'Tu plan Premium ya está activo.' : 'Los vendedores ya pueden preparar tu pedido.'
+            ? 'Los vendedores ya pueden preparar tu pedido.'
             : 'Lo verificamos en las próximas horas. Te avisamos cuando esté confirmado.'}
         </Text>
       </View>
 
-      {!p ? <Loading /> : !plan && p.orders.length > 0 && (
+      {!p ? <Loading /> : p.orders.length > 0 && (
         <>
           <Text style={[T.section, { paddingHorizontal: 32, paddingTop: 28, paddingBottom: 8 }]}>Pedidos generados</Text>
           <Group>
@@ -42,14 +41,8 @@ export default function Listo() {
       )}
 
       <View style={{ padding: 16, gap: 10, marginTop: 12 }}>
-        {plan ? (
-          <Btn title="Volver a mi plan" onPress={() => router.replace('/vendedor/plan')} />
-        ) : (
-          <>
-            <Btn title="Ver mis compras" onPress={() => router.replace('/compras')} />
-            <Btn title="Seguir comprando" tone="tonal" onPress={() => router.replace('/inicio')} />
-          </>
-        )}
+        <Btn title="Ver mis compras" onPress={() => router.replace('/compras')} />
+        <Btn title="Seguir comprando" tone="tonal" onPress={() => router.replace('/inicio')} />
       </View>
     </ScrollView>
   );

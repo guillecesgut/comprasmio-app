@@ -8,9 +8,9 @@ import Payments from './pages/Payments';
 import Orders from './pages/Orders';
 import Payouts from './pages/Payouts';
 import Claims from './pages/Claims';
-import { Sellers, Buyers, Subscriptions } from './pages/People';
+import { Sellers, Buyers } from './pages/People';
 import { Moderation, Categories, Banners } from './pages/Content';
-import { Plans, Config, Team, Audit } from './pages/Settings';
+import { Commission, Config, Team, Audit } from './pages/Settings';
 
 type Counts = { payments: number; claims: number };
 
@@ -31,7 +31,6 @@ const NAV: { group: string; items: { to: string; label: string; roles: string[];
     items: [
       { to: '/vendedores', label: 'Vendedores', roles: ['pagos', 'moderador'] },
       { to: '/compradores', label: 'Compradores', roles: ['moderador'] },
-      { to: '/suscripciones', label: 'Suscripciones', roles: ['pagos'] },
     ],
   },
   {
@@ -45,7 +44,7 @@ const NAV: { group: string; items: { to: string; label: string; roles: string[];
   {
     group: 'Ajustes',
     items: [
-      { to: '/planes', label: 'Planes y comisiones', roles: ['__admin'] },
+      { to: '/comision', label: 'Comisión', roles: ['__admin'] },
       { to: '/configuracion', label: 'Configuración y QR', roles: ['__admin'] },
       { to: '/equipo', label: 'Equipo', roles: ['__admin'] },
       { to: '/registro', label: 'Registro de cambios', roles: ['__admin'] },
@@ -156,11 +155,10 @@ export default function App() {
         <Route path="/reclamos" element={guard(can('pagos'), <Claims />)} />
         <Route path="/vendedores" element={guard(can('pagos', 'moderador'), <Sellers />)} />
         <Route path="/compradores" element={guard(can('moderador'), <Buyers />)} />
-        <Route path="/suscripciones" element={guard(can('pagos'), <Subscriptions />)} />
         <Route path="/moderacion" element={guard(can('moderador'), <Moderation />)} />
         <Route path="/categorias" element={guard(can('moderador'), <Categories />)} />
         <Route path="/banners" element={guard(can('moderador'), <Banners />)} />
-        <Route path="/planes" element={guard(isAdmin, <Plans />)} />
+        <Route path="/comision" element={guard(isAdmin, <Commission />)} />
         <Route path="/configuracion" element={guard(isAdmin, <Config />)} />
         <Route path="/equipo" element={guard(isAdmin, <Team />)} />
         <Route path="/registro" element={guard(isAdmin, <Audit />)} />

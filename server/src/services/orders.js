@@ -238,12 +238,6 @@ export async function approvePayment(adminId, paymentId) {
       [adminId, paymentId, JSON.stringify({ ref: p.ref, amount_cents: p.amount_cents })]
     );
 
-    if (p.kind === 'plan') {
-      const { activatePremiumFromPayment } = await import('./plans.js');
-      await activatePremiumFromPayment(q, p, adminId);
-      return { ok: true };
-    }
-
     const orders = await many(`SELECT * FROM orders WHERE payment_id = $1 ORDER BY ref FOR UPDATE`, [paymentId], q);
     for (const o of orders) {
       await stock.confirmHolds(q, o.id, o.ref);

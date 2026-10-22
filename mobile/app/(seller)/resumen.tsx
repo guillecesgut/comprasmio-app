@@ -16,7 +16,6 @@ export default function Resumen() {
   const { user, badges } = useSession();
   const [period, setPeriod] = React.useState<Period>('semana');
   const { data: d, error, loading, reload } = useData(() => api.seller_.summary(period), [period], { events: ['order:new', 'order:update'] });
-  const plan = useData(() => api.seller_.plan().then((r) => r.plan), []);
   const pay = useData(() => api.seller_.payouts(), []);
 
   return (
@@ -36,12 +35,6 @@ export default function Resumen() {
           {pay.data.accountStatus === 'missing' ? 'Cargá tus datos para cobrar: sin ellos no podemos transferirte.'
             : pay.data.accountStatus === 'rejected' ? 'Tus datos para cobrar fueron rechazados. Revisalos.'
               : 'Estamos revisando tus datos para cobrar.'}
-        </Notice>
-      )}
-      {plan.data?.expiringSoon && (
-        <Notice tone="amber" icon="crown.fill" style={{ marginTop: 10 }}
-          action={<Btn title="Renovar" tone="tonal" height={34} style={{ alignSelf: 'flex-start' }} onPress={() => router.push('/vendedor/plan')} />}>
-          {`Tu Premium vence en ${plan.data.daysLeft} ${plan.data.daysLeft === 1 ? 'día' : 'días'}.`}
         </Notice>
       )}
 
@@ -65,7 +58,7 @@ export default function Resumen() {
           <View style={styles.grid}>
             <Kpi icon="banknote" title="Próximo pago" value={bs(d.nextPayout.net)} sub={weekdayDate(d.nextPayout.date)} onPress={() => router.push('/vendedor/cobros')} />
             <Kpi icon="shippingbox" title="Por preparar" value={String(d.toPrepare)} sub={d.toPrepare === 1 ? 'pedido' : 'pedidos'} onPress={() => router.navigate('/pedidos')} />
-            <Kpi icon="percent" title="Comisión del mes" value={bs(d.monthCommission.amount)} sub={`${d.monthCommission.pct} % · ${d.plan === 'premium' ? 'Premium' : 'Básico'}`} onPress={() => router.push('/vendedor/plan')} />
+            <Kpi icon="percent" title="Comisión del mes" value={bs(d.monthCommission.amount)} sub={`${d.monthCommission.pct} % sobre lo vendido`} onPress={() => router.push('/vendedor/cobros')} />
             <Kpi icon="star.fill" title="Reseñas" value={d.reviews.count ? `★ ${String(d.reviews.avg).replace('.', ',')}` : '—'}
               sub={d.reviews.unanswered ? `${d.reviews.unanswered} sin responder` : `${d.reviews.count} en total`} onPress={() => router.push('/vendedor/resenas')} />
           </View>
@@ -76,7 +69,6 @@ export default function Resumen() {
       <Group inset={50}>
         <Row icon="banknote" title="Cobros y liquidaciones" chevron onPress={() => router.push('/vendedor/cobros')} />
         <Row icon="storefront" title="Mi tienda" chevron onPress={() => router.push('/vendedor/tienda')} />
-        <Row icon="crown.fill" iconColor={C.bid} title="Mi plan" subtitle={plan.data ? (plan.data.plan === 'premium' ? 'Premium' : 'Básico') : undefined} chevron onPress={() => router.push('/vendedor/plan')} />
         <Row icon="star" title="Reseñas" chevron onPress={() => router.push('/vendedor/resenas')} />
         <Row icon="dot.radiowaves.left.and.right" iconColor={C.bid} title="Mis vivos" chevron onPress={() => router.push('/vendedor/vivos')} />
       </Group>

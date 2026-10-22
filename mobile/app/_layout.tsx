@@ -58,7 +58,6 @@ function Navigator() {
       <Stack.Screen name="vendedor/producto" options={sheet([1], C.groupedBg)} />
       <Stack.Screen name="vendedor/paquete" options={sheet([1], C.groupedBg)} />
       <Stack.Screen name="variante/[id]" options={sheet([0.75, 1], C.groupedBg)} />
-      <Stack.Screen name="plan/premium" options={sheet([0.6])} />
       <Stack.Screen name="transmitir/armar" options={sheet([1], C.groupedBg)} />
 
       {/* Hilos de chat: fondo blanco. */}

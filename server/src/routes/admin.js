@@ -3,13 +3,12 @@ import { handle, requireAdmin } from '../auth.js';
 import * as admin from '../services/admin.js';
 import * as orders from '../services/orders.js';
 import * as payouts from '../services/payouts.js';
-import * as plans from '../services/plans.js';
 import * as content from '../services/content.js';
 import * as dashboard from '../services/dashboard.js';
 
 /**
  * Panel de administración (serie F). Roles: admin (todo), pagos (pagos, pedidos, liquidaciones,
- * reclamos, suscripciones) y moderador (catálogo, reportes, compradores).
+ * reclamos) y moderador (catálogo, reportes, compradores).
  */
 const router = Router();
 router.use(requireAdmin());
@@ -57,9 +56,6 @@ router.post('/sellers/:id/account', pagos, handle(async (req, res) => { await pa
 router.get('/buyers', moderador, handle(async (req, res) => res.json({ buyers: await admin.buyersList(req.query) })));
 router.patch('/users/:id/status', moderador, handle(async (req, res) => { await admin.setUserStatus(req.user.id, req.params.id, req.body?.status); res.json({ ok: true }); }));
 
-// F8 · suscripciones
-router.get('/subscriptions', pagos, handle(async (_req, res) => res.json({ subscriptions: await plans.subscriptions() })));
-router.post('/subscriptions/:sellerId', soloAdmin, handle(async (req, res) => res.json({ until: await plans.grantPremiumManually(req.user.id, req.params.sellerId, req.body?.days) })));
 
 // F9 · catálogo y moderación
 router.get('/products', moderador, handle(async (req, res) => res.json({ products: await admin.searchProducts(req.query.q) })));
@@ -82,7 +78,7 @@ router.delete('/banners/:id', soloAdmin, handle(async (req, res) => { await cont
 router.get('/featured', handle(async (_req, res) => res.json(await content.featured())));
 router.put('/featured/:kind', soloAdmin, handle(async (req, res) => res.json(await content.setFeatured(req.params.kind, req.body?.ids || []))));
 
-// F12/F13 · planes, comisiones y configuración (incluido el QR de cobro)
+// F12/F13 · comisión y configuración (incluido el QR de cobro)
 router.get('/settings', handle(async (_req, res) => res.json({ settings: await admin.settings() })));
 router.put('/settings', soloAdmin, handle(async (req, res) => res.json({ settings: await admin.updateSettings(req.user.id, req.body || {}) })));
 router.get('/qrs', handle(async (_req, res) => res.json({ qrs: await admin.qrs() })));

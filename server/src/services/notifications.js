@@ -13,7 +13,6 @@ export const KIND = {
   ORDER_UPDATE: 'pedido',
   CLAIM: 'reclamo',
   PAYOUT: 'liquidacion',
-  PLAN: 'plan',
   MESSAGE: 'mensaje',
   LIVE: 'vivo',
   REVIEW: 'resena',

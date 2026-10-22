@@ -5,7 +5,7 @@ import { bs, toCents } from '../util.js';
 import { photosByProduct } from './present.js';
 
 /**
- * Paquetes (E4/E4b, Premium): varias variantes combinadas que se subastan juntas en un vivo.
+ * Paquetes (E4/E4b): varias variantes combinadas que se subastan juntas en un vivo.
  * Cuántos se pueden armar lo limita la pieza más escasa.
  */
 export async function list(sellerId) {

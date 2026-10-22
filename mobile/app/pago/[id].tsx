@@ -11,7 +11,7 @@ import { pickFromLibrary, takePhoto, pickPdf } from '@/pickers';
 import { SheetHeader, Btn, BottomBar, Notice, Press, Sym, Loading, ErrorLine, Group, Row, useToast } from '@/ui';
 import { C, T, R, SOFT } from '@/theme';
 
-/** D8 · Pago por QR de la plataforma (hoja completa). También sirve para el pago del plan Premium. */
+/** D8 · Pago por QR de la plataforma (hoja completa). */
 export default function Pago() {
   const { id = '' } = useLocalSearchParams<{ id: string }>();
   const toast = useToast();
@@ -30,7 +30,6 @@ export default function Pago() {
   if (!p) return <View style={{ flex: 1 }}><SheetHeader title="Pagá tu compra" onClose={close} />{error ? <View style={{ padding: 16 }}><ErrorLine message={error} /></View> : <Loading />}</View>;
 
   const expired = p.status === 'expired' || (p.expiresAt && left === 0 && p.status === 'pending');
-  const plan = p.kind === 'plan';
 
   const copy = async (text: string, label: string) => {
     await Clipboard.setStringAsync(text);
@@ -86,7 +85,7 @@ export default function Pago() {
       <View style={{ flex: 1, backgroundColor: C.groupedBg }}>
         <SheetHeader title="El tiempo para pagar terminó" onClose={close} />
         <Notice tone="amber" icon="timer">El tiempo para pagar terminó. Liberamos el stock; podés volver a intentarlo.</Notice>
-        <View style={{ padding: 16 }}><Btn title={plan ? 'Volver a mi plan' : 'Volver al carrito'} onPress={() => router.replace(plan ? '/vendedor/plan' : '/carrito')} /></View>
+        <View style={{ padding: 16 }}><Btn title="Volver al carrito" onPress={() => router.replace('/carrito')} /></View>
       </View>
     );
   }
@@ -95,8 +94,8 @@ export default function Pago() {
     <View style={{ flex: 1, backgroundColor: C.groupedBg }}>
       <ScrollView contentContainerStyle={{ paddingBottom: 200 }}>
         <SheetHeader
-          eyebrow={plan ? 'Plan Premium' : `${p.orders.length} ${p.orders.length === 1 ? 'pedido' : 'pedidos'} · una transferencia`}
-          title={plan ? 'Pagá tu plan' : 'Pagá tu compra'} onClose={close} />
+          eyebrow={`${p.orders.length} ${p.orders.length === 1 ? 'pedido' : 'pedidos'} · una transferencia`}
+          title="Pagá tu compra" onClose={close} />
 
         {p.rejectReason && <Notice tone="red" icon="exclamationmark.triangle.fill" style={{ marginBottom: 10 }}>{`Revisamos tu comprobante: ${p.rejectReason}. Enviá uno nuevo.`}</Notice>}
         {p.expiresAt && (
@@ -148,7 +147,7 @@ export default function Pago() {
           </Group>
         )}
 
-        {!plan && p.orders.length > 0 && (
+        {p.orders.length > 0 && (
           <>
             <Text style={[T.section, { paddingHorizontal: 32, paddingTop: 24, paddingBottom: 8 }]}>Incluye</Text>
             <Group>

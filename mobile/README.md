@@ -42,7 +42,7 @@ cámara y video solo se pueden probar en el dispositivo o en una build de EAS.
 | E4 / E4b | Paquetes / editor | `app/vendedor/paquetes.tsx`, `app/vendedor/paquete.tsx` |
 | E5 / E6 | Pedidos / detalle | `app/(seller)/pedidos.tsx`, `app/vendedor/pedidos/[id].tsx` |
 | E7 / E8 | Cobros / datos para cobrar | `app/vendedor/cobros/` |
-| E10 / E11 / E11b / E12 | Mi tienda / mi plan / Premium / reseñas | `app/vendedor/` , `app/plan/premium.tsx` |
+| E10 / E12 | Mi tienda / reseñas | `app/vendedor/tienda.tsx`, `app/vendedor/resenas.tsx` |
 | C8 | Mensajes del vendedor | `app/(seller)/mensajes.tsx`, `app/vendedor/mensajes/[buyerId].tsx` |
 | E9 / C7 / C7b | Armar el vivo / al aire / fin | `app/transmitir/` |
 
@@ -56,11 +56,10 @@ Código compartido en `src/`: `api.ts` (REST + socket), `session.tsx` (sesión y
 - Reordenar la cola arrastrando (E9): hoy con flechas ↑ ↓.
 - Fotos arrastrables en el editor (E2): la portada se elige tocando la foto.
 
-**Revisión de Apple — plan Premium.** El handoff cobra Premium por QR, fuera de la app. Apple
-suele exigir su compra integrada cuando un pago desbloquea funciones *dentro* de la app (aquí,
-transmitir). Antes de enviar a revisión conviene decidir entre: cobrar Premium solo desde la
-web/panel sin mencionarlo en la app, ofrecerlo también por compra integrada, o consultar a
-Apple. Las compras de productos físicos sí pueden pagarse por QR (guía 3.1.3(e)).
+**Revisión de Apple.** No hay planes ni cuotas: la plataforma cobra solo una comisión sobre la
+venta de productos físicos (catálogo y vivos), que puede pagarse fuera de la compra integrada de
+Apple (guía 3.1.3(e)). Transmitir está abierto a todos los vendedores, así que no hay nada digital
+que desbloquear con un pago.
 
 ## Desarrollo
 
@@ -95,7 +94,7 @@ Instalá en el iPhone la build que te da EAS y corré `npm start`. En `eas.json`
 conoce `localhost`). El servidor tiene que estar corriendo (`cd server && npm run dev`).
 
 Cuentas de prueba (con `npm run seed` en el servidor): compradora `71234567` / `comprar123`,
-vendedor Premium `70000000` / `vender123`, vendedores Básico `70000001` y `70000002` / `vender123`.
+vendedores `70000000`, `70000001` y `70000002` / `vender123`.
 
 ## Publicar en la App Store
 

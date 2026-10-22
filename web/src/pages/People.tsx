@@ -16,7 +16,7 @@ export function Sellers() {
   const list = useLoad<any[]>(() => api.get(`/sellers?${qs}`).then((r) => r.sellers), [qs]);
   return (
     <>
-      <PageHead title="Vendedores" subtitle="Plan, comisión, datos para cobrar y estado de cada tienda." />
+      <PageHead title="Vendedores" subtitle="Comisión, datos para cobrar y estado de cada tienda." />
       <div className="row" style={{ marginBottom: 14 }}>
         <input type="search" className="search" placeholder="Nombre o teléfono" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Buscar" />
         <Seg value={status} onChange={setStatus} options={[{ key: '', label: 'Todos' }, { key: 'active', label: 'Activos' }, { key: 'pending', label: 'Pendientes' }, { key: 'suspended', label: 'Suspendidos' }]} />
@@ -25,12 +25,11 @@ export function Sellers() {
       <div className="split">
         <div className="table-wrap">
           <table>
-            <thead><tr><th>Tienda</th><th>Plan</th><th className="r">Comisión</th><th className="r">Ventas del mes</th><th className="r">Productos</th><th>Cuenta</th><th>Estado</th></tr></thead>
+            <thead><tr><th>Tienda</th><th className="r">Comisión</th><th className="r">Ventas del mes</th><th className="r">Productos</th><th>Cuenta</th><th>Estado</th></tr></thead>
             <tbody>
               {list.data?.map((s) => (
                 <tr key={s.id} className={`clickable${s.id === selected ? ' selected' : ''}`} onClick={() => setSelected(s.id)}>
                   <td><strong>{s.name}</strong>{s.verified && ' ✓'}<div className="small muted">{s.owner} · {s.phone}</div></td>
-                  <td>{s.plan === 'premium' ? <Chip tone="amber">Premium</Chip> : <Chip tone="gray">Básico</Chip>}</td>
                   <td className="r">{s.commissionPct} %{s.commissionOverride != null && <div className="small muted">especial</div>}</td>
                   <td className="r">{bs(s.monthSales)}</td>
                   <td className="r">{s.products}</td>
@@ -77,7 +76,6 @@ function SellerPanel({ id, onChanged }: { id: string; onChanged: () => void }) {
         <p className="muted small">{s.owner} · {s.phone} · desde {fecha(s.createdAt)}</p>
       </div>
       <dl className="kv">
-        <dt>Plan</dt><dd>{s.plan === 'premium' ? `Premium hasta ${fecha(s.planUntil)}` : 'Básico'}</dd>
         <dt>Comisión vigente</dt><dd>{s.commissionPct} %</dd>
         <dt>Calificación</dt><dd>{s.ratingPct != null ? `${s.ratingPct} % positivas` : '—'} · {s.salesCount} ventas</dd>
         <dt>Ventas del mes</dt><dd>{bs(s.monthSales)}</dd>
@@ -114,7 +112,7 @@ function SellerPanel({ id, onChanged }: { id: string; onChanged: () => void }) {
           <strong>Ajustes de la tienda</strong>
           <label className="check"><input type="checkbox" checked={s.verified} disabled={busy} onChange={(e) => patch({ verified: e.target.checked }, e.target.checked ? 'Insignia de verificado activada' : 'Insignia quitada')} /> Tienda verificada (muestra ✓)</label>
           <div className="row" style={{ alignItems: 'flex-end' }}>
-            <label className="field" style={{ width: 170 }}><span>Comisión especial %</span><input type="number" min={0} max={100} step="0.5" placeholder="Según plan" value={commission} onChange={(e) => setCommission(e.target.value)} /></label>
+            <label className="field" style={{ width: 170 }}><span>Comisión especial %</span><input type="number" min={0} max={100} step="0.5" placeholder="La general" value={commission} onChange={(e) => setCommission(e.target.value)} /></label>
             <button className="btn small outline" disabled={busy} onClick={() => patch({ commissionPct: commission === '' ? null : Number(commission) }, 'Comisión actualizada')}>Guardar</button>
           </div>
           <div className="row">
@@ -193,53 +191,6 @@ export function Buyers() {
             catch (e: any) { setError(e.message); } finally { setBusy(false); }
           }}>
           <p className="muted">{target.status === 'blocked' ? 'Podrá volver a entrar y comprar.' : 'No podrá iniciar sesión ni comprar. Sus pedidos en curso siguen su curso.'}</p>
-          <ErrorLine error={error} />
-        </Confirm>
-      )}
-    </>
-  );
-}
-
-// -------------------------------------------------------- F8 · suscripciones
-
-export function Subscriptions() {
-  const { user } = useSession();
-  const list = useLoad<any[]>(() => api.get('/subscriptions').then((r) => r.subscriptions));
-  const [grant, setGrant] = React.useState<any>(null);
-  const [days, setDays] = React.useState('30');
-  const [busy, setBusy] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
-  const toast = useToast();
-  return (
-    <>
-      <PageHead title="Suscripciones Premium" subtitle="Los pagos del plan entran por la cola de pagos; acá ves vencimientos y podés extender a mano." />
-      <ErrorLine error={list.error} />
-      <div className="table-wrap">
-        <table>
-          <thead><tr><th>Tienda</th><th>Vence</th><th className="r">Días</th><th>Último pago</th><th>Estado</th><th /></tr></thead>
-          <tbody>
-            {list.data?.map((s) => (
-              <tr key={s.sellerId}>
-                <td><strong>{s.seller}</strong></td><td>{fecha(s.until)}</td>
-                <td className="r">{s.active ? s.daysLeft : '—'}</td><td className="small">{fecha(s.lastPayment)}</td>
-                <td>{!s.active ? <Chip tone="dim">Vencida</Chip> : s.daysLeft <= 5 ? <Chip tone="amber">Vence pronto</Chip> : <Chip tone="green">Activa</Chip>}</td>
-                <td className="r">{user?.adminRole === 'admin' && <button className="btn small outline" onClick={() => { setDays('30'); setError(null); setGrant(s); }}>Extender</button>}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {list.data?.length === 0 && <Empty>Todavía ningún vendedor tiene Premium.</Empty>}
-      </div>
-      {grant && (
-        <Confirm title={`Extender Premium · ${grant.seller}`} confirmLabel={`Sumar ${days || 0} días`} busy={busy} onCancel={() => setGrant(null)}
-          disabled={!(Number(days) > 0)}
-          onConfirm={async () => {
-            setBusy(true);
-            try { await api.post(`/subscriptions/${grant.sellerId}`, { days: Number(days) }); toast('Premium extendido'); setGrant(null); list.reload(); }
-            catch (e: any) { setError(e.message); } finally { setBusy(false); }
-          }}>
-          <p className="muted">Para cortesías o pagos recibidos por fuera de la app. Queda en el registro de cambios.</p>
-          <label className="field"><span>Días</span><input type="number" min={1} max={366} value={days} onChange={(e) => setDays(e.target.value)} /></label>
           <ErrorLine error={error} />
         </Confirm>
       )}

@@ -6,7 +6,7 @@ import * as storage from '../storage.js';
 import * as stock from './stock.js';
 import { createOrdersAndPayment } from './orders.js';
 import { notify, KIND } from './notifications.js';
-import { getSettings, isPremium } from '../settings.js';
+import { getSettings } from '../settings.js';
 import { bs, toCents, colorFor } from '../util.js';
 import { photosByProduct } from './present.js';
 
@@ -260,7 +260,6 @@ async function sellerStream(sellerId, streamId) {
  * en el orden de la cola.
  */
 export async function startStream(seller, { title, entries, scheduledId }) {
-  if (!isPremium(seller)) fail(403, 'Transmitir es parte de Premium.');
   if (!Array.isArray(entries) || !entries.length) fail(400, 'Cargá al menos un producto o paquete.');
   if (await one(`SELECT 1 FROM streams WHERE seller_id = $1 AND status = 'live'`, [seller.id])) fail(409, 'Ya tenés un vivo al aire.');
 
@@ -313,7 +312,6 @@ export async function startStream(seller, { title, entries, scheduledId }) {
 
 /** Próximo vivo programado (aparece en D9, D15 y B1). */
 export async function scheduleStream(seller, { title, at }) {
-  if (!isPremium(seller)) fail(403, 'Transmitir es parte de Premium.');
   const when = new Date(at);
   if (Number.isNaN(when.getTime()) || when < new Date()) fail(400, 'Elegí una fecha y hora futura.');
   const sid = id('str');

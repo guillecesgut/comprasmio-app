@@ -66,7 +66,7 @@ test('dos compras simultáneas de la última unidad: una sola gana', async () =>
 });
 
 test('el vivo aparta stock del catálogo y al terminar devuelve lo no vendido', async () => {
-  const { seller } = await makeSeller({ plan: 'premium' });
+  const { seller } = await makeSeller();
   const buyer = await makeUser();
   const { variants: [v] } = await makeProduct(seller.id, { variants: [{ label: 'Única', price: 80, stock: 100 }] });
   const stream = await makeStream(seller.id);
@@ -100,7 +100,7 @@ test('el vivo aparta stock del catálogo y al terminar devuelve lo no vendido', 
 });
 
 test('una compra del vivo que vence después de terminar vuelve al catálogo', async () => {
-  const { seller } = await makeSeller({ plan: 'premium' });
+  const { seller } = await makeSeller();
   const buyer = await makeUser();
   const { variants: [v] } = await makeProduct(seller.id, { variants: [{ label: 'Única', price: 80, stock: 10 }] });
   const stream = await makeStream(seller.id);
@@ -119,7 +119,7 @@ test('una compra del vivo que vence después de terminar vuelve al catálogo', a
 });
 
 test('los paquetes apartan todas sus piezas y su disponible lo limita la más escasa', async () => {
-  const { seller } = await makeSeller({ plan: 'premium' });
+  const { seller } = await makeSeller();
   const buyer = await makeUser();
   const { variants: [a] } = await makeProduct(seller.id, { title: 'Orient Bambino', variants: [{ label: 'Única', price: 600, stock: 1 }] });
   const { variants: [b] } = await makeProduct(seller.id, { title: 'Correa', variants: [{ label: 'Única', price: 90, stock: 12 }] });

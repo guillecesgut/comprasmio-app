@@ -1,5 +1,5 @@
 import { one, many } from '../db.js';
-import { getSettings, isPremium, commissionBpFor } from '../settings.js';
+import { getSettings, commissionBpFor } from '../settings.js';
 import { bs } from '../util.js';
 import { boliviaDate, periodFor } from './payouts.js';
 
@@ -54,7 +54,6 @@ export async function sellerSummary(sellerId, period = 'semana') {
   const next = scheduled ? { net: bs(scheduled.net_cents), date: scheduled.scheduled_for } : { net: bs(accumulating.net), date: periodFor(new Date(), settings).payOn };
   return {
     storeName: seller.name,
-    plan: isPremium(seller) ? 'premium' : 'basico',
     period,
     sales: { total: bs(totalCatalogo + totalVivo), catalogo: bs(totalCatalogo), vivo: bs(totalVivo), orders: sales.reduce((s, x) => s + x.orders, 0), days },
     nextPayout: next,
@@ -67,7 +66,7 @@ export async function sellerSummary(sellerId, period = 'semana') {
 /** F1 · Inicio del panel. */
 export async function adminDashboard() {
   const settings = await getSettings();
-  const [toVerify, oldest, claims, week, byDay, attention, premiumSoon] = await Promise.all([
+  const [toVerify, oldest, claims, week, byDay, attention] = await Promise.all([
     one(`SELECT count(*)::int AS n, COALESCE(SUM(amount_cents), 0)::int AS cents FROM payments WHERE status = 'in_review'`),
     one(`SELECT min(receipt_at) AS at FROM payments WHERE status = 'in_review'`),
     one(`SELECT count(*)::int AS n FROM claims WHERE status IN ('abierto', 'esperando_vendedor')`),
@@ -88,7 +87,6 @@ export async function adminDashboard() {
         WHERE c.status IN ('abierto','esperando_vendedor') AND c.created_at < now() - interval '48 hours')
        ORDER BY at LIMIT 20`
     ),
-    many(`SELECT id, name, plan_until FROM sellers WHERE plan = 'premium' AND plan_until BETWEEN now() AND now() + interval '5 days' ORDER BY plan_until`),
   ]);
   const scheduled = await one(
     `SELECT min(scheduled_for) AS date, COALESCE(SUM(net_cents), 0)::int AS cents, count(*)::int AS sellers FROM payouts WHERE status = 'programada'`
@@ -101,7 +99,6 @@ export async function adminDashboard() {
     byDay: byDay.map((d) => ({ day: d.day, catalogo: bs(d.catalogo), vivo: bs(d.vivo) })),
     attention: [
       ...attention.map((a) => ({ kind: a.kind, id: a.id, label: a.label, at: a.at })),
-      ...premiumSoon.map((s) => ({ kind: 'premium', id: s.id, label: s.name, at: s.plan_until })),
     ],
   };
 }

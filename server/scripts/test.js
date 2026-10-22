@@ -3,6 +3,7 @@
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs';
+import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { startLocalPg } from './local-pg.js';
 
@@ -20,7 +21,11 @@ const files = process.argv.slice(2).length
 const child = spawn(process.execPath, ['--test', '--test-concurrency=4', ...files], {
   cwd: root,
   stdio: 'inherit',
-  env: { ...process.env, TEST_PG_URL: pg.url('postgres'), RUN_JOBS: 'false', NODE_ENV: 'test' },
+  // Archivos siempre en disco: las pruebas nunca escriben en el bucket de server/.env.
+  env: {
+    ...process.env, TEST_PG_URL: pg.url('postgres'), RUN_JOBS: 'false', NODE_ENV: 'test',
+    STORAGE_DRIVER: 'local', STORAGE_LOCAL_DIR: process.env.STORAGE_LOCAL_DIR || path.join(os.tmpdir(), 'comprasmio-test-uploads'),
+  },
 });
 const code = await new Promise((resolve) => child.on('exit', resolve));
 await pg.stop();

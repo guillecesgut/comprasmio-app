@@ -1,7 +1,7 @@
 import { one, many, id, tx, fail } from '../db.js';
 import { hash, compare } from '../auth.js';
 import { handleFrom, initialsFrom, slugify, normalizePhone, colorFor } from '../util.js';
-import { getSettings, isPremium, commissionBpFor } from '../settings.js';
+import { getSettings, commissionBpFor } from '../settings.js';
 import * as storage from '../storage.js';
 
 async function uniqueHandle(base, q) {
@@ -76,8 +76,6 @@ export async function profile(userId) {
     role: u.role,
     adminRole: u.admin_role,
     sellerId: seller?.id || null,
-    plan: seller ? (isPremium(seller) ? 'premium' : 'basico') : null,
-    planUntil: seller?.plan_until || null,
     commissionPct: seller ? commissionBpFor(seller, settings) / 100 : null,
     blocked: blocked.map((b) => b.handle),
     blockedIds: blocked.map((b) => b.id),

@@ -9,7 +9,7 @@ type Dash = {
   openClaims: number;
   week: { sales: number; commission: number; orders: number };
   byDay: { day: string; catalogo: number; vivo: number }[];
-  attention: { kind: 'pago' | 'reclamo' | 'premium'; id: string; label: string; at: string }[];
+  attention: { kind: 'pago' | 'reclamo'; id: string; label: string; at: string }[];
 };
 
 /** Últimos 14 días, rellenando los días sin ventas. */
@@ -26,7 +26,6 @@ function last14(byDay: Dash['byDay']) {
 const ATTENTION = {
   pago: { label: 'Pago esperando más de 2 h', to: '/pagos', tone: 'amber' },
   reclamo: { label: 'Reclamo abierto más de 48 h', to: '/reclamos', tone: 'red' },
-  premium: { label: 'Premium vence pronto', to: '/suscripciones', tone: 'gray' },
 } as const;
 
 export default function Dashboard() {
@@ -93,7 +92,7 @@ export default function Dashboard() {
                   <li key={`${a.kind}-${a.id}`} style={{ gridTemplateColumns: 'minmax(0,1fr) auto' }}>
                     <div>
                       <Link to={meta.to}><strong>{a.label}</strong></Link>
-                      <div className="small muted">{a.kind === 'premium' ? `Vence ${fecha(a.at)}` : hace(a.at)}</div>
+                      <div className="small muted">{hace(a.at)}</div>
                     </div>
                     <Chip tone={meta.tone}>{meta.label}</Chip>
                   </li>

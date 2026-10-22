@@ -7,7 +7,7 @@ import { Collage } from '@/Collage';
 import { NavBar, Circle, Notice, Press, EmptyCard, Btn, Loading, ErrorLine, useToast } from '@/ui';
 import { C, T, R } from '@/theme';
 
-/** E4 · Paquetes (Premium): siempre por subasta; al cargarlos en un vivo se apartan todas sus piezas. */
+/** E4 · Paquetes: siempre por subasta; al cargarlos en un vivo se apartan todas sus piezas. */
 export default function Paquetes() {
   const toast = useToast();
   const { data, error, reload } = useData(() => api.seller_.bundles().then((r) => r.bundles), []);

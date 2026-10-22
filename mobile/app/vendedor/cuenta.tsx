@@ -22,7 +22,6 @@ export default function CuentaVendedor() {
         <Group inset={50}>
           <Row icon="storefront" title="Mi tienda" chevron onPress={() => router.push('/vendedor/tienda')} />
           <Row icon="banknote" title="Cobros y datos bancarios" chevron onPress={() => router.push('/vendedor/cobros')} />
-          <Row icon="crown.fill" iconColor={C.bid} title="Mi plan" chevron onPress={() => router.push('/vendedor/plan')} />
           <Row icon="bell" title="Avisos" chevron onPress={() => router.push('/notificaciones')} right={badges.unread ? <Badge count={badges.unread} /> : undefined} />
         </Group>
         <Group inset={50}>

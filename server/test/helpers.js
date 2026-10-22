@@ -39,12 +39,11 @@ export async function makeUser({ role = 'buyer', name = 'Ana Quispe', phone } = 
   );
 }
 
-export async function makeSeller({ plan = 'basico' } = {}) {
+export async function makeSeller() {
   const user = await makeUser({ role: 'seller', name: 'Relojería Andina' });
   const seller = await db.one(
-    `INSERT INTO sellers(id, user_id, slug, name, initials, plan, plan_until)
-     VALUES ($1, $2, $3, 'Relojería Andina', 'RA', $4, $5) RETURNING *`,
-    [db.id('sel'), user.id, `tienda-${uniq()}`, plan, plan === 'premium' ? new Date(Date.now() + 30 * 864e5) : null]
+    `INSERT INTO sellers(id, user_id, slug, name, initials) VALUES ($1, $2, $3, 'Relojería Andina', 'RA') RETURNING *`,
+    [db.id('sel'), user.id, `tienda-${uniq()}`]
   );
   return { user, seller };
 }

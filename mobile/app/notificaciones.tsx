@@ -14,7 +14,6 @@ const ICON: Record<string, { name: SymbolName; color: string }> = {
   pedido: { name: 'shippingbox.fill', color: C.forest },
   reclamo: { name: 'exclamationmark.bubble.fill', color: C.destructive },
   liquidacion: { name: 'banknote.fill', color: C.tint },
-  plan: { name: 'crown.fill', color: C.bid },
   mensaje: { name: 'bubble.left.fill', color: C.forest },
   vivo: { name: 'dot.radiowaves.left.and.right', color: C.bid },
   resena: { name: 'star.fill', color: C.bidLight },

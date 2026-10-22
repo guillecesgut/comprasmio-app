@@ -13,14 +13,13 @@ const TABS: TabSpec[] = [
 
 /**
  * TabVendedor: Resumen · Catálogo · Pedidos (badge = por preparar) · Mensajes + botón
- * Transmitir. Premium: ámbar, abre E9. Básico: gris con candado, abre E11b. Nunca se oculta.
+ * Transmitir ámbar, que abre E9. Todos los vendedores pueden transmitir.
  */
 export default function SellerLayout() {
   const { user, badges } = useSession();
 
   if (!user) return <Redirect href="/welcome" />;
   if (user.role !== 'seller') return <Redirect href="/inicio" />;
-  const premium = user.plan === 'premium';
 
   return (
     <Tabs
@@ -29,9 +28,7 @@ export default function SellerLayout() {
         <FloatingTabBar
           {...props}
           tabs={TABS}
-          extra={premium
-            ? { icon: 'video.fill', label: 'Transmitir', tone: 'bid', onPress: () => router.push('/transmitir/armar') }
-            : { icon: 'lock.fill', label: 'Transmitir (Premium)', tone: 'locked', onPress: () => router.push('/plan/premium') }}
+          extra={{ icon: 'video.fill', label: 'Transmitir', tone: 'bid', onPress: () => router.push('/transmitir/armar') }}
         />
       )}
     >

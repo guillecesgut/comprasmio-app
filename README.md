@@ -5,12 +5,12 @@ Moneda `Bs 1.234`, español de Bolivia.
 
 - **Catálogo**: productos con variantes (talla, color…), carrito con varios vendedores y un
   solo pago.
-- **Vivos** (plan Premium): el vendedor carga variantes o paquetes; mientras dura el vivo,
+- **Vivos** (abiertos a todos los vendedores): el vendedor carga variantes o paquetes; mientras dura el vivo,
   esas unidades salen del catálogo. Subasta por unidad o precio fijo, y cada lote lo inicia
   el vendedor a mano. Lo que no se vende vuelve al catálogo al terminar.
 - **Modo plataforma**: el comprador paga al QR de ComprasMío!, el equipo verifica el
   comprobante en el panel y a los vendedores se les paga **cada semana** lo entregado,
-  menos la comisión de su plan. Los pedidos en reclamo quedan retenidos.
+  menos la comisión. Los pedidos en reclamo quedan retenidos.
 
 | Carpeta | Qué es |
 |---|---|
@@ -55,15 +55,14 @@ Cuentas que crea `npm run seed`:
 |---|---|---|
 | Panel (admin) | `admin@comprasmio.bo` | `comprasmio-admin` |
 | Compradora | `71234567` | `comprar123` |
-| Vendedor Premium | `70000000` | `vender123` |
-| Vendedores Básico | `70000001`, `70000002` | `vender123` |
+| Vendedores | `70000000`, `70000001`, `70000002` | `vender123` |
 
 Pruebas del servidor: `cd server && npm test` (levanta su propio PostgreSQL temporal).
 
 ## Panel de administración
 
 Roles: **Administración** (todo), **Pagos** (pagos, pedidos, liquidaciones, reclamos,
-suscripciones) y **Moderación** (catálogo, reportes, compradores, categorías, banners).
+y **Moderación** (catálogo, reportes, compradores, categorías, banners).
 
 - **Pagos por verificar**: comprobante al lado; "Aprobar pago de Bs X" o rechazar con motivo.
 - **Liquidaciones**: semana de lunes a domingo, pago el lunes (configurable). Generar el corte,
@@ -71,7 +70,7 @@ suscripciones) y **Moderación** (catálogo, reportes, compradores, categorías,
   Solo se paga a cuentas con datos verificados.
 - **Configuración y QR**: el QR de cobro se sube, se revisa y se activa; se puede volver a uno
   anterior. Ventanas de pago, días de entrega automática, día de corte y de pago.
-- **Planes y comisiones**: porcentajes de Básico y Premium, precio y duración de Premium.
+- **Comisión**: un solo porcentaje (10 % por defecto) sobre lo vendido en catálogo y vivos, sin cuota fija ni planes. Se puede poner una comisión especial a un vendedor.
 - **Registro de cambios**: quién hizo qué; no se puede editar.
 
 ## Desplegar en Render

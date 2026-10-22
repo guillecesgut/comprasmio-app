@@ -33,42 +33,27 @@ function useSettingsForm(fields: { key: string; scale?: number }[]) {
   return { data, error: error || saveError, form, bind, dirty, busy, save };
 }
 
-// ------------------------------------------------- F12 · planes y comisiones
+// --------------------------------------------------------- F12 · comisión
 
-export function Plans() {
-  const s = useSettingsForm([
-    { key: 'commission_basico_bp', scale: 100 }, { key: 'commission_premium_bp', scale: 100 },
-    { key: 'premium_price_cents', scale: 100 }, { key: 'premium_days' },
-  ]);
+/** Una sola comisión para catálogo y vivos; los vivos están abiertos a todos los vendedores. */
+export function Commission() {
+  const s = useSettingsForm([{ key: 'commission_bp', scale: 100 }]);
   const example = 500;
-  const pct = (k: string) => Number(s.form[k] || 0);
+  const pct = Number(s.form.commission_bp || 0);
   return (
     <>
-      <PageHead title="Planes y comisiones" subtitle="Los cambios aplican a los pedidos nuevos; los ya creados conservan su comisión." />
+      <PageHead title="Comisión" subtitle="Se aplica a las ventas nuevas del catálogo y de los vivos; los pedidos ya creados conservan la suya." />
       <ErrorLine error={s.error} />
       {s.data && (
-        <div className="grid-2" style={{ alignItems: 'start' }}>
-          <section className="card stack">
-            <h2 style={{ margin: 0 }}>Básico</h2>
-            <p className="muted small">Vende en el catálogo sin costo fijo. Paga solo una comisión por venta entregada.</p>
-            <label className="field"><span>Comisión por venta (%)</span><input type="number" min={0} max={100} step="0.5" {...s.bind('commission_basico_bp')} /></label>
-            <p className="note">En una venta de {bs(example)} el vendedor recibe {bs(example * (1 - pct('commission_basico_bp') / 100))}.</p>
-          </section>
-          <section className="card stack">
-            <h2 style={{ margin: 0 }}>Premium</h2>
-            <p className="muted small">Transmisiones en vivo, subastas, lotes y comisión reducida, por un monto fijo.</p>
-            <div className="row" style={{ flexWrap: 'nowrap' }}>
-              <label className="field" style={{ flex: 1 }}><span>Precio (Bs)</span><input type="number" min={0} step="1" {...s.bind('premium_price_cents')} /></label>
-              <label className="field" style={{ flex: 1 }}><span>Duración (días)</span><input type="number" min={1} max={366} {...s.bind('premium_days')} /></label>
-            </div>
-            <label className="field"><span>Comisión por venta (%)</span><input type="number" min={0} max={100} step="0.5" {...s.bind('commission_premium_bp')} /></label>
-            <p className="note">En una venta de {bs(example)} el vendedor recibe {bs(example * (1 - pct('commission_premium_bp') / 100))}.</p>
-          </section>
-          <div className="row">
-            <button className="btn primary" disabled={!s.dirty || s.busy} onClick={s.save}>{s.busy ? 'Guardando…' : 'Guardar cambios'}</button>
-            <span className="small muted">Las comisiones especiales por vendedor se editan en Vendedores.</span>
-          </div>
-        </div>
+        <section className="card stack" style={{ maxWidth: 520 }}>
+          <label className="field"><span>Comisión por venta (%)</span>
+            <input type="number" min={0} max={100} step="0.5" {...s.bind('commission_bp')} />
+            <small>Sobre el precio de los productos, no sobre el envío. Igual para catálogo y vivos.</small>
+          </label>
+          <p className="note">En una venta de {bs(example)} el vendedor recibe {bs(example * (1 - pct / 100))} y ComprasMío! {bs(example * pct / 100)}.</p>
+          <p className="small muted">Para un vendedor puntual, la comisión especial se edita en Vendedores.</p>
+          <div className="row"><button className="btn primary" disabled={!s.dirty || s.busy} onClick={s.save}>{s.busy ? 'Guardando…' : 'Guardar'}</button></div>
+        </section>
       )}
     </>
   );
@@ -221,8 +206,8 @@ function AddQr({ platformName, onClose, onCreated }: { platformName: string; onC
 // ------------------------------------------------------- F14 · equipo
 
 const ROLES: Record<string, [string, string]> = {
-  admin: ['Administración', 'Todo, incluidos ajustes, QR y equipo'],
-  pagos: ['Pagos', 'Pagos, pedidos, liquidaciones, reclamos y suscripciones'],
+  admin: ['Administración', 'Todo, incluidos comisión, QR y equipo'],
+  pagos: ['Pagos', 'Pagos, pedidos, liquidaciones y reclamos'],
   moderador: ['Moderación', 'Catálogo, reportes, compradores, categorías y banners'],
 };
 
@@ -295,7 +280,7 @@ const ACTIONS: Record<string, string> = {
   editar_vendedor: 'Editó un vendedor', verificar_cuenta: 'Verificó datos para cobrar', rechazar_cuenta: 'Rechazó datos para cobrar',
   bloquear_usuario: 'Bloqueó a una persona', desbloquear_usuario: 'Desbloqueó a una persona', pausar_producto: 'Pausó un producto',
   subir_qr: 'Subió un QR', activar_qr: 'Activó un QR', cambiar_ajustes: 'Cambió ajustes', agregar_equipo: 'Agregó a alguien al equipo',
-  editar_equipo: 'Editó una cuenta del equipo', activar_premium: 'Activó o extendió Premium',
+  editar_equipo: 'Editó una cuenta del equipo',
 };
 
 export function Audit() {

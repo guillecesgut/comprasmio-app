@@ -3,7 +3,7 @@ import { api, bs, fechaHora, hace, onSocket, notifyChanged } from '../api';
 import { Chip, Confirm, Empty, ErrorLine, PageHead, ReceiptView, Seg, StatusChip, useLoad, useToast } from '../ui';
 
 type Row = {
-  id: string; ref: string; kind: 'orders' | 'plan'; status: string; amount: number;
+  id: string; ref: string; kind: 'orders'; status: string; amount: number;
   buyer: { name: string; handle: string; phone: string }; ordersCount: number; sellers: string;
   receiptAt: string | null; createdAt: string; expiresAt: string | null; rejectReason: string | null; receiptUrl: string | null;
 };
@@ -53,7 +53,7 @@ export default function Payments() {
             <tbody>
               {list.data?.map((p) => (
                 <tr key={p.id} className={`clickable${p.id === selected ? ' selected' : ''}`} onClick={() => setSelected(p.id)}>
-                  <td><span className="mono">{p.ref}</span>{p.kind === 'plan' && <> <Chip tone="amber">Plan</Chip></>}</td>
+                  <td><span className="mono">{p.ref}</span></td>
                   <td>{p.buyer.name}<div className="small muted">@{p.buyer.handle}</div></td>
                   <td className="small">{p.sellers}{p.ordersCount > 1 && <div className="muted">{p.ordersCount} pedidos</div>}</td>
                   <td className="r"><strong>{bs(p.amount)}</strong></td>

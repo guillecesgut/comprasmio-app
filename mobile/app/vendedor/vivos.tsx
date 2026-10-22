@@ -26,7 +26,6 @@ export default function MisVivos() {
   const { user } = useSession();
   const { data, reload } = useData(() => api.seller_.streams().then((r) => r.streams), []);
   const [error, setError] = React.useState<string | null>(null);
-  const premium = user?.plan === 'premium';
 
   const schedule = () => Alert.prompt('Programar un vivo', 'Título del vivo', (title) => {
     if (!title?.trim()) return;
@@ -52,12 +51,8 @@ export default function MisVivos() {
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
         <View style={{ padding: 16, gap: 10 }}>
           <ErrorLine message={error} />
-          {premium ? (
-            <>
-              <Btn title="Salir al aire" tone="bid" icon="video.fill" onPress={() => router.push('/transmitir/armar')} />
-              <Btn title="Programar un vivo" tone="tonal" icon="calendar" onPress={schedule} />
-            </>
-          ) : <Btn title="Transmitir es parte de Premium" tone="tonal" icon="lock.fill" onPress={() => router.push('/plan/premium')} />}
+          <Btn title="Salir al aire" tone="bid" icon="video.fill" onPress={() => router.push('/transmitir/armar')} />
+          <Btn title="Programar un vivo" tone="tonal" icon="calendar" onPress={schedule} />
         </View>
         {!data ? <Loading /> : !list.length ? (
           <EmptyCard title="Todavía no hiciste vivos" body="Cargá productos o paquetes, ordená la cola y salí al aire desde el botón Transmitir." />

@@ -11,7 +11,7 @@ export type TabSpec = { name: string; label: string; icon: SymbolName; iconActiv
 /**
  * Tab bar flotante del handoff: pill de vidrio (blanco 80 % + blur), alto 62.
  * El vendedor tiene además el botón circular "Transmitir" a la derecha (ámbar en
- * Premium, gris con candado en Básico; nunca se oculta). Se dibuja a mano porque el botón
+ * todos los vendedores). Se dibuja a mano porque el botón
  * Transmitir no es una tab (abre una hoja) y NativeTabs no lo permite.
  */
 export function FloatingTabBar({ state, navigation, descriptors, tabs, extra }: {

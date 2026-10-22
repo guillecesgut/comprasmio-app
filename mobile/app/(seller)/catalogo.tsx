@@ -21,7 +21,6 @@ export default function Catalogo() {
   const [query, setQuery] = React.useState('');
   const { data, error, loading, reload } = useData(() => api.seller_.products(filter, query || undefined), [filter, query], { events: ['order:new', 'order:update'] });
   const [actionError, setActionError] = React.useState<string | null>(null);
-  const premium = user?.plan === 'premium';
 
   React.useEffect(() => { const t = setTimeout(() => setQuery(q.trim()), 300); return () => clearTimeout(t); }, [q]);
 
@@ -62,8 +61,7 @@ export default function Catalogo() {
     <Screen refreshControl={<RefreshControl refreshing={loading && !!data} onRefresh={reload} />}>
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, gap: 10 }}>
         <Text style={[T.largeTitle, { flex: 1 }]}>Catálogo</Text>
-        <Press onPress={() => router.push(premium ? '/vendedor/paquetes' : '/vendedor/plan')} style={styles.pill} accessibilityLabel="Paquetes">
-          {!premium && <Sym name="lock.fill" size={12} color={C.label} />}
+        <Press onPress={() => router.push('/vendedor/paquetes')} style={styles.pill} accessibilityLabel="Paquetes">
           <Sym name="square.stack.3d.up" size={15} color={C.label} />
           <Text style={{ fontWeight: '600', color: C.label }}>Paquetes</Text>
         </Press>

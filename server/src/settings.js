@@ -1,8 +1,8 @@
 import { many, query } from './db.js';
 
 /**
- * Parámetros de negocio editables desde el panel (F12, F13). Los montos y porcentajes de
- * comisión todavía no están cerrados: viven acá y no en el código.
+ * Parámetros de negocio editables desde el panel (F12, F13). La comisión vive acá y no
+ * en el código: es la misma para el catálogo y los vivos.
  */
 export const DEFAULTS = {
   payment_window_catalog_min: 15,   // D7/D8: minutos para pagar una compra del catálogo
@@ -11,10 +11,7 @@ export const DEFAULTS = {
   payout_cut_weekday: 0,            // 0 = domingo: último día de la semana que se liquida
   payout_pay_weekday: 1,            // 1 = lunes: día en que se transfiere
   payout_min_cents: 0,              // por debajo de esto el saldo pasa a la semana siguiente
-  commission_basico_bp: 1500,       // 15 % (pendiente de confirmar)
-  commission_premium_bp: 1000,      // 10 %
-  premium_price_cents: 29000,       // Bs 290 / mes (pendiente de confirmar)
-  premium_days: 30,
+  commission_bp: 1000,              // 10 % sobre lo vendido (catálogo y vivos; no sobre el envío)
   support_whatsapp: '',
   support_email: '',
   platform_name: 'ComprasMío! SRL',
@@ -50,11 +47,11 @@ export async function setSettings(patch, actorId) {
   return getSettings({ fresh: true });
 }
 
-/** Comisión que corresponde a un vendedor según su plan vigente (o una comisión especial). */
+/**
+ * Comisión de un vendedor: la general, salvo que el panel le haya puesto una especial.
+ * No hay planes: todos los vendedores venden en el catálogo y transmiten en vivo.
+ */
 export function commissionBpFor(seller, settings) {
   if (seller.commission_bp_override != null) return seller.commission_bp_override;
-  return isPremium(seller) ? settings.commission_premium_bp : settings.commission_basico_bp;
+  return settings.commission_bp;
 }
-
-export const isPremium = (seller) =>
-  seller.plan === 'premium' && seller.plan_until && new Date(seller.plan_until) > new Date();

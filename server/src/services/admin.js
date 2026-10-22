@@ -3,7 +3,7 @@ import * as storage from '../storage.js';
 import * as stock from './stock.js';
 import { hash } from '../auth.js';
 import { notify, KIND, sellerUserId } from './notifications.js';
-import { getSettings, setSettings, isPremium, commissionBpFor } from '../settings.js';
+import { getSettings, setSettings, commissionBpFor } from '../settings.js';
 import { bs } from '../util.js';
 import { ORDER_STATUS_LABEL } from './present.js';
 import * as hub from '../realtime/hub.js';
@@ -31,7 +31,7 @@ export async function paymentsQueue(status = 'in_review') {
   return Promise.all(rows.map(async (p) => ({
     id: p.id, ref: p.ref, kind: p.kind, status: p.status, amount: bs(p.amount_cents),
     buyer: { name: p.buyer_name, handle: p.buyer_handle, phone: p.buyer_phone },
-    ordersCount: p.orders_count, sellers: p.kind === 'plan' ? `Plan Premium · ${p.plan_seller}` : p.sellers,
+    ordersCount: p.orders_count, sellers: p.sellers,
     receiptAt: p.receipt_at, createdAt: p.created_at, expiresAt: p.expires_at, rejectReason: p.reject_reason,
     receiptUrl: await storage.url(p.receipt_key),
   })));
@@ -131,7 +131,7 @@ export async function sellersList({ q, status } = {}) {
   );
   return rows.map((s) => ({
     id: s.id, name: s.name, slug: s.slug, owner: s.owner_name, phone: s.phone, status: s.status, verified: s.verified,
-    plan: isPremium(s) ? 'premium' : 'basico', planUntil: s.plan_until, commissionPct: commissionBpFor(s, settings) / 100,
+    commissionPct: commissionBpFor(s, settings) / 100,
     commissionOverride: s.commission_bp_override != null ? s.commission_bp_override / 100 : null,
     ratingPct: s.rating_pct, salesCount: s.sales_count, monthSales: bs(s.month_sales), products: s.products,
     accountStatus: s.account_status || 'missing', createdAt: s.created_at,

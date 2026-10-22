@@ -4,8 +4,8 @@
 //
 // Crea: categorías, el administrador (ADMIN_EMAIL/ADMIN_PASSWORD o admin@comprasmio.bo /
 // comprasmio-admin), un QR de cobro de prueba activo, tiendas con catálogo y variantes, una
-// compradora con dirección y una tienda Premium para probar los vivos.
-// Cuentas: compradora 71234567 / comprar123 · vendedor 70000000 / vender123 (Premium).
+// compradora con dirección y tiendas con productos para probar catálogo y vivos.
+// Cuentas: compradora 71234567 / comprar123 · vendedor 70000000 / vender123.
 import QRCode from 'qrcode';
 import { config } from '../src/config.js';
 import * as db from '../src/db.js';
@@ -47,14 +47,14 @@ async function user({ name, phone, password, role }) {
   );
 }
 
-async function store(owner, { name, slug, bio, city, premium, verified, ratingPct, sales }) {
+async function store(owner, { name, slug, bio, city, verified, ratingPct, sales }) {
   const existing = await db.one('SELECT * FROM sellers WHERE user_id = $1', [owner.id]);
   if (existing) return existing;
   return db.one(
-    `INSERT INTO sellers(id, user_id, slug, name, initials, bio, city, color, verified, plan, plan_until, rating_pct, sales_count, socials)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *`,
+    `INSERT INTO sellers(id, user_id, slug, name, initials, bio, city, color, verified, rating_pct, sales_count, socials)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
     [db.id('sel'), owner.id, slug, name, name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase(), bio, city,
-      colorFor(slug), verified, premium ? 'premium' : 'basico', premium ? new Date(Date.now() + 365 * 864e5) : null, ratingPct, sales,
+      colorFor(slug), verified, ratingPct, sales,
       JSON.stringify({ tiktok: `@${slug.replace(/-/g, '')}`, instagram: `@${slug.replace(/-/g, '')}` })]
   );
 }
@@ -91,15 +91,15 @@ if (!(await db.one('SELECT 1 FROM addresses WHERE user_id = $1', [buyer.id]))) {
 }
 
 const relojeria = await store(await user({ name: 'Relojería Andina', phone: '70000000', password: 'vender123', role: 'seller' }), {
-  name: 'Relojería Andina', slug: 'relojeria-andina', city: 'Santa Cruz', premium: true, verified: true, ratingPct: 99, sales: 1080,
+  name: 'Relojería Andina', slug: 'relojeria-andina', city: 'Santa Cruz', verified: true, ratingPct: 99, sales: 1080,
   bio: 'Relojes vintage y piezas raras, revisados uno por uno. Envíos a todo el país.',
 });
 const wari = await store(await user({ name: 'Tejidos Wari', phone: '70000001', password: 'vender123', role: 'seller' }), {
-  name: 'Tejidos Wari', slug: 'tejidos-wari', city: 'La Paz', premium: false, verified: true, ratingPct: 98, sales: 312,
+  name: 'Tejidos Wari', slug: 'tejidos-wari', city: 'La Paz', verified: true, ratingPct: 98, sales: 312,
   bio: 'Aguayos, chompas y textiles de alpaca tejidos a mano.',
 });
 const sol = await store(await user({ name: 'Juguetería Sol', phone: '70000002', password: 'vender123', role: 'seller' }), {
-  name: 'Juguetería Sol', slug: 'jugueteria-sol', city: 'Cochabamba', premium: false, verified: false, ratingPct: 97, sales: 140,
+  name: 'Juguetería Sol', slug: 'jugueteria-sol', city: 'Cochabamba', verified: false, ratingPct: 97, sales: 140,
   bio: 'Peluches, juegos de mesa y coleccionables.',
 });
 
@@ -114,5 +114,5 @@ await product(sol, { title: 'Cacho de cuero con 5 dados', category: 'Juegos de m
 
 console.log('Datos de ejemplo listos.');
 console.log('  Panel:     admin@comprasmio.bo / comprasmio-admin (o ADMIN_EMAIL/ADMIN_PASSWORD)');
-console.log('  Compradora 71234567 / comprar123 · Vendedor Premium 70000000 / vender123');
+console.log('  Compradora 71234567 / comprar123 · Vendedor 70000000 / vender123');
 await db.close();

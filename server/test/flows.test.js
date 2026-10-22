@@ -88,8 +88,8 @@ test('compra a dos vendedores con una sola transferencia, de punta a punta hasta
   const o1 = s1orders.items[0];
   assert.equal(o1.status, 'pagado');
   const detail = (await s1.get(`/seller/orders/${o1.id}`)).data.order;
-  assert.equal(detail.commissionPct, 15);
-  assert.equal(detail.net, 900 - 135);
+  assert.equal(detail.commissionPct, 10);
+  assert.equal(detail.net, 900 - 90);
   assert.equal(detail.payout.status, 'acumulando');
 
   // Stock vendido.
@@ -114,7 +114,7 @@ test('compra a dos vendedores con una sola transferencia, de punta a punta hasta
   assert.equal(again.data.created, 0, 'generar dos veces no duplica');
   const week = (await adm.get('/admin/payouts')).data;
   const mine = week.items.find((i) => i.seller === 'Relojería Andina');
-  assert.equal(mine.net, 765);
+  assert.equal(mine.net, 810);
   assert.equal((await adm.post(`/admin/payouts/${mine.id}/paid`, { receiptKey: 'payouts/x.png' })).status, 409, 'sin datos para cobrar no se paga');
 
   await s1.put('/seller/payout-account', { bank: 'Banco Unión', accountType: 'Caja de ahorro', accountNumber: '100 2345', holder: 'Juan Pérez', holderDoc: '1234567' });
@@ -125,7 +125,7 @@ test('compra a dos vendedores con una sola transferencia, de punta a punta hasta
   assert.equal((await adm.post(`/admin/payouts/${mine.id}/paid`, { receiptKey: up.data.key, operationNumber: '987' })).status, 200);
   const cobros = (await s1.get('/seller/payouts')).data;
   assert.equal(cobros.history.length, 1);
-  assert.equal(cobros.history[0].net, 765);
+  assert.equal(cobros.history[0].net, 810);
   assert.ok(cobros.history[0].receiptUrl);
 
   const csv = await fetch(`${api.base}/admin/payouts/export`, { headers: { Authorization: `Bearer ${adm.token || ''}` } });
@@ -201,23 +201,15 @@ test('un reclamo retiene el pago y se resuelve con reembolso', async () => {
   assert.equal((await seller.get(`/seller/variants/${p.variants[0].id}/stock`)).data.variant.available, 2, 'el stock volvió');
 });
 
-test('Premium por transferencia habilita los vivos; subasta, precio fijo y devolución al terminar', async () => {
+test('cualquier vendedor transmite: subasta, precio fijo y devolución al terminar', async () => {
   const seller = await api.signup('seller', 'Juguetería Sol');
   const b1 = await api.signup('buyer', 'Marco');
   const b2 = await api.signup('buyer', 'Lucía');
   const peluche = await product(seller, { title: 'Peluche', variants: [{ price: 80, stock: 100 }] });
   const auto = await product(seller, { title: 'Auto a control', variants: [{ price: 300, stock: 3 }] });
 
-  assert.equal((await seller.post('/seller/streams', { entries: [] })).status, 403, 'Básico no transmite');
-  const plan = (await seller.get('/seller/plan')).data.plan;
-  assert.equal(plan.plan, 'basico');
-  const { paymentId } = (await seller.post('/seller/plan/premium')).data;
-  const pay = (await seller.get(`/me/payments/${paymentId}`)).data.payment;
-  assert.match(pay.ref, /^PREMIUM-JUGUETERIASOL-/);
-  assert.equal(pay.amount, 290);
-  await receipt(seller, paymentId);
-  await adm.post(`/admin/payments/${paymentId}/approve`);
-  assert.equal((await seller.get('/seller/plan')).data.plan.plan, 'premium');
+  assert.equal((await seller.get('/seller/plan')).status, 404, 'ya no hay planes');
+  assert.equal((await seller.post('/seller/streams', { entries: [] })).status, 400, 'sin productos no sale al aire, pero no pide plan');
 
   const start = await seller.post('/seller/streams', {
     title: 'Juguetes en vivo',
