@@ -5,7 +5,9 @@ services:
     plan: free
     # Corre desde la raíz del repo: compila el panel de administración (web/) y
     # después instala el servidor, que sirve el panel en la raíz y la API en /api.
-    buildCommand: cd web && npm install && npm run build && cd ../server && npm install --omit=dev
+    # Con NODE_ENV=production npm omite las devDependencies; el panel las necesita para
+    # compilar (TypeScript, Vite), por eso --include=dev.
+    buildCommand: cd web && npm ci --include=dev && npm run build && cd ../server && npm ci --omit=dev
     startCommand: node server/src/index.js
     healthCheckPath: /api/config
     # La app (Expo) y el handoff de diseño no se despliegan acá: un cambio solo
