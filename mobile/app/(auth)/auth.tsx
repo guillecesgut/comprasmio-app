@@ -3,21 +3,26 @@ import { View, Text, TextInput, KeyboardAvoidingView, ScrollView, Platform, Styl
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSession } from '@/session';
-import { Btn, Circle, Segmented, Sym, ErrorLine } from '@/ui';
+import { Btn, Circle, Sym, ErrorLine } from '@/ui';
 import { C, T, R } from '@/theme';
 
 type Mode = 'signup' | 'login';
 
-/** A3 · Crear cuenta / Iniciar sesión. */
+/**
+ * A3 · Crear cuenta (viene de "Crear cuenta" → rol) o Iniciar sesión (viene de "Ya tengo
+ * cuenta"). Cada camino muestra solo su formulario: quien eligió uno ya sabe si tiene cuenta.
+ */
 export default function Auth() {
-  const params = useLocalSearchParams<{ mode?: Mode; role?: 'buyer' | 'seller' }>();
+  const params = useLocalSearchParams<{ mode?: Mode; role?: 'buyer' | 'seller'; phone?: string }>();
   const insets = useSafeAreaInsets();
   const session = useSession();
 
-  const [mode, setMode] = React.useState<Mode>(params.mode === 'login' ? 'login' : 'signup');
+  const mode: Mode = params.mode === 'login' ? 'login' : 'signup';
   const role = params.role === 'seller' ? 'seller' : 'buyer';
   const [name, setName] = React.useState('');
-  const [phone, setPhone] = React.useState('');
+  const [phone, setPhone] = React.useState(params.phone || '');
+  // Solo si al crear la cuenta el número ya existe: atajo para iniciar sesión con ese número.
+  const [exists, setExists] = React.useState(false);
   const [password, setPassword] = React.useState('');
   const [error, setError] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState(false);
@@ -29,12 +34,14 @@ export default function Auth() {
   const submit = async () => {
     setBusy(true);
     setError(null);
+    setExists(false);
     try {
       if (mode === 'signup') await session.signup({ name: name.trim(), phone: digits, password, role });
       else await session.login(digits, password);
       router.replace('/');
     } catch (e: any) {
       setError(e.message);
+      if (mode === 'signup' && e.status === 409) setExists(true);
     } finally {
       setBusy(false);
     }
@@ -47,12 +54,6 @@ export default function Auth() {
       <ScrollView contentContainerStyle={{ paddingTop: insets.top + 8, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16 }}>
           <Circle icon="chevron.backward" onPress={() => router.back()} label="Volver" />
-          <Segmented
-            style={{ flex: 1 }}
-            value={mode}
-            onChange={(m) => { setMode(m); setError(null); }}
-            options={[{ key: 'signup', label: 'Crear cuenta' }, { key: 'login', label: 'Iniciar sesión' }]}
-          />
         </View>
 
         <View style={{ paddingHorizontal: 20, paddingTop: 22, paddingBottom: 16 }}>
@@ -96,6 +97,10 @@ export default function Auth() {
 
         <View style={{ paddingHorizontal: 32 }}>
           <ErrorLine message={error} />
+          {exists && (
+            <Btn title="Iniciar sesión con este número" tone="tonal" height={44} style={{ marginTop: 12 }}
+              onPress={() => router.replace({ pathname: '/auth', params: { mode: 'login', phone: digits } })} />
+          )}
           {mode === 'signup' && (
             <Text style={[T.footnote, { marginTop: 10 }]}>Te mandamos los avisos de tus pujas y pagos a este número.</Text>
           )}
