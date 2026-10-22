@@ -28,7 +28,7 @@ export default function Buscar() {
   const [suggest, setSuggest] = React.useState<any>(null);
 
   React.useEffect(() => {
-    SecureStore.getItemAsync(RECENT_KEY).then((v) => setRecent(v ? JSON.parse(v) : [])).catch(() => {});
+    Promise.resolve().then(() => SecureStore.getItemAsync(RECENT_KEY)).then((v) => setRecent(v ? JSON.parse(v) : [])).catch(() => {});
     api.trending().then((r) => setTrending(r.queries || [])).catch(() => {});
   }, []);
 
@@ -43,7 +43,7 @@ export default function Buscar() {
 
   const saveRecent = (list: string[]) => {
     setRecent(list);
-    SecureStore.setItemAsync(RECENT_KEY, JSON.stringify(list)).catch(() => {});
+    Promise.resolve().then(() => SecureStore.setItemAsync(RECENT_KEY, JSON.stringify(list))).catch(() => {});
   };
 
   const submit = (q: string) => {

@@ -10,7 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, bs, clock, realtime } from '@/api';
 import { useSession } from '@/session';
 import { useViewer, useLiveAvailable, LiveVideo } from '@/live';
-import { Circle, Sym, Press, Placeholder, Avatar, LivePill, ViewersPill, useToast } from '@/ui';
+import { Circle, Sym, Press, Placeholder, Img, Avatar, LivePill, ViewersPill, useToast } from '@/ui';
 import { C, T, R } from '@/theme';
 
 const URGENT_AT = 5; // últimos segundos: reloj ámbar y halo pulsante en el CTA
@@ -20,7 +20,7 @@ export default function Sala() {
   const { id = '' } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
   const toast = useToast();
-  const { user, favorites, toggleFavorite, toggleBlock } = useSession();
+  const { user, toggleBlock } = useSession();
 
   const [stream, setStream] = React.useState<any>(null);
   const [lot, setLot] = React.useState<any>(null);
@@ -42,12 +42,14 @@ export default function Sala() {
   React.useEffect(() => {
     let alive = true;
     api.stream(id)
-      .then(({ stream, lot, messages, queue }) => {
+      .then(({ stream, lot, messages, queue, lastOutcome }) => {
         if (!alive) return;
         setStream(stream);
         setLot(lot);
         setMessages(messages);
         setQueue(queue || []);
+        setLastOutcome(lastOutcome);
+        if (stream.status === 'ended') setEnded(true);
       })
       .catch((e) => setNotice(e.message));
 
@@ -56,9 +58,9 @@ export default function Sala() {
       realtime.on('lot:update', (p) => {
         if (p.streamId !== id) return;
         // Te superaron: un toque suave para que lo sientas sin mirar.
-        const me = userRef.current?.id;
+        const me = userRef.current?.handle;
         const prev = lotRef.current;
-        if (me && prev?.leaderId === me && p.lot?.leaderId && p.lot.leaderId !== me) Haptics.selectionAsync();
+        if (me && prev?.id === p.lot?.id && prev?.leaderHandle === me && p.lot?.leaderHandle && p.lot.leaderHandle !== me) Haptics.selectionAsync();
         setLot(p.lot);
         setLastOutcome(null);
       }),
@@ -77,11 +79,13 @@ export default function Sala() {
       }),
       realtime.on('stream:viewers', (p) => p.streamId === id && setStream((s: any) => (s ? { ...s, viewers: p.viewers } : s))),
       realtime.on('queue:update', (p) => p.streamId === id && setQueue(p.queue)),
-      realtime.on('auction:won', ({ order }) => {
+      // Al ganar o comprar se abre D8 con el QR de la plataforma (ventana corta).
+      realtime.on('auction:won', (p) => {
+        if (p.streamId !== id) return;
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        router.push(`/pago/${order.id}?ganaste=1`);
+        toast(`¡Ganaste ${p.title}!`);
+        router.push(`/pago/${p.paymentId}`);
       }),
-      realtime.on('purchase:done', ({ order }) => router.push(`/pago/${order.id}`)),
       realtime.on('stream:ended', (p) => (!p?.streamId || p.streamId === id) && setEnded(true)),
     ];
     return () => {
@@ -108,7 +112,7 @@ export default function Sala() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setBusy(true);
     try {
-      const { lot: updated } = await api.bid(id, lot.price + lot.increment);
+      const { lot: updated } = await api.bid(id, lot.nextBid);
       setLot(updated);
       setNotice(null);
     } catch (e: any) {
@@ -123,8 +127,8 @@ export default function Sala() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setBusy(true);
     try {
-      const { order } = await api.buy(id);
-      router.push(`/pago/${order.id}`);
+      const { paymentId } = await api.buy(id);
+      router.push(`/pago/${paymentId}`);
     } catch (e: any) {
       setNotice(e.message);
     } finally {
@@ -132,11 +136,16 @@ export default function Sala() {
     }
   };
 
-  const follow = () => {
+  const follow = async () => {
     if (!user || !stream) return requireLogin();
-    const was = favorites.includes(stream.id);
-    toggleFavorite(stream.id);
-    if (!was) toast(`Ahora seguís a ${stream.seller?.name}`);
+    const was = stream.seller.following;
+    setStream((s: any) => ({ ...s, seller: { ...s.seller, following: !was } }));
+    try {
+      await api.toggleFollow(stream.seller.id);
+      if (!was) toast(`Ahora seguís a ${stream.seller?.name}`);
+    } catch {
+      setStream((s: any) => ({ ...s, seller: { ...s.seller, following: was } }));
+    }
   };
 
   /** Moderación (requisito de App Store para chat en vivo): reportar o bloquear. */
@@ -175,17 +184,18 @@ export default function Sala() {
     );
   }
 
-  const favorite = favorites.includes(stream.id);
+  const favorite = !!stream.seller?.following;
   const blocked: string[] = user?.blocked || [];
   const visible = messages.filter((m) => !blocked.includes(m.handle)).slice(-5);
-  const isFixed = lot ? lot.mode === 'fixed' : stream.mode === 'fixed';
+  const isFixed = lot?.mode === 'fijo';
+  const pending = queue.filter((q) => q.status !== 'done' && q.remaining > 0).length;
 
   return (
     <View style={{ flex: 1, backgroundColor: C.black }}>
       <StatusBar style="light" />
 
       {/* Fondo: video de LiveKit, o el bloque de color del vivo mientras tanto. */}
-      <Placeholder strong color={stream.grad || C.forest} radius={0} style={StyleSheet.absoluteFill}>
+      <Placeholder strong color={stream.color || C.forest} radius={0} style={StyleSheet.absoluteFill}>
         {video.status !== 'live' && (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
             {!!stream.tag && video.status !== 'connecting' && video.status !== 'waiting' && (
@@ -207,12 +217,12 @@ export default function Sala() {
             <ViewersPill viewers={stream.viewers} height={30} />
             <View style={{ flex: 1 }} />
             {queue.length > 0 && (
-              <Press onPress={() => router.push(`/catalogo/${id}`)} accessibilityLabel={`Catálogo, ${queue.length} productos`}>
+              <Press onPress={() => router.push(`/vivo/catalogo/${id}`)} accessibilityLabel={`Catálogo, ${queue.length} lotes`}>
                 <View style={styles.catalog}>
                   <Sym name="shippingbox" size={16} color={C.white} />
                   <Text style={{ color: C.white, fontWeight: '600', fontSize: 15 }}>Catálogo</Text>
                   <View style={{ minWidth: 20, height: 20, borderRadius: 10, backgroundColor: C.white, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5 }}>
-                    <Text style={[{ fontSize: 12, fontWeight: '700', color: C.forest }, T.num]}>{queue.length}</Text>
+                    <Text style={[{ fontSize: 12, fontWeight: '700', color: C.forest }, T.num]}>{pending || queue.length}</Text>
                   </View>
                 </View>
               </Press>
@@ -224,9 +234,9 @@ export default function Sala() {
             <Avatar initials={stream.seller?.initials || '?'} size={38} bg={C.bidLight} fg={C.forest} />
             <View style={{ flex: 1 }}>
               <Text style={{ color: C.white, fontSize: 15, fontWeight: '600' }} numberOfLines={1}>{stream.seller?.name}</Text>
-              <Text style={[{ color: C.bidLight, fontSize: 12 }, T.num]}>★ {Math.round(stream.seller?.rating ?? 100)} %</Text>
+              <Text style={[{ color: C.bidLight, fontSize: 12 }, T.num]}>★ {stream.seller?.ratingPct ?? 100} %</Text>
             </View>
-            {user && (
+            {user && !stream.isOwner && (
               <Press
                 onPress={follow}
                 style={{
@@ -252,7 +262,7 @@ export default function Sala() {
               ))}
             </View>
             <View style={{ gap: 12 }}>
-              <Circle icon={favorite ? 'heart.fill' : 'heart'} size={48} blur bg="rgba(0,0,0,.3)" color={favorite ? C.bidLight : C.white} onPress={follow} label="Seguir" />
+              <Circle icon="storefront" size={48} blur bg="rgba(0,0,0,.3)" color={C.white} onPress={() => router.push(`/tienda/${stream.seller.slug}`)} label="Ver la tienda" />
               <Circle
                 icon="square.and.arrow.up" size={48} blur bg="rgba(0,0,0,.3)" color={C.white} label="Compartir"
                 onPress={() => Share.share({ message: `${stream.title} — en vivo en ComprasMío!`, url: `comprasmio://vivo/${id}` })}
@@ -281,7 +291,7 @@ export default function Sala() {
         <Dock
           lot={lot}
           fixed={isFixed}
-          userId={user?.id}
+          handle={user?.handle}
           busy={busy}
           notice={ended ? 'La transmisión terminó.' : notice}
           outcome={lastOutcome}
@@ -314,9 +324,9 @@ function ChatLine({ message, mine }: { message: any; mine: boolean }) {
   );
 }
 
-function Dock({ lot, fixed, userId, busy, notice, outcome, onBid, onBuy, bottom }: any) {
+function Dock({ lot, fixed, handle, busy, notice, outcome, onBid, onBuy, bottom }: any) {
   const halo = React.useRef(new Animated.Value(0)).current;
-  const isAuction = lot?.mode === 'auction';
+  const isAuction = lot?.mode === 'subasta';
   const urgent = isAuction && lot.timer <= URGENT_AT && lot.timer > 0;
 
   React.useEffect(() => {
@@ -350,7 +360,7 @@ function Dock({ lot, fixed, userId, busy, notice, outcome, onBid, onBuy, bottom 
             <View style={{ flex: 1 }}>
               <Text style={styles.eyebrow}>{isAuction ? 'PUJA ACTUAL' : 'PRECIO FIJO'}</Text>
               <Text style={[{ color: C.white, fontSize: 36, fontWeight: '700', letterSpacing: -0.6 }, T.num]}>{bs(lot.price)}</Text>
-              <LeaderLine lot={lot} userId={userId} />
+              <LeaderLine lot={lot} handle={handle} />
             </View>
             <View style={{ alignItems: 'flex-end' }}>
               <Text style={styles.eyebrow}>QUEDAN</Text>
@@ -359,44 +369,72 @@ function Dock({ lot, fixed, userId, busy, notice, outcome, onBid, onBuy, bottom 
                   {clock(lot.timer)}
                 </Text>
               ) : (
-                <Text style={[{ fontSize: 30, fontWeight: '600', color: C.white }, T.num]}>{lot.stock - lot.sold} u.</Text>
+                <Text style={[{ fontSize: 30, fontWeight: '600', color: C.white }, T.num]}>{lot.left} u.</Text>
               )}
-              <Text style={[{ color: '#B9CCC5', fontSize: 13 }, T.num]}>{isAuction ? `Lote ${lot.lotNo}` : `de ${lot.stock}`}</Text>
+              <Text style={[{ color: '#B9CCC5', fontSize: 13 }, T.num]}>{isAuction ? (lot.unitTotal > 1 ? `Unidad ${lot.unitIndex} de ${lot.unitTotal}` : `Lote ${lot.lotNo}`) : `de ${lot.stock}`}</Text>
             </View>
           </View>
 
           {!isAuction && (
             <View style={{ height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,.16)', marginTop: 12, overflow: 'hidden' }}>
-              <View style={{ height: 4, width: `${lot.stock ? ((lot.stock - lot.sold) / lot.stock) * 100 : 0}%`, backgroundColor: C.mint }} />
+              <View style={{ height: 4, width: `${lot.stock ? (lot.left / lot.stock) * 100 : 0}%`, backgroundColor: C.mint }} />
             </View>
           )}
 
           <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: 'rgba(255,255,255,.18)', marginVertical: 14 }} />
 
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <Placeholder color={lot.grad || C.tint} style={{ width: 40, height: 40 }} radius={10} />
-            <View style={{ flex: 1 }}>
-              <Text style={{ color: C.white, fontSize: 15, fontWeight: '600' }} numberOfLines={1}>{lot.productName}</Text>
-              <Text style={[{ color: '#B9CCC5', fontSize: 13 }, T.num]} numberOfLines={1}>
-                {isAuction ? `Sube de a ${bs(lot.increment)}` : 'Lo compra quien llega primero'}
-              </Text>
-            </View>
-          </View>
+          <LotRow lot={lot} isAuction={isAuction} />
 
           {!!notice && <Text style={styles.notice}>{notice}</Text>}
 
-          <Cta lot={lot} userId={userId} busy={busy} onBid={onBid} onBuy={onBuy} halo={halo} urgent={urgent} />
+          <Cta lot={lot} handle={handle} busy={busy} onBid={onBid} onBuy={onBuy} halo={halo} urgent={urgent} />
         </View>
       )}
     </View>
   );
 }
 
-function LeaderLine({ lot, userId }: { lot: any; userId?: string }) {
-  if (lot.mode === 'fixed') {
+/** Producto al aire; si es paquete, miniaturas apiladas y la lista de piezas desplegable. */
+function LotRow({ lot, isAuction }: { lot: any; isAuction: boolean }) {
+  const [open, setOpen] = React.useState(false);
+  const bundle = lot.kind === 'paquete';
+  const pieces: any[] = lot.pieces || [];
+  return (
+    <View>
+      <Press onPress={bundle ? () => setOpen((o) => !o) : undefined} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        {bundle && pieces.length > 1 ? (
+          <View style={{ width: 52, height: 40 }}>
+            {pieces.slice(0, 3).map((p, i) => (
+              <Img key={i} url={p.photoUrl} color={p.color} radius={8} style={{ position: 'absolute', left: i * 6, top: i * 2, width: 34, height: 34, borderWidth: 1.5, borderColor: 'rgba(255,255,255,.6)' }} />
+            ))}
+          </View>
+        ) : (
+          <Img url={lot.photoUrl} color={lot.color || C.tint} style={{ width: 40, height: 40 }} radius={10} />
+        )}
+        <View style={{ flex: 1 }}>
+          <Text style={{ color: C.white, fontSize: 15, fontWeight: '600' }} numberOfLines={1}>{lot.title}{lot.label && !bundle ? ` · ${lot.label}` : ''}</Text>
+          <Text style={[{ color: '#B9CCC5', fontSize: 13 }, T.num]} numberOfLines={1}>
+            {bundle ? `${lot.label} · sube de a ${bs(lot.increment)}` : isAuction ? `Sube de a ${bs(lot.increment)} · ${lot.shipping}` : `Lo compra quien llega primero · ${lot.shipping}`}
+          </Text>
+        </View>
+        {bundle && <Sym name={open ? 'chevron.up' : 'chevron.down'} size={14} color="#B9CCC5" />}
+      </Press>
+      {bundle && open && (
+        <View style={{ marginTop: 10, gap: 6 }}>
+          {pieces.map((p, i) => (
+            <Text key={i} style={{ color: '#DDE7E3', fontSize: 14 }}>{p.qty} × {p.title}{p.label && p.label !== 'Única' ? ` · ${p.label}` : ''}</Text>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+}
+
+function LeaderLine({ lot, handle }: { lot: any; handle?: string }) {
+  if (lot.mode === 'fijo') {
     return <Text style={{ color: '#B9CCC5', fontSize: 15, marginTop: 2 }}>{lot.lastBuyerHandle ? `Última compra: @${lot.lastBuyerHandle}` : 'Lo compra quien llega primero'}</Text>;
   }
-  const leader = lot.leaderId && lot.leaderId === userId;
+  const leader = !!handle && lot.leaderHandle === handle;
   return (
     <Text style={{ color: leader ? C.mint : '#B9CCC5', fontSize: 15, fontWeight: leader ? '600' : '400', marginTop: 2 }}>
       {leader ? 'Vas ganando' : lot.leaderHandle ? `@${lot.leaderHandle} va ganando` : 'Todavía nadie pujó'}
@@ -404,9 +442,9 @@ function LeaderLine({ lot, userId }: { lot: any; userId?: string }) {
   );
 }
 
-function Cta({ lot, userId, busy, onBid, onBuy, halo, urgent }: any) {
-  if (lot.mode === 'fixed') {
-    const left = lot.stock - lot.sold;
+function Cta({ lot, handle, busy, onBid, onBuy, halo, urgent }: any) {
+  if (lot.mode === 'fijo') {
+    const left = lot.left;
     return (
       <Press
         onPress={onBuy}
@@ -418,7 +456,7 @@ function Cta({ lot, userId, busy, onBid, onBuy, halo, urgent }: any) {
       </Press>
     );
   }
-  const leading = lot.leaderId && lot.leaderId === userId;
+  const leading = !!handle && lot.leaderHandle === handle;
   const borderColor = halo.interpolate({ inputRange: [0, 1], outputRange: ['rgba(233,162,59,0)', 'rgba(233,162,59,.45)'] });
   return (
     // Halo de 6 pt por fuera del botón, sin mover el layout: margen negativo igual al borde.
@@ -436,7 +474,7 @@ function Cta({ lot, userId, busy, onBid, onBuy, halo, urgent }: any) {
         accessibilityHint="Puja el siguiente monto"
       >
         <Text style={[styles.ctaText, T.num]}>
-          {leading ? `Vas ganando · ${bs(lot.price)}` : `¡Mío! · ${bs(lot.price + lot.increment)}`}
+          {leading ? `Vas ganando · ${bs(lot.price)}` : `¡Mío! · ${bs(lot.nextBid)}`}
         </Text>
       </Press>
     </Animated.View>
@@ -446,8 +484,8 @@ function Cta({ lot, userId, busy, onBid, onBuy, halo, urgent }: any) {
 function OutcomeBand({ outcome }: { outcome: any }) {
   const text =
     outcome.type === 'won' ? `@${outcome.winnerHandle} se lo llevó por ${bs(outcome.price)}`
-      : outcome.type === 'no_sale' ? 'El lote cerró sin alcanzar el precio mínimo'
-        : 'La oferta se cerró';
+      : outcome.type === 'no_sale' ? 'El lote cerró sin venta'
+        : `Oferta cerrada · ${outcome.sold} de ${outcome.total}`;
   return (
     <View style={{ backgroundColor: 'rgba(255,255,255,.12)', borderRadius: 14, paddingHorizontal: 12, paddingVertical: 9, marginBottom: 12 }}>
       <Text style={[{ color: C.white, fontSize: 14, fontWeight: '500' }, T.num]}>{text} · sigue el próximo</Text>

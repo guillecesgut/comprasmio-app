@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
+import { Platform, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 import type { Room, RemoteTrack, LocalVideoTrack, VideoTrack } from 'livekit-client';
 import { api } from './api';
@@ -15,7 +15,8 @@ import { api } from './api';
  */
 export type LiveStatus = 'off' | 'idle' | 'connecting' | 'live' | 'waiting' | 'error';
 
-export const IN_EXPO_GO = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+/** Sin WebRTC nativo: Expo Go y la vista web de prueba. Ahí la app funciona entera salvo el video. */
+export const IN_EXPO_GO = Constants.executionEnvironment === ExecutionEnvironment.StoreClient || Platform.OS === 'web';
 
 type LiveKit = typeof import('livekit-client') & typeof import('@livekit/react-native');
 let modules: LiveKit | null = null;

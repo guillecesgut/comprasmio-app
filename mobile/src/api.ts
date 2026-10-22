@@ -29,14 +29,23 @@ let token: string | null = null;
 export const getToken = () => token;
 
 export async function loadToken() {
-  token = await SecureStore.getItemAsync(TOKEN_KEY).catch(() => null);
+  try {
+    token = await SecureStore.getItemAsync(TOKEN_KEY);
+  } catch {
+    token = null;
+  }
   return token;
 }
 
 export async function setToken(value: string | null) {
   token = value;
-  if (value) await SecureStore.setItemAsync(TOKEN_KEY, value);
-  else await SecureStore.deleteItemAsync(TOKEN_KEY).catch(() => {});
+  // Si el llavero no está disponible (vista web de prueba), la sesión queda en memoria.
+  try {
+    if (value) await SecureStore.setItemAsync(TOKEN_KEY, value);
+    else await SecureStore.deleteItemAsync(TOKEN_KEY);
+  } catch {
+    /* sin llavero */
+  }
 }
 
 export class ApiError extends Error {
@@ -184,7 +193,8 @@ export const api = {
     messageBuyer: (buyerId: string, text: string, orderId?: string) => post(`/seller/threads/${buyerId}`, { text, orderId }),
     streams: () => get('/seller/streams'),
     setup: () => get('/seller/streams/setup'),
-    startStream: (payload: { title?: string; entries: any[] }) => post('/seller/streams', payload),
+    startStream: (payload: { title?: string; entries: any[]; scheduledId?: string }) => post('/seller/streams', payload),
+    scheduleStream: (title: string, at: string) => post('/seller/streams/schedule', { title, at }),
     reorderQueue: (streamId: string, reservationIds: string[]) => put(`/seller/streams/${streamId}/queue`, { reservationIds }),
     openNext: (streamId: string, reservationId?: string) => post(`/seller/streams/${streamId}/next`, { reservationId }),
     extend: (streamId: string, seconds = 30) => post(`/seller/streams/${streamId}/extend`, { seconds }),
@@ -258,11 +268,24 @@ class Realtime {
     if (this.ws?.readyState === WebSocket.OPEN) this.ws.send(JSON.stringify(msg));
   }
 
+  /** Con conteo: dos pantallas pueden escuchar el mismo canal (sala + hoja del catálogo). */
+  private refs = new Map<string, number>();
+
   subscribe(channel: string) {
-    this.channels.add(channel);
-    this.connect();
-    this.send({ type: 'subscribe', channel });
+    this.refs.set(channel, (this.refs.get(channel) || 0) + 1);
+    if (!this.channels.has(channel)) {
+      this.channels.add(channel);
+      this.connect();
+      this.send({ type: 'subscribe', channel });
+    }
+    let done = false;
     return () => {
+      if (done) return;
+      done = true;
+      const n = (this.refs.get(channel) || 1) - 1;
+      this.refs.set(channel, n);
+      if (n > 0) return;
+      this.refs.delete(channel);
       this.channels.delete(channel);
       this.send({ type: 'unsubscribe', channel });
     };
@@ -282,6 +305,7 @@ class Realtime {
 
   reset() {
     this.channels.clear();
+    this.refs.clear();
     this.ws?.close();
     this.ws = null;
   }

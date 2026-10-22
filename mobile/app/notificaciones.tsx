@@ -1,83 +1,58 @@
 import React from 'react';
 import { View, Text, ScrollView } from 'react-native';
-import { router, type Href } from 'expo-router';
+import { router } from 'expo-router';
 import { api, realtime } from '@/api';
-import { SheetHeader, Group, Row, Sym, type SymbolName } from '@/ui';
+import { useSession } from '@/session';
+import { NavBar, Group, Row, Sym, Loading, EmptyCard, type SymbolName } from '@/ui';
 import { ago } from '@/format';
 import { C, T } from '@/theme';
 
 const ICON: Record<string, { name: SymbolName; color: string }> = {
-  pago_por_verificar: { name: 'doc.text', color: C.bid },
-  pago_verificado: { name: 'checkmark.circle.fill', color: C.tint },
+  pago_confirmado: { name: 'checkmark.circle.fill', color: C.tint },
+  pago_rechazado: { name: 'exclamationmark.triangle.fill', color: C.bid },
+  pedido_nuevo: { name: 'bag.fill', color: C.tint },
+  pedido: { name: 'shippingbox.fill', color: C.forest },
+  reclamo: { name: 'exclamationmark.bubble.fill', color: C.destructive },
+  liquidacion: { name: 'banknote.fill', color: C.tint },
+  plan: { name: 'crown.fill', color: C.bid },
   mensaje: { name: 'bubble.left.fill', color: C.forest },
+  vivo: { name: 'dot.radiowaves.left.and.right', color: C.bid },
+  resena: { name: 'star.fill', color: C.bidLight },
 };
 
-/** Los avisos guardan rutas de la web; acá se traducen a las de la app. */
-function appRoute(link?: string): Href | null {
-  if (!link) return null;
-  const [path, query = ''] = link.split('?');
-  const params = new URLSearchParams(query);
-  if (path === '/compras') return '/compras';
-  if (path.startsWith('/mensajes/')) return `/mensajes/${path.split('/')[2]}`;
-  if (path === '/vender/ordenes') return '/ordenes';
-  if (path === '/vender/clientes') return params.get('cliente') ? `/cliente/${params.get('cliente')}` : '/clientes';
-  if (path.startsWith('/vender')) return '/resumen';
-  return null;
-}
+/** Los avisos guardan rutas que en la app existen tal cual, salvo el catálogo del vendedor (tab). */
+const appRoute = (link?: string) => (!link ? null : link === '/vendedor/catalogo' ? '/catalogo' : link);
 
 export default function Notificaciones() {
+  const { refreshBadges } = useSession();
   const [items, setItems] = React.useState<any[] | null>(null);
 
   React.useEffect(() => {
     api.notifications()
       .then(({ notifications, unread }) => {
         setItems(notifications);
-        // Abrir el panel cuenta como haberlas visto.
-        if (unread > 0) api.markNotificationsRead().catch(() => {});
+        if (unread > 0) api.markNotificationsRead().then(refreshBadges).catch(() => {});
       })
       .catch(() => setItems([]));
-    const offs = [
-      realtime.on('notification:new', ({ notification }) => setItems((list) => [notification, ...(list || [])])),
-      realtime.on('notification:update', ({ notification }) =>
-        setItems((list) => [notification, ...(list || []).filter((n) => n.id !== notification.id)])),
-    ];
-    return () => offs.forEach((off) => off());
-  }, []);
-
-  const go = (item: any) => {
-    const route = appRoute(item.link);
-    router.back();
-    if (route) router.push(route);
-  };
+    return realtime.on('notification:new', ({ notification }) => notification && setItems((list) => [notification, ...(list || [])]));
+  }, [refreshBadges]);
 
   return (
-    <View style={{ flex: 1 }}>
-      <SheetHeader title="Notificaciones" onClose={() => router.back()} />
-      <ScrollView contentContainerStyle={{ paddingBottom: 32 }}>
-        {items !== null && items.length === 0 ? (
-          <Text style={[T.subhead, { color: C.secondary, textAlign: 'center', padding: 32 }]}>No tenés notificaciones todavía.</Text>
+    <View style={{ flex: 1, backgroundColor: C.groupedBg }}>
+      <NavBar title="Avisos" />
+      <ScrollView contentContainerStyle={{ paddingTop: 8, paddingBottom: 40 }}>
+        {!items ? <Loading /> : !items.length ? (
+          <EmptyCard title="Sin avisos" body="Acá te contamos cuando se confirme un pago, se envíe un pedido o una tienda salga en vivo." />
         ) : (
-          <Group inset={56}>
-            {(items || []).map((item) => {
-              const icon = ICON[item.kind] || ICON.mensaje;
+          <Group inset={50}>
+            {items.map((n) => {
+              const icon = ICON[n.kind] || { name: 'bell.fill' as SymbolName, color: C.secondary };
+              const to = appRoute(n.link);
               return (
-                <Row
-                  key={item.id}
-                  minHeight={64}
-                  onPress={() => go(item)}
-                  left={
-                    <View style={{ width: 28, alignItems: 'center' }}>
-                      <Sym name={icon.name} size={22} color={icon.color} />
-                    </View>
-                  }
-                  title={
-                    <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
-                      <Text numberOfLines={1} style={[T.callout, { fontWeight: item.read ? '400' : '600', flex: 1 }]}>{item.title}</Text>
-                      <Text style={T.footnote}>{ago(item.at)}</Text>
-                    </View>
-                  }
-                  subtitle={`${item.count > 1 ? `${item.count} mensajes · ` : ''}${item.body}`}
-                />
+                <Row key={n.id} icon={icon.name} iconColor={icon.color} onPress={to ? () => router.push(to as any) : undefined}
+                  title={<Text style={[T.body, { fontWeight: n.read ? '400' : '600' }]} numberOfLines={2}>{n.title}{n.count > 1 ? ` (${n.count})` : ''}</Text>}
+                  subtitle={[n.body, ago(n.at)].filter(Boolean).join(' · ')}
+                  right={!n.read ? <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: C.tint }} /> : <Sym name="chevron.forward" size={13} color={C.tertiary} />} />
               );
             })}
           </Group>

@@ -84,10 +84,16 @@ export async function profile(userId) {
   };
 }
 
-export async function updateProfile(userId, { name }) {
+export async function updateProfile(userId, { name, email }) {
   const clean = String(name || '').trim();
   if (clean.length < 2) fail(400, 'Escribí tu nombre.');
-  await one('UPDATE users SET name = $2, initials = $3 WHERE id = $1 RETURNING id', [userId, clean, initialsFrom(clean)]);
+  const mail = email === undefined ? undefined : String(email || '').trim() || null;
+  if (mail && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) fail(400, 'Ese email no es válido.');
+  if (mail && (await one('SELECT 1 FROM users WHERE lower(email) = lower($1) AND id <> $2', [mail, userId]))) fail(409, 'Ese email ya está en otra cuenta.');
+  await one(
+    'UPDATE users SET name = $2, initials = $3, email = CASE WHEN $4::boolean THEN $5 ELSE email END WHERE id = $1 RETURNING id',
+    [userId, clean, initialsFrom(clean), mail !== undefined, mail ?? null]
+  );
   return profile(userId);
 }
 
@@ -109,7 +115,7 @@ export async function toggleBlock(userId, handle) {
 }
 
 export async function report(userId, { handle, text, streamId, productId, reason }) {
-  if (!handle && !productId) fail(400, 'Falta qué reportar.');
+  if (!handle && !productId && !String(text || '').trim()) fail(400, 'Falta qué reportar.');
   const target = handle ? await one('SELECT id FROM users WHERE handle = $1', [handle]) : null;
   await one(
     `INSERT INTO reports(id, by_user_id, target_user_id, target_handle, product_id, stream_id, text, reason)

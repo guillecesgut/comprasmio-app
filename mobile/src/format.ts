@@ -41,12 +41,16 @@ export function useCountdown(iso?: string | null) {
 }
 
 const TZ = 'America/La_Paz';
-/** "3 nov" */
-export const shortDate = (iso?: string | null) =>
-  iso ? new Date(iso.length === 10 ? `${iso}T12:00:00Z` : iso).toLocaleDateString('es-BO', { day: 'numeric', month: 'short', timeZone: TZ }) : '';
+/** "3 nov" (con el año si no es el actual: "22 oct 2027"). */
+export function shortDate(iso?: string | null) {
+  if (!iso) return '';
+  const d = new Date(iso.length === 10 ? `${iso}T12:00:00Z` : iso);
+  const otherYear = d.getUTCFullYear() !== new Date().getUTCFullYear();
+  return d.toLocaleDateString('es-BO', { day: 'numeric', month: 'short', ...(otherYear ? { year: 'numeric' } : {}), timeZone: TZ }).replace(' de ', ' ');
+}
 /** "lunes 3 nov" */
 export const weekdayDate = (iso?: string | null) =>
-  iso ? new Date(iso.length === 10 ? `${iso}T12:00:00Z` : iso).toLocaleDateString('es-BO', { weekday: 'long', day: 'numeric', month: 'short', timeZone: TZ }) : '';
+  iso ? new Date(iso.length === 10 ? `${iso}T12:00:00Z` : iso).toLocaleDateString('es-BO', { weekday: 'long', day: 'numeric', month: 'short', timeZone: TZ }).replace(',', '') : '';
 /** "hoy 20:30", "mañana 19:00" o "vie 7 nov 19:00" para vivos programados. */
 export function whenLabel(iso?: string | null) {
   if (!iso) return '';

@@ -45,23 +45,25 @@ function Navigator() {
 
       {/* Sala y transmisión: pantalla completa, fondo negro. */}
       <Stack.Screen name="vivo/[id]" options={{ presentation: 'fullScreenModal', contentStyle: { backgroundColor: C.black } }} />
-      <Stack.Screen
-        name="transmitir/[id]"
-        options={{ presentation: 'fullScreenModal', gestureEnabled: false, contentStyle: { backgroundColor: C.black } }}
-      />
+      <Stack.Screen name="transmitir/[id]" options={{ presentation: 'fullScreenModal', gestureEnabled: false, contentStyle: { backgroundColor: C.black } }} />
+      <Stack.Screen name="transmitir/fin/[id]" options={{ gestureEnabled: false }} />
 
-      {/* Hojas. */}
-      <Stack.Screen name="catalogo/[id]" options={sheet([0.55])} />
-      <Stack.Screen name="pago/[orderId]" options={sheet([1], C.groupedBg)} />
-      <Stack.Screen name="producto/[id]" options={sheet([1], C.groupedBg)} />
-      <Stack.Screen name="comprobante/[orderId]" options={sheet([1], C.groupedBg)} />
+      {/* Hojas (formSheet con detents). */}
+      <Stack.Screen name="pago/[id]" options={sheet([1], C.groupedBg)} />
+      <Stack.Screen name="pago/listo" options={{ gestureEnabled: false }} />
+      <Stack.Screen name="pedido/recepcion/[id]" options={sheet([0.6, 1], C.groupedBg)} />
+      <Stack.Screen name="pedido/reclamo/[id]" options={sheet([1], C.groupedBg)} />
+      <Stack.Screen name="direcciones/editar" options={sheet([1], C.groupedBg)} />
+      <Stack.Screen name="vivo/catalogo/[id]" options={sheet([0.55, 1])} />
+      <Stack.Screen name="vendedor/producto" options={sheet([1], C.groupedBg)} />
+      <Stack.Screen name="vendedor/paquete" options={sheet([1], C.groupedBg)} />
+      <Stack.Screen name="variante/[id]" options={sheet([0.75, 1], C.groupedBg)} />
+      <Stack.Screen name="plan/premium" options={sheet([0.6])} />
       <Stack.Screen name="transmitir/armar" options={sheet([1], C.groupedBg)} />
-      <Stack.Screen name="cuenta" options={sheet([0.5, 1], C.groupedBg)} />
-      <Stack.Screen name="notificaciones" options={sheet([0.6, 1], C.groupedBg)} />
 
-      {/* Hilos de chat: push normal. */}
-      <Stack.Screen name="mensajes/[sellerId]" options={{ contentStyle: { backgroundColor: C.white } }} />
-      <Stack.Screen name="cliente/[buyerId]" options={{ contentStyle: { backgroundColor: C.white } }} />
+      {/* Hilos de chat: fondo blanco. */}
+      <Stack.Screen name="chat/[sellerId]" options={{ contentStyle: { backgroundColor: C.white } }} />
+      <Stack.Screen name="vendedor/mensajes/[buyerId]" options={{ contentStyle: { backgroundColor: C.white } }} />
     </Stack>
   );
 }

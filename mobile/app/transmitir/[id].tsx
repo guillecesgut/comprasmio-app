@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Alert, AppState, ActionSheetIOS } from 'react-native';
+import { View, Text, StyleSheet, Alert, AppState } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { BlurView } from 'expo-blur';
@@ -9,7 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, bs, clock, realtime } from '@/api';
 import { useBroadcast, useLiveAvailable, LiveVideo, IN_EXPO_GO } from '@/live';
 import { useElapsed } from '@/format';
-import { Circle, Btn, ModeChip, Placeholder, Sym, LivePill, ViewersPill, ErrorLine } from '@/ui';
+import { Circle, Btn, ModeChip, Img, Sym, LivePill, ViewersPill, ErrorLine, Press } from '@/ui';
 import { C, T, R } from '@/theme';
 
 /**
@@ -90,24 +90,15 @@ export default function AlAire() {
         style: 'destructive',
         onPress: async () => {
           cam.stop();
-          await api.endStream(id).catch(() => {});
-          router.back();
+          await api.seller_.endStream(id).catch(() => {});
+          router.replace(`/transmitir/fin/${id}`);
         },
       },
     ]);
 
-  /** Sin cola: elegir a mano qué producto sale. */
-  const pickProduct = async () => {
-    const { products } = await api.products().catch(() => ({ products: [] as any[] }));
-    const available = products.filter((p) => p.status !== 'sold');
-    if (!available.length) return setError('No tenés productos disponibles. Creá uno desde Productos.');
-    ActionSheetIOS.showActionSheetWithOptions(
-      { title: '¿Qué vendés ahora?', options: [...available.map((p) => p.name), 'Cancelar'], cancelButtonIndex: available.length },
-      (i) => i < available.length && run(() => api.openLot(id, available[i].id))
-    );
-  };
-
-  const next = queue[0];
+  // Lo que falta salir: si el lote al aire es la unidad 1 de 3, quedan las otras 2 de esa misma fila.
+  const pending = queue.filter((q) => q.status !== 'done' && (q.status === 'on_air' ? q.mode === 'subasta' && q.remaining > 1 : q.remaining > 0));
+  const next = pending[0];
   const visible = messages.slice(-4);
 
   return (
@@ -187,8 +178,8 @@ export default function AlAire() {
                 <LotPanel
                   lot={lot}
                   busy={busy}
-                  onClose={() => run(() => api.closeLot(id))}
-                  onExtend={() => run(() => api.extendLot(id, 30))}
+                  onClose={() => run(() => api.seller_.closeLot(id))}
+                  onExtend={() => run(() => api.seller_.extend(id, 30))}
                 />
               ) : (
                 <IdlePanel outcome={outcome} />
@@ -198,24 +189,28 @@ export default function AlAire() {
 
               <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: C.separator, marginVertical: 14 }} />
               {next ? (
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                  <Placeholder color={next.grad} style={{ width: 38, height: 38 }} radius={10} />
+                <Press onPress={() => router.push(`/vivo/catalogo/${id}`)} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                  <Img url={next.photoUrl} color={next.color} style={{ width: 38, height: 38 }} radius={10} />
                   <View style={{ flex: 1, minWidth: 0 }}>
-                    <Text style={[T.footnote, T.num]}>SIGUE · {queue.length} en cola</Text>
-                    <Text numberOfLines={1} style={[T.callout, { fontWeight: '600' }]}>{next.name}</Text>
+                    <Text style={[T.footnote, T.num]}>SIGUE · {pending.length} en cola</Text>
+                    <Text numberOfLines={1} style={[T.callout, { fontWeight: '600' }]}>{next.title}{next.kind === 'paquete' ? ' · Paquete' : next.label ? ` · ${next.label}` : ''}</Text>
                   </View>
+                  {/* "Iniciar subasta" queda al 40 % mientras hay lote: el siguiente nunca arranca solo. */}
                   <Btn
-                    title={next.mode === 'fixed' ? 'Abrir oferta' : 'Iniciar subasta'}
-                    tone={next.mode === 'fixed' ? 'tint' : 'bid'}
+                    title={next.mode === 'fijo' ? 'Abrir oferta' : 'Iniciar subasta'}
+                    tone={next.mode === 'fijo' ? 'tint' : 'bid'}
                     height={40}
                     disabled={!!lot}
                     loading={busy && !lot}
-                    onPress={() => run(async () => { await api.nextInQueue(id); setOutcome(null); })}
+                    onPress={() => run(async () => { await api.seller_.openNext(id); setOutcome(null); })}
                     style={{ paddingHorizontal: 16 }}
                   />
-                </View>
+                </Press>
               ) : (
-                <Btn title="Elegir producto" tone="outline" height={40} disabled={!!lot} onPress={pickProduct} />
+                <View style={{ gap: 8 }}>
+                  <Text style={[T.subhead, { color: C.secondary }]}>No quedan lotes en la cola.</Text>
+                  {!lot && <Btn title="Terminar y ver el resumen" tone="outline" height={40} onPress={end} />}
+                </View>
               )}
             </View>
           </View>
@@ -226,25 +221,27 @@ export default function AlAire() {
 }
 
 function LotPanel({ lot, busy, onClose, onExtend }: { lot: any; busy: boolean; onClose: () => void; onExtend: () => void }) {
-  const auction = lot.mode === 'auction';
+  const auction = lot.mode === 'subasta';
+  const bundle = lot.kind === 'paquete';
   const urgent = auction && lot.timer <= 5;
   return (
     <>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-        <ModeChip mode={lot.mode} solid />
-        <Text numberOfLines={1} style={[T.callout, { fontWeight: '600', flex: 1 }]}>{lot.productName}</Text>
+        <ModeChip mode={bundle ? 'paquete' : lot.mode} solid />
+        <Text numberOfLines={1} style={[T.callout, { fontWeight: '600', flex: 1 }]}>{lot.title}{lot.label && !bundle ? ` · ${lot.label}` : ''}</Text>
+        {auction && <Text style={[T.footnote, T.num]}>{bundle ? lot.label : lot.unitTotal > 1 ? `Unidad ${lot.unitIndex} de ${lot.unitTotal}` : lot.lotNo}</Text>}
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginTop: 8 }}>
         <View style={{ flex: 1 }}>
           <Text style={[{ fontSize: 32, fontWeight: '700', color: C.label, letterSpacing: -0.5 }, T.num]}>{bs(lot.price)}</Text>
           <Text style={[T.subhead, T.num, { color: C.secondary }]} numberOfLines={1}>
             {auction
-              ? lot.leaderHandle ? `@${lot.leaderHandle} va ganando · ${lot.bids || 0} pujas` : 'Todavía sin pujas'
+              ? lot.leaderHandle ? `@${lot.leaderHandle} va ganando · ${lot.bids} ${lot.bids === 1 ? 'puja' : 'pujas'}` : 'Todavía sin pujas'
               : `${lot.sold} de ${lot.stock} vendidas · ${bs(lot.sold * lot.price)}`}
           </Text>
         </View>
         <Text style={[{ fontSize: 30, fontWeight: '600', color: urgent ? C.bidText : C.label }, T.num]}>
-          {auction ? clock(lot.timer) : `${lot.stock - lot.sold} u.`}
+          {auction ? clock(lot.timer) : `${lot.left} u.`}
         </Text>
       </View>
       <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
@@ -266,8 +263,8 @@ function IdlePanel({ outcome }: { outcome: any }) {
   }
   const title = outcome.type === 'won' ? 'Lote vendido' : outcome.type === 'no_sale' ? 'Sin venta' : 'Oferta cerrada';
   const body =
-    outcome.type === 'won' ? `@${outcome.winnerHandle} se llevó ${outcome.productName} por ${bs(outcome.price)}.`
-      : outcome.type === 'no_sale' ? `La puja llegó a ${bs(outcome.price)} y tu mínimo era ${bs(outcome.min)}.`
+    outcome.type === 'won' ? `@${outcome.winnerHandle} se llevó ${outcome.title} por ${bs(outcome.price)}.`
+      : outcome.type === 'no_sale' ? (outcome.hadBids ? `La puja llegó a ${bs(outcome.price)} y tu mínimo era ${bs(outcome.min)}. La unidad vuelve a tu catálogo al terminar.` : 'Nadie pujó. La unidad vuelve a tu catálogo al terminar.')
         : `Vendiste ${outcome.sold} u. por ${bs(outcome.revenue)}.`;
   return (
     <>
