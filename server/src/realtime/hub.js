@@ -1,11 +1,14 @@
 import { WebSocketServer } from 'ws';
 import { verify } from '../auth.js';
+import { one } from '../db.js';
 
 /**
  * Canales:
- *   stream:<id>  puja, compra, chat, contador de espectadores
- *   user:<id>    cambios de estado de las órdenes del comprador
- *   seller:<id>  pedidos entrantes y verificaciones
+ *   feed           vivos que empiezan o terminan (público)
+ *   stream:<id>    puja, compra, chat, espectadores de un vivo (público)
+ *   user:<id>      avisos y pedidos de esa persona (se une sola al conectar)
+ *   seller:<id>    pedidos y mensajes de una tienda (solo su dueño)
+ *   admin          pagos y reclamos nuevos (solo el equipo)
  */
 const channels = new Map();
 
@@ -33,6 +36,14 @@ export function emit(channel, type, payload) {
 
 export const viewersOf = (streamId) => channels.get(`stream:${streamId}`)?.size ?? 0;
 
+/** ¿Puede esta conexión escuchar este canal? */
+function allowed(ws, channel) {
+  if (channel === 'feed' || channel.startsWith('stream:')) return true;
+  if (channel === 'admin') return ws.role === 'admin';
+  if (channel.startsWith('seller:')) return Boolean(ws.sellerId) && channel === `seller:${ws.sellerId}`;
+  return false; // user:<id> se asigna solo al conectar
+}
+
 export function attach(server, { onViewersChange } = {}) {
   wss = new WebSocketServer({ server, path: '/ws' });
 
@@ -40,26 +51,39 @@ export function attach(server, { onViewersChange } = {}) {
     const url = new URL(req.url, 'http://localhost');
     const payload = verify(url.searchParams.get('token') || '');
     ws.userId = payload?.sub || null;
+    ws.role = payload?.role || null;
+    ws.sellerId = null;
     ws.channels = new Set();
     ws.isAlive = true;
 
-    if (ws.userId) join(ws, `user:${ws.userId}`);
+    if (ws.userId) {
+      join(ws, `user:${ws.userId}`);
+      // La tienda del usuario se busca una vez; las suscripciones que llegan antes esperan.
+      ws.ready = one('SELECT id FROM sellers WHERE user_id = $1', [ws.userId])
+        .then((s) => { ws.sellerId = s?.id || null; })
+        .catch(() => {});
+    } else {
+      ws.ready = Promise.resolve();
+    }
 
     ws.on('pong', () => { ws.isAlive = true; });
 
-    ws.on('message', (raw) => {
+    ws.on('message', async (raw) => {
       let msg;
       try { msg = JSON.parse(raw.toString()); } catch { return; }
+      if (typeof msg.channel !== 'string' || msg.channel.length > 80) return;
+      await ws.ready;
 
-      if (msg.type === 'subscribe' && typeof msg.channel === 'string') {
+      if (msg.type === 'subscribe') {
+        if (!allowed(ws, msg.channel)) return;
         join(ws, msg.channel);
         if (msg.channel.startsWith('stream:')) {
           const streamId = msg.channel.slice(7);
           onViewersChange?.(streamId, viewersOf(streamId));
         }
       }
-      if (msg.type === 'unsubscribe' && typeof msg.channel === 'string') {
-        const wasStream = msg.channel.startsWith('stream:');
+      if (msg.type === 'unsubscribe') {
+        const wasStream = msg.channel.startsWith('stream:') && ws.channels.has(msg.channel);
         leave(ws, msg.channel);
         if (wasStream) {
           const streamId = msg.channel.slice(7);
@@ -86,6 +110,7 @@ export function attach(server, { onViewersChange } = {}) {
       ws.ping();
     }
   }, 30000);
+  ping.unref();
   wss.on('close', () => clearInterval(ping));
 
   return wss;

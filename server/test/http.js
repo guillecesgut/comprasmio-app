@@ -2,10 +2,12 @@ import http from 'node:http';
 import { createApp } from '../src/app.js';
 import { ensureAdmin } from '../src/services/users.js';
 import * as db from '../src/db.js';
+import * as hub from '../src/realtime/hub.js';
 
 /** Levanta la app en un puerto libre y devuelve un cliente fetch mínimo. */
 export async function startApi() {
   const server = http.createServer(createApp());
+  const wss = hub.attach(server);
   await new Promise((r) => server.listen(0, '127.0.0.1', r));
   const base = `http://127.0.0.1:${server.address().port}/api`;
 
@@ -47,7 +49,13 @@ export async function startApi() {
     return as(r.data.token);
   };
 
-  return { base, call, as, signup, admin, stop: () => new Promise((r) => server.close(r)) };
+  const wsUrl = base.replace(/^http/, 'ws').replace(/\/api$/, '/ws');
+  return { base, wsUrl, call, as, signup, admin, stop: () => new Promise((r) => {
+    for (const c of wss.clients) c.terminate();
+    wss.close();
+    server.closeAllConnections?.();
+    server.close(r);
+  }) };
 }
 
 /** QR de cobro activo (el checkout lo exige). */

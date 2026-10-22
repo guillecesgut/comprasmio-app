@@ -58,8 +58,21 @@ export async function startLocalPg({ dir, port = 54329, quiet = true } = {}) {
     stdio: quiet ? 'ignore' : 'inherit',
   });
   await waitForPort(port);
-
   const url = (db = 'postgres') => `postgres://${USER}:${PASSWORD}@127.0.0.1:${port}/${db}`;
+  // El puerto abre antes de que acepte conexiones ("the database system is starting up").
+  const { default: pg } = await import('pg');
+  for (let attempt = 0; ; attempt++) {
+    const client = new pg.Client({ connectionString: url() });
+    try {
+      await client.connect();
+      await client.end();
+      break;
+    } catch (err) {
+      await client.end().catch(() => {});
+      if (attempt > 100) throw err;
+      await new Promise((r) => setTimeout(r, 200));
+    }
+  }
   return {
     url,
     port,
