@@ -1,211 +1,189 @@
 import React from 'react';
-import { View, Text, TextInput, RefreshControl, useWindowDimensions, StyleSheet } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { LinearGradientMask } from '@/Gradient';
-import { api, bs, realtime, type Mode } from '@/api';
+import { View, Text, ScrollView, Pressable, RefreshControl, useWindowDimensions, StyleSheet } from 'react-native';
+import { router } from 'expo-router';
+import { LinearGradientLike } from '@/Shade';
+import { LiveCard } from '@/LiveCard';
+import { api } from '@/api';
 import { useSession } from '@/session';
-import { HeaderActions } from '@/HeaderActions';
+import { useData, useToggleFav, setFav } from '@/hooks';
 import {
-  Screen, Logomark, Segmented, Sym, Press, Placeholder, ModeChip, EmptyCard, ErrorLine, LivePill, ViewersPill, thousands,
+  Screen, Logomark, Wordmark, Circle, Avatar, Sym, Press, Img, ProductCard, ProductGrid, Skeleton,
+  Btn, Notice,
 } from '@/ui';
-import { C, T, R, MODE } from '@/theme';
+import { C, T, R } from '@/theme';
 
-type Filter = 'all' | Mode;
-
-const FILTERS: { key: Filter; label: string; dot?: string }[] = [
-  { key: 'all', label: 'Todo' },
-  { key: 'auction', label: 'Subastas', dot: MODE.auction.dot },
-  { key: 'fixed', label: 'Precio fijo', dot: MODE.fixed.dot },
-];
-
-/** B1 · Inicio (comprador). */
+/** D1 · Inicio del marketplace. */
 export default function Inicio() {
-  const { buscar } = useLocalSearchParams<{ buscar?: string }>();
-  const { favorites, toggleFavorite } = useSession();
-  const { width } = useWindowDimensions();
-  const searchRef = React.useRef<TextInput>(null);
+  const { user, badges } = useSession();
+  const { data, error, loading, reload, setData } = useData(() => api.home(), [], { events: ['stream:started', 'stream:ended'] });
 
-  const [filter, setFilter] = React.useState<Filter>('all');
-  const [query, setQuery] = React.useState('');
-  const [debounced, setDebounced] = React.useState('');
-  const [streams, setStreams] = React.useState<any[] | null>(null);
-  const [refreshing, setRefreshing] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const toggleFav = useToggleFav(React.useCallback((id: string, fav: boolean) => {
+    setData((d: any) => d && { ...d, featured: setFav(d.featured, id, fav), offers: setFav(d.offers, id, fav), recent: setFav(d.recent, id, fav) });
+  }, [setData]));
 
-  // El botón de búsqueda de la tab bar trae acá y abre el teclado.
-  React.useEffect(() => {
-    if (buscar) setTimeout(() => searchRef.current?.focus(), 250);
-  }, [buscar]);
-
-  React.useEffect(() => {
-    const t = setTimeout(() => setDebounced(query.trim()), 300);
-    return () => clearTimeout(t);
-  }, [query]);
-
-  const load = React.useCallback(async () => {
-    try {
-      const { streams } = await api.streams(filter, debounced || undefined);
-      setStreams(streams);
-      setError(null);
-    } catch (e: any) {
-      setError(e.message);
-      setStreams((s) => s || []);
-    }
-  }, [filter, debounced]);
-
-  React.useEffect(() => { load(); }, [load]);
-
-  // El feed respira: espectadores y precios se mueven sin recargar.
-  React.useEffect(() => {
-    const off = realtime.subscribe('feed');
-    const listeners = [
-      realtime.on('stream:update', ({ stream }) =>
-        setStreams((current) => current?.map((s) => (s.id === stream.id ? { ...s, ...stream } : s)) ?? current)),
-      realtime.on('stream:started', () => load()),
-      realtime.on('stream:ended', ({ streamId }) => setStreams((current) => current?.filter((s) => s.id !== streamId) ?? current)),
-    ];
-    return () => { off(); listeners.forEach((stop) => stop()); };
-  }, [load]);
-
-  const refresh = async () => {
-    setRefreshing(true);
-    await load();
-    setRefreshing(false);
+  const toggleFollow = async (s: any) => {
+    setData((d: any) => d && { ...d, sellers: d.sellers.map((x: any) => (x.id === s.id ? { ...x, following: !x.following } : x)) });
+    await api.toggleFollow(s.id).catch(() => reload());
   };
 
-  const list = streams || [];
-  const showFeatured = filter === 'all' && !debounced && list.length > 0;
-  const featured = showFeatured ? [...list].sort((a, b) => b.viewers - a.viewers)[0] : null;
-  const rest = featured ? list.filter((s) => s.id !== featured.id) : list;
-  const cardWidth = (width - 32 - 12) / 2;
-
   return (
-    <Screen refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={C.tint} />}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20 }}>
+    <Screen refreshControl={<RefreshControl refreshing={loading && !!data} onRefresh={reload} />}>
+      {/* Header: logo, campana y avatar */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, gap: 8 }}>
         <Logomark size={30} />
-        <HeaderActions />
+        <Wordmark size={19} />
+        <View style={{ flex: 1 }} />
+        <Circle icon="bell" bg={C.white} badge={badges.unread} onPress={() => router.push('/notificaciones')} label="Avisos" />
+        <Press onPress={() => router.navigate('/cuenta')} accessibilityLabel="Tu cuenta">
+          <Avatar initials={user?.initials || '?'} size={44} />
+        </Press>
       </View>
 
-      <Text style={[T.largeTitle, { paddingHorizontal: 20, marginTop: 12 }]} accessibilityRole="header">En vivo ahora</Text>
-
-      <View style={styles.search}>
+      {/* Search pill no editable → tab Buscar */}
+      <Press onPress={() => router.navigate('/buscar')} accessibilityRole="search" style={styles.search}>
         <Sym name="magnifyingglass" size={17} color={C.secondary} />
-        <TextInput
-          ref={searchRef}
-          value={query}
-          onChangeText={setQuery}
-          placeholder="Buscar productos, vendedores…"
-          placeholderTextColor={C.secondary}
-          returnKeyType="search"
-          clearButtonMode="while-editing"
-          accessibilityLabel="Buscar transmisiones"
-          style={{ flex: 1, fontSize: 17, color: C.label }}
-        />
-      </View>
+        <Text style={{ fontSize: 17, color: C.secondary }}>Buscar productos o tiendas</Text>
+      </Press>
 
-      <Segmented options={FILTERS} value={filter} onChange={setFilter} style={{ marginHorizontal: 16, marginTop: 12 }} />
-
-      <View style={{ paddingHorizontal: 4 }}><ErrorLine message={error} /></View>
-
-      {featured && <Featured stream={featured} />}
-
-      {streams !== null && (
-        <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', paddingHorizontal: 20, marginTop: 26, marginBottom: 12 }}>
-          <Text style={T.title2}>{debounced ? 'Resultados' : 'Para vos'}</Text>
-          <Text style={[T.subhead, { color: C.secondary }]}>{list.length} {list.length === 1 ? 'transmisión' : 'transmisiones'}</Text>
-        </View>
+      {error && !data && (
+        <Notice tone="amber" icon="wifi.slash" style={{ marginTop: 12 }} action={<Btn title="Reintentar" tone="tonal" height={36} onPress={reload} style={{ alignSelf: 'flex-start' }} />}>
+          {error}
+        </Notice>
       )}
 
-      {streams !== null && list.length === 0 ? (
-        <EmptyCard title="Nada con ese filtro" body="Probá con otra búsqueda: los vivos entran y salen todo el día." />
-      ) : (
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 16, columnGap: 12, rowGap: 18 }}>
-          {rest.map((stream) => (
-            <StreamCard
-              key={stream.id}
-              stream={stream}
-              width={cardWidth}
-              favorite={favorites.includes(stream.id)}
-              onFavorite={() => toggleFavorite(stream.id)}
-            />
-          ))}
-        </View>
+      {!data ? <HomeSkeleton /> : (
+        <>
+          <Banners banners={data.banners} />
+
+          {data.categories.length > 0 && (
+            <>
+              <Text style={styles.h2}>Categorías</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 14 }}>
+                {data.categories.map((c: any) => (
+                  <Press key={c.id} onPress={() => router.push(`/categoria/${c.id}`)} style={{ width: 62, alignItems: 'center', gap: 6 }}>
+                    <View style={styles.catCircle}><Sym name={(c.icon || 'square.grid.2x2') as any} size={26} color={C.tint} /></View>
+                    <Text numberOfLines={1} style={{ fontSize: 12, color: C.label }}>{c.name}</Text>
+                  </Press>
+                ))}
+              </ScrollView>
+            </>
+          )}
+
+          {data.live.length > 0 && (
+            <>
+              <Text style={[styles.h2, { color: C.bidText }]}>En vivo ahora</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 10 }}>
+                {data.live.map((s: any) => <LiveCard key={s.id} stream={s} width={124} />)}
+              </ScrollView>
+            </>
+          )}
+
+          {data.featured.length > 0 && (
+            <>
+              <Text style={styles.h2}>Destacados</Text>
+              <ProductGrid products={data.featured.slice(0, 6)} onToggleFav={toggleFav} />
+            </>
+          )}
+
+          {data.offers.length > 0 && (
+            <>
+              <Text style={styles.h2}>Ofertas</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}>
+                {data.offers.map((p: any) => <ProductCard key={p.id} product={p} width={140} onToggleFav={toggleFav} />)}
+              </ScrollView>
+            </>
+          )}
+
+          {data.sellers.length > 0 && (
+            <>
+              <Text style={styles.h2}>Vendedores destacados</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}>
+                {data.sellers.map((s: any) => (
+                  <Press key={s.id} onPress={() => router.push(`/tienda/${s.slug}`)} style={styles.sellerCard}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                      {s.avatarUrl ? <Img url={s.avatarUrl} radius={22} style={{ width: 44, height: 44 }} /> : <Avatar initials={s.initials} bg={s.color} size={44} />}
+                      <View style={{ flex: 1 }}>
+                        <Text numberOfLines={1} style={T.headline}>{s.name} {s.verified && <Sym name="checkmark.seal.fill" size={14} color={C.tint} />}</Text>
+                        <Text style={[T.footnote, T.num]}>★ {s.ratingPct ?? 100} % · {s.salesCount} ventas</Text>
+                      </View>
+                    </View>
+                    <Btn title={s.following ? 'Siguiendo' : 'Seguir'} tone="tonal" height={36} onPress={() => toggleFollow(s)} icon={s.following ? 'checkmark' : undefined} />
+                  </Press>
+                ))}
+              </ScrollView>
+            </>
+          )}
+
+          {data.recent.length > 0 && (
+            <>
+              <Text style={styles.h2}>Recién llegados</Text>
+              <ProductGrid products={data.recent} onToggleFav={toggleFav} />
+            </>
+          )}
+
+          {!data.featured.length && !data.recent.length && (
+            <Text style={[T.subhead, { color: C.secondary, textAlign: 'center', marginTop: 40, paddingHorizontal: 32 }]}>
+              Todavía no hay productos publicados. Volvé pronto.
+            </Text>
+          )}
+        </>
       )}
     </Screen>
   );
 }
 
-function Featured({ stream }: { stream: any }) {
+function Banners({ banners }: { banners: any[] }) {
+  const { width } = useWindowDimensions();
+  const [page, setPage] = React.useState(0);
+  if (!banners.length) return null;
+  const w = width - 32;
+  const open = (b: any) => {
+    const to: Record<string, string> = { producto: `/producto/${b.targetId}`, categoria: `/categoria/${b.targetId}`, vendedor: `/tienda/${b.targetId}`, vivo: `/vivo/${b.targetId}` };
+    if (to[b.targetType]) router.push(to[b.targetType] as any);
+  };
   return (
-    <Press onPress={() => router.push(`/vivo/${stream.id}`)} accessibilityRole="button" accessibilityLabel={`${stream.title}, de ${stream.seller?.name}. Entrar al vivo`}>
-      <Placeholder strong color={stream.grad || C.forest} radius={R.featured} style={{ height: 236, marginHorizontal: 16, marginTop: 18 }}>
-        <LinearGradientMask from="rgba(5,30,24,0)" to="rgba(5,30,24,.85)" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, top: '35%' }} />
-        <View style={{ flexDirection: 'row', gap: 8, padding: 14 }}>
-          <LivePill />
-          <ViewersPill viewers={stream.viewers} />
+    <View style={{ marginTop: 16 }}>
+      <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false} snapToInterval={w + 10} decelerationRate="fast"
+        contentContainerStyle={{ paddingHorizontal: 16, gap: 10 }}
+        onMomentumScrollEnd={(e) => setPage(Math.round(e.nativeEvent.contentOffset.x / (w + 10)))}>
+        {banners.map((b) => (
+          <Pressable key={b.id} onPress={() => open(b)} accessibilityRole="link" accessibilityLabel={b.title}>
+            <Img url={b.imageUrl} color={C.forest} radius={26} style={{ width: w, height: 184 }}>
+              <LinearGradientLike />
+              <View style={{ position: 'absolute', left: 18, right: 18, bottom: 16, gap: 10 }}>
+                <Text style={{ color: C.white, fontSize: 22, fontWeight: '700' }} numberOfLines={2}>{b.title}</Text>
+                <View style={{ alignSelf: 'flex-start', backgroundColor: C.white, borderRadius: R.pill, paddingHorizontal: 14, height: 32, justifyContent: 'center' }}>
+                  <Text style={{ fontWeight: '600', color: C.label }}>{b.cta}</Text>
+                </View>
+              </View>
+            </Img>
+          </Pressable>
+        ))}
+      </ScrollView>
+      {banners.length > 1 && (
+        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 10 }}>
+          {banners.map((b, i) => (
+            <View key={b.id} style={{ width: i === page ? 18 : 6, height: 6, borderRadius: 3, backgroundColor: i === page ? C.label : C.unchecked }} />
+          ))}
         </View>
-        <View style={{ flex: 1 }} />
-        <View style={{ padding: 16 }}>
-          <Text style={{ fontSize: 13, color: '#C7DDD5' }} numberOfLines={1}>
-            {stream.seller?.name} · ★ {Math.round(stream.seller?.rating ?? 100)} %
-          </Text>
-          <Text style={[T.title2, { color: C.white, marginTop: 2 }]} numberOfLines={1}>{stream.title}</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
-            <Text style={[{ fontSize: 15, color: C.white }, T.num]}>
-              Desde <Text style={{ fontWeight: '700', fontSize: 17 }}>{bs(stream.price)}</Text>
-            </Text>
-            <View style={{ backgroundColor: C.white, borderRadius: R.pill, paddingHorizontal: 16, height: 34, justifyContent: 'center' }}>
-              <Text style={{ color: C.tintText, fontWeight: '600', fontSize: 15 }}>Entrar</Text>
-            </View>
-          </View>
-        </View>
-      </Placeholder>
-    </Press>
+      )}
+    </View>
   );
 }
 
-function StreamCard({ stream, width, favorite, onFavorite }: { stream: any; width: number; favorite: boolean; onFavorite: () => void }) {
-  const mode: Mode = stream.mode;
-  const note = mode === 'fixed' ? `${stream.stock ?? 0} u.` : 'inicial';
-
+function HomeSkeleton() {
   return (
-    <Press
-      onPress={() => router.push(`/vivo/${stream.id}`)}
-      style={{ width }}
-      accessibilityRole="button"
-      accessibilityLabel={`${stream.title}, ${stream.seller?.name}, ${bs(stream.price)}`}
-    >
-      <Placeholder color={stream.grad || C.tint} radius={R.stream} style={{ width, aspectRatio: 3 / 4 }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 8 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: 'rgba(0,0,0,.42)', borderRadius: R.pill, paddingHorizontal: 8, height: 24 }}>
-            <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: C.bidLight }} />
-            <Text style={[{ color: C.white, fontSize: 12, fontWeight: '600' }, T.num]}>{thousands(stream.viewers)}</Text>
-          </View>
-          <Press
-            onPress={onFavorite}
-            hitSlop={8}
-            accessibilityLabel={favorite ? 'Dejar de seguir' : 'Seguir vendedor'}
-            style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(0,0,0,.32)', alignItems: 'center', justifyContent: 'center' }}
-          >
-            <Sym name={favorite ? 'heart.fill' : 'heart'} size={16} color={favorite ? C.bidLight : C.white} />
-          </Press>
-        </View>
-        <View style={{ flex: 1 }} />
-        <View style={{ padding: 8 }}><ModeChip mode={mode} solid /></View>
-      </Placeholder>
-      <Text style={[T.footnote, { marginTop: 8 }]} numberOfLines={1}>{stream.seller?.name}</Text>
-      <Text style={{ fontSize: 15, fontWeight: '600', color: C.label, marginTop: 1 }} numberOfLines={2}>{stream.title}</Text>
-      <Text style={[{ marginTop: 3 }, T.num]}>
-        <Text style={{ fontSize: 15, fontWeight: '700', color: C.tintText }}>{bs(stream.price)}</Text>
-        <Text style={{ fontSize: 13, color: C.secondary }}>  {note}</Text>
-      </Text>
-    </Press>
+    <View style={{ padding: 16, gap: 16 }}>
+      <Skeleton style={{ height: 184, borderRadius: 26 }} />
+      <View style={{ flexDirection: 'row', gap: 14 }}>{[0, 1, 2, 3, 4].map((i) => <Skeleton key={i} style={{ width: 62, height: 62, borderRadius: 31 }} />)}</View>
+      <View style={{ flexDirection: 'row', gap: 12 }}><Skeleton style={{ flex: 1, aspectRatio: 1 }} /><Skeleton style={{ flex: 1, aspectRatio: 1 }} /></View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  search: {
-    flexDirection: 'row', alignItems: 'center', gap: 8, height: 40, borderRadius: R.pill,
-    backgroundColor: C.fill, marginHorizontal: 16, marginTop: 10, paddingHorizontal: 14,
-  },
+  search: { height: 40, borderRadius: R.pill, backgroundColor: C.fill, marginHorizontal: 16, marginTop: 12, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14 },
+  h2: { ...T.title2, paddingHorizontal: 20, marginTop: 24, marginBottom: 12 },
+  catCircle: { width: 62, height: 62, borderRadius: 31, backgroundColor: C.white, alignItems: 'center', justifyContent: 'center' },
+  sellerCard: { width: 220, backgroundColor: C.white, borderRadius: R.card, padding: 14, gap: 12 },
 });

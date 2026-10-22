@@ -1,14 +1,15 @@
 import React from 'react';
 import {
-  View, Text, Pressable, ScrollView, StyleSheet, ActivityIndicator, Animated,
-  type ViewStyle, type StyleProp, type TextStyle, type ScrollViewProps,
+  View, Text, Pressable, ScrollView, StyleSheet, ActivityIndicator, Animated, Image, TextInput, Switch,
+  type ViewStyle, type StyleProp, type TextStyle, type ScrollViewProps, type TextInputProps,
 } from 'react-native';
 import { SymbolView, type SymbolViewProps } from 'expo-symbols';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Rect, Path, Circle as SvgCircle, Defs, Pattern, Line } from 'react-native-svg';
-import { C, T, R, MODE, STATUS, shadow } from './theme';
-import type { Mode } from './api';
+import { router } from 'expo-router';
+import { C, T, R, MODE, STATUS, SOFT, shadow, type Mode } from './theme';
+import { bs } from './api';
 
 /* ------------------------------------------------------------- íconos --- */
 
@@ -143,14 +144,14 @@ export function Chip({ label, bg, fg, dot, style }: { label: string; bg: string;
   );
 }
 
-export function ModeChip({ mode, solid }: { mode: Mode; solid?: boolean }) {
-  const m = MODE[mode] || MODE.auction;
+export function ModeChip({ mode, solid }: { mode: Mode | string; solid?: boolean }) {
+  const m = MODE[mode as Mode] || MODE.subasta;
   return <Chip label={m.label} bg={solid ? m.solid : m.soft} fg={solid ? C.white : m.softFg} />;
 }
 
-export function StatusChip({ status, suffix }: { status: string; suffix?: string }) {
-  const s = STATUS[status] || STATUS.enviado;
-  return <Chip label={suffix ? `${s.label} · ${suffix}` : s.label} bg={s.bg} fg={s.fg} />;
+export function StatusChip({ status, label }: { status: string; label?: string }) {
+  const s = STATUS[status] || { bg: C.fill2, fg: C.secondary, label: status };
+  return <Chip label={label || s.label} bg={s.bg} fg={s.fg} />;
 }
 
 export const thousands = (n: number) => Math.round(n || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -390,5 +391,193 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         </Animated.View>
       )}
     </ToastCtx.Provider>
+  );
+}
+
+/* ------------------------------------------------------------ imágenes --- */
+
+/** Foto real si hay URL; si no, el bloque de color a rayas del producto. */
+export function Img({ url, color = C.tint, style, radius = R.thumb, dim, children }: {
+  url?: string | null; color?: string | null; style?: StyleProp<ViewStyle>; radius?: number; dim?: boolean; children?: React.ReactNode;
+}) {
+  if (!url) return <Placeholder color={color || C.tint} style={[style, dim && { opacity: 0.5 }]} radius={radius}>{children}</Placeholder>;
+  return (
+    <View style={[{ borderRadius: radius, overflow: 'hidden', backgroundColor: C.fill2 }, style]}>
+      <Image source={{ uri: url }} style={[StyleSheet.absoluteFill, dim && { opacity: 0.5 }]} resizeMode="cover" />
+      {children}
+    </View>
+  );
+}
+
+/* ------------------------------------------------------- ProductoCard --- */
+
+const CARD_CHIPS: Record<string, { bg: string; fg: string }> = {
+  envio: { bg: 'rgba(255,255,255,.92)', fg: '#0A4A3C' },
+  oferta: { bg: C.label, fg: C.white },
+  nuevo: { bg: C.tint, fg: C.white },
+  agotado: { bg: 'rgba(0,0,0,.62)', fg: C.white },
+};
+
+/** ProductoCard del handoff: foto 1:1, corazón, chip, título, precio y vendedor. */
+export function ProductCard({ product, width, onToggleFav }: { product: any; width?: number; onToggleFav?: (p: any) => void }) {
+  const soldOut = product.available === 0;
+  const chip = soldOut ? { type: 'agotado', label: 'Agotado' } : product.chip;
+  const c = chip ? CARD_CHIPS[chip.type] || CARD_CHIPS.nuevo : null;
+  return (
+    <Press onPress={() => router.push(`/producto/${product.id}`)} style={[{ gap: 6 }, width ? { width } : { flex: 1 }]} accessibilityLabel={`${product.title}, ${bs(product.price)}`}>
+      <Img url={product.photoUrl} color={product.color} radius={18} dim={soldOut} style={{ aspectRatio: 1, width: '100%' }}>
+        {onToggleFav && (
+          <Pressable onPress={() => onToggleFav(product)} hitSlop={8} accessibilityLabel={product.favorite ? 'Quitar de deseos' : 'Guardar en deseos'}
+            style={{ position: 'absolute', top: 8, right: 8, width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(0,0,0,.32)', alignItems: 'center', justifyContent: 'center' }}>
+            <Sym name={product.favorite ? 'heart.fill' : 'heart'} size={16} color={product.favorite ? C.bidLight : C.white} />
+          </Pressable>
+        )}
+        {c && chip && <Chip label={chip.label} bg={c.bg} fg={c.fg} style={{ position: 'absolute', left: 8, bottom: 8 }} />}
+      </Img>
+      <Text numberOfLines={2} style={{ fontSize: 15, fontWeight: '600', color: C.label, lineHeight: 19 }}>{product.title}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
+        <Text style={[{ fontSize: 15, fontWeight: '700', color: C.tintText }, T.num]}>{product.maxPrice > product.price ? `Desde ${bs(product.price)}` : bs(product.price)}</Text>
+        {product.compareAt ? <Text style={[{ fontSize: 13, color: C.secondary, textDecorationLine: 'line-through' }, T.num]}>{bs(product.compareAt)}</Text> : null}
+      </View>
+      {product.seller && (
+        <Text numberOfLines={1} style={[T.footnote, T.num]}>{product.seller.name}{product.seller.ratingPct != null ? ` · ★ ${product.seller.ratingPct} %` : ''}</Text>
+      )}
+    </Press>
+  );
+}
+
+/** Grilla de 2 columnas (gap 18 vertical × 12 horizontal). */
+export function ProductGrid({ products, onToggleFav, style }: { products: any[]; onToggleFav?: (p: any) => void; style?: StyleProp<ViewStyle> }) {
+  const rows: any[][] = [];
+  for (let i = 0; i < products.length; i += 2) rows.push(products.slice(i, i + 2));
+  return (
+    <View style={[{ paddingHorizontal: 16, gap: 18 }, style]}>
+      {rows.map((r, i) => (
+        <View key={i} style={{ flexDirection: 'row', gap: 12 }}>
+          {r.map((p) => <ProductCard key={p.id} product={p} onToggleFav={onToggleFav} />)}
+          {r.length === 1 && <View style={{ flex: 1 }} />}
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/* --------------------------------------------------------- controles --- */
+
+/** Stepper −/+; en el mínimo, el "−" se vuelve papelera si se pasa onRemove. */
+export function Stepper({ value, min = 1, max = 99, onChange, onRemove, small }: {
+  value: number; min?: number; max?: number; onChange: (n: number) => void; onRemove?: () => void; small?: boolean;
+}) {
+  const h = small ? 32 : 36;
+  const trash = onRemove && value <= min;
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: C.fill, borderRadius: R.pill, height: h, paddingHorizontal: 4 }}>
+      <Pressable hitSlop={6} accessibilityLabel={trash ? 'Quitar' : 'Restar uno'} onPress={() => (trash ? onRemove!() : value > min && onChange(value - 1))}
+        style={{ width: h, height: h, alignItems: 'center', justifyContent: 'center', opacity: !trash && value <= min ? 0.35 : 1 }}>
+        <Sym name={trash ? 'trash' : 'minus'} size={14} color={trash ? C.destructive : C.label} weight="semibold" />
+      </Pressable>
+      <Text style={[{ minWidth: 24, textAlign: 'center', fontSize: 16, fontWeight: '600', color: C.label }, T.num]}>{value}</Text>
+      <Pressable hitSlop={6} accessibilityLabel="Sumar uno" onPress={() => value < max && onChange(value + 1)}
+        style={{ width: h, height: h, alignItems: 'center', justifyContent: 'center', opacity: value >= max ? 0.35 : 1 }}>
+        <Sym name="plus" size={14} color={C.label} weight="semibold" />
+      </Pressable>
+    </View>
+  );
+}
+
+/** Chip de filtro: activo = fondo label/blanco (o verde suave con check). */
+export function FilterChip({ label, active, onPress, count, tone = 'dark', icon }: {
+  label: string; active?: boolean; onPress?: () => void; count?: number; tone?: 'dark' | 'green'; icon?: SymbolName;
+}) {
+  const on = tone === 'green' ? { bg: SOFT.green.bg, fg: C.tintText } : { bg: C.label, fg: C.white };
+  return (
+    <Press onPress={onPress} accessibilityRole="button" accessibilityState={{ selected: !!active }}
+      style={{ height: 34, borderRadius: R.pill, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: active ? on.bg : C.white, borderWidth: active ? 0 : StyleSheet.hairlineWidth, borderColor: C.separator }}>
+      {active && tone === 'green' && <Sym name="checkmark" size={12} color={on.fg} weight="bold" />}
+      {icon && <Sym name={icon} size={14} color={active ? on.fg : C.label} />}
+      <Text style={[{ fontSize: 14, fontWeight: '600', color: active ? on.fg : C.label }, T.num]}>{label}{count != null ? ` · ${count}` : ''}</Text>
+    </Press>
+  );
+}
+
+export function ChipRow({ children, style }: { children: React.ReactNode; style?: StyleProp<ViewStyle> }) {
+  return (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={[{ flexGrow: 0 }, style]} contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }}>
+      {children}
+    </ScrollView>
+  );
+}
+
+/** Aviso suave (verde, ámbar, rojo o gris) con ícono. */
+export function Notice({ tone = 'amber', icon, children, style, action }: {
+  tone?: keyof typeof SOFT; icon?: SymbolName; children: React.ReactNode; style?: StyleProp<ViewStyle>; action?: React.ReactNode;
+}) {
+  const t = SOFT[tone];
+  return (
+    <View style={[{ backgroundColor: t.bg, borderRadius: 18, marginHorizontal: 16, padding: 14, flexDirection: 'row', gap: 10, alignItems: 'flex-start' }, style]}>
+      {icon && <Sym name={icon} size={18} color={t.fg} />}
+      <View style={{ flex: 1, gap: 8 }}>
+        {typeof children === 'string' ? <Text style={{ fontSize: 15, lineHeight: 20, color: t.fg }}>{children}</Text> : children}
+        {action}
+      </View>
+    </View>
+  );
+}
+
+/** Campo de formulario dentro de un Group: etiqueta arriba, input grande. */
+export function Field({ label, hint, style, ...input }: { label: string; hint?: string; style?: StyleProp<ViewStyle> } & TextInputProps) {
+  return (
+    <View style={[{ paddingHorizontal: 16, paddingVertical: 10, gap: 4 }, style]}>
+      <Text style={{ fontSize: 13, fontWeight: '600', color: C.secondary }}>{label}</Text>
+      <TextInput placeholderTextColor={C.tertiary} {...input}
+        style={[{ fontSize: 17, color: C.label, paddingVertical: 4, minHeight: 28 }, input.multiline && { minHeight: 72, textAlignVertical: 'top' }]} />
+      {hint && <Text style={T.footnote}>{hint}</Text>}
+    </View>
+  );
+}
+
+export function SwitchRow({ title, subtitle, value, onChange, icon }: { title: string; subtitle?: string; value: boolean; onChange: (v: boolean) => void; icon?: SymbolName }) {
+  return <Row icon={icon} title={title} subtitle={subtitle} right={<Switch value={value} onValueChange={onChange} trackColor={{ true: C.tint }} />} />;
+}
+
+/** Barra fija inferior con vidrio (D5–D8, E2). */
+export function BottomBar({ children, style }: { children: React.ReactNode; style?: StyleProp<ViewStyle> }) {
+  const insets = useSafeAreaInsets();
+  return (
+    <View style={[{ position: 'absolute', left: 0, right: 0, bottom: 0, overflow: 'hidden', borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: C.separator }, style]}>
+      <BlurView intensity={40} tint="light" style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(244,242,238,.92)' }]} />
+      <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: Math.max(insets.bottom, 12), gap: 10 }}>{children}</View>
+    </View>
+  );
+}
+
+/** Barra de navegación compacta para pantallas push: atrás, título y acciones. */
+export function NavBar({ title, right, onBack, transparent }: { title?: string; right?: React.ReactNode; onBack?: () => void; transparent?: boolean }) {
+  const insets = useSafeAreaInsets();
+  return (
+    <View style={{ paddingTop: insets.top + 4, paddingHorizontal: 16, paddingBottom: 8, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: transparent ? 'transparent' : C.groupedBg }}>
+      <Circle icon="chevron.backward" size={40} bg={C.white} onPress={onBack || (() => (router.canGoBack() ? router.back() : router.replace('/')))} label="Volver" />
+      <Text numberOfLines={1} style={[T.headline, { flex: 1, textAlign: 'center' }]}>{title || ''}</Text>
+      <View style={{ minWidth: 40, flexDirection: 'row', gap: 8, justifyContent: 'flex-end' }}>{right}</View>
+    </View>
+  );
+}
+
+/** Bloque gris para estados de carga. */
+export function Skeleton({ style }: { style?: StyleProp<ViewStyle> }) {
+  return <View style={[{ backgroundColor: C.fill, borderRadius: 14, opacity: 0.6 }, style]} />;
+}
+
+export function Loading() {
+  return <View style={{ padding: 40, alignItems: 'center' }}><ActivityIndicator color={C.tint} /></View>;
+}
+
+/** Fila de total "Total a pagar  Bs 1.240". */
+export function TotalLine({ label, value, big }: { label: string; value: number; big?: boolean }) {
+  return (
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
+      <Text style={big ? T.headline : [T.subhead, { color: C.secondary }]}>{label}</Text>
+      <Text style={[big ? { fontSize: 24, fontWeight: '700', color: C.tintText } : T.subhead, T.num]}>{bs(value)}</Text>
+    </View>
   );
 }

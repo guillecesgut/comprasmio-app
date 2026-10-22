@@ -6,17 +6,17 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Sym, Badge, type SymbolName } from './ui';
 import { C, shadow } from './theme';
 
-export type TabSpec = { name: string; label: string; icon: SymbolName; iconActive?: SymbolName };
+export type TabSpec = { name: string; label: string; icon: SymbolName; iconActive?: SymbolName; dot?: boolean };
 
 /**
- * Tab bar flotante del handoff: pill de vidrio (blanco 80 % + blur), alto 62,
- * con un botón circular aparte a la derecha — búsqueda para el comprador,
- * "Transmitir" ámbar para el vendedor. Se dibuja a mano porque el botón
+ * Tab bar flotante del handoff: pill de vidrio (blanco 80 % + blur), alto 62.
+ * El vendedor tiene además el botón circular "Transmitir" a la derecha (ámbar en
+ * Premium, gris con candado en Básico; nunca se oculta). Se dibuja a mano porque el botón
  * Transmitir no es una tab (abre una hoja) y NativeTabs no lo permite.
  */
 export function FloatingTabBar({ state, navigation, descriptors, tabs, extra }: {
   state: any; navigation: any; descriptors: any; tabs: TabSpec[];
-  extra: { icon: SymbolName; label: string; onPress: () => void; tone: 'glass' | 'bid' };
+  extra?: { icon: SymbolName; label: string; onPress: () => void; tone: 'glass' | 'bid' | 'locked' };
 }) {
   const insets = useSafeAreaInsets();
   const bottom = Math.max(insets.bottom - 6, 12);
@@ -53,6 +53,7 @@ export function FloatingTabBar({ state, navigation, descriptors, tabs, extra }: 
               <View>
                 <Sym name={focused ? tab.iconActive || tab.icon : tab.icon} size={22} color={color} />
                 {!!badge && <Badge count={badge} style={{ position: 'absolute', top: -7, right: -12 }} />}
+                {!badge && tab.dot && <View style={{ position: 'absolute', top: -2, right: -4, width: 8, height: 8, borderRadius: 4, backgroundColor: C.bid, borderWidth: 1.5, borderColor: C.white }} />}
               </View>
               <Text style={{ fontSize: 10, fontWeight: '600', color, marginTop: 3 }}>{tab.label}</Text>
             </Pressable>
@@ -60,21 +61,23 @@ export function FloatingTabBar({ state, navigation, descriptors, tabs, extra }: 
         })}
       </View>
 
-      <Pressable
-        onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); extra.onPress(); }}
-        accessibilityRole="button"
-        accessibilityLabel={extra.label}
-        style={({ pressed }) => [
-          styles.extra,
-          extra.tone === 'bid' ? [{ backgroundColor: C.bid }, shadow.transmit] : shadow.tabBar,
-          pressed && { transform: [{ scale: 0.96 }] },
-        ]}
-      >
-        {extra.tone === 'glass' && (
-          <BlurView intensity={70} tint="systemChromeMaterialLight" style={[StyleSheet.absoluteFill, { borderRadius: 31, overflow: 'hidden', backgroundColor: 'rgba(255,255,255,.8)' }]} />
-        )}
-        <Sym name={extra.icon} size={24} color={extra.tone === 'bid' ? C.white : C.label} />
-      </Pressable>
+      {extra && (
+        <Pressable
+          onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); extra.onPress(); }}
+          accessibilityRole="button"
+          accessibilityLabel={extra.label}
+          style={({ pressed }) => [
+            styles.extra,
+            extra.tone === 'bid' ? [{ backgroundColor: C.bid }, shadow.transmit] : extra.tone === 'locked' ? [{ backgroundColor: 'rgba(230,225,216,.9)' }, shadow.tabBar] : shadow.tabBar,
+            pressed && { transform: [{ scale: 0.96 }] },
+          ]}
+        >
+          {extra.tone === 'glass' && (
+            <BlurView intensity={70} tint="systemChromeMaterialLight" style={[StyleSheet.absoluteFill, { borderRadius: 31, overflow: 'hidden', backgroundColor: 'rgba(255,255,255,.8)' }]} />
+          )}
+          <Sym name={extra.icon} size={extra.tone === 'locked' ? 22 : 24} color={extra.tone === 'bid' ? C.white : C.label} />
+        </Pressable>
+      )}
     </View>
   );
 }

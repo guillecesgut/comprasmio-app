@@ -2,11 +2,11 @@ import * as SecureStore from 'expo-secure-store';
 import Constants from 'expo-constants';
 
 /**
- * Misma API que la web (`web/src/api.ts`), adaptada a la app nativa:
- *  - No hay `location.origin`: la URL del backend viene de EXPO_PUBLIC_API_URL.
- *  - El token vive en el llavero de iOS (SecureStore), no en localStorage.
- *  - Los archivos se suben como { uri, name, type }, que es lo que entiende
- *    el FormData de React Native.
+ * Cliente de la API v2 (marketplace + vivos). Rutas:
+ *  - /api/*        público (portada, catálogo, tiendas, vivos)
+ *  - /api/me/*     comprador con sesión (carrito, pagos, pedidos, deseos…)
+ *  - /api/seller/* panel del vendedor
+ * Los montos llegan en bolivianos (número); el servidor guarda centavos.
  */
 const TOKEN_KEY = 'comprasmio.token';
 
@@ -14,29 +14,20 @@ export const API_URL = String(
   process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl || 'http://localhost:4000'
 ).replace(/\/$/, '');
 
-/** Rutas relativas del servidor (comprobantes en /uploads) a URL absoluta. */
-export const absolute = (path?: string | null) =>
-  !path ? undefined : /^(https?:|data:)/.test(path) ? path : `${API_URL}${path.startsWith('/') ? '' : '/'}${path}`;
-
-export const bs = (n: number) =>
-  'Bs ' + Math.round(n || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+/** "Bs 1.240" y, con centavos, "Bs 12,50". */
+export const bs = (n: number | null | undefined) => {
+  const v = Number(n || 0);
+  const [int, dec] = Math.abs(v).toFixed(2).split('.');
+  const body = int.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return `${v < 0 ? '−' : ''}Bs ${body}${dec !== '00' ? `,${dec}` : ''}`;
+};
 
 export const clock = (seconds: number) =>
   `${Math.floor(Math.max(0, seconds) / 60)}:${String(Math.max(0, seconds) % 60).padStart(2, '0')}`;
 
-export type Mode = 'auction' | 'fixed';
-
-export const STATUS_TABS = [
-  { key: 'todas', label: 'Todas' },
-  { key: 'en_revision', label: 'En revisión' },
-  { key: 'verificado', label: 'Verificado' },
-  { key: 'enviado', label: 'Enviado' },
-] as const;
-
 let token: string | null = null;
 export const getToken = () => token;
 
-/** Se llama una vez al arrancar, antes de cualquier pedido autenticado. */
 export async function loadToken() {
   token = await SecureStore.getItemAsync(TOKEN_KEY).catch(() => null);
   return token;
@@ -56,10 +47,10 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+async function request<T = any>(path: string, options: RequestInit = {}): Promise<T> {
   let res: Response;
   try {
-    res = await fetch(`${API_URL}${path}`, {
+    res = await fetch(`${API_URL}/api${path}`, {
       ...options,
       headers: {
         ...(options.body instanceof FormData ? {} : { 'content-type': 'application/json' }),
@@ -75,104 +66,132 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return data as T;
 }
 
-const body = (payload: unknown) => JSON.stringify(payload);
+const get = <T = any>(p: string) => request<T>(p);
+const post = <T = any>(p: string, body?: unknown) => request<T>(p, { method: 'POST', body: JSON.stringify(body ?? {}) });
+const put = <T = any>(p: string, body?: unknown) => request<T>(p, { method: 'PUT', body: JSON.stringify(body ?? {}) });
+const patch = <T = any>(p: string, body?: unknown) => request<T>(p, { method: 'PATCH', body: JSON.stringify(body ?? {}) });
+const del = <T = any>(p: string) => request<T>(p, { method: 'DELETE' });
+const qs = (params: Record<string, unknown>) => {
+  const s = Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== '' && v !== false)
+    .map(([k, v]) => `${k}=${encodeURIComponent(String(v))}`).join('&');
+  return s ? `?${s}` : '';
+};
 
+/** Archivo local tal como lo entiende el FormData de React Native. */
 export type Upload = { uri: string; name: string; type: string };
 
+/** Sube un archivo al bucket y devuelve la clave para guardar en el recurso. */
+export function upload(folder: string, file: Upload) {
+  const form = new FormData();
+  form.append('folder', folder);
+  form.append('file', file as any);
+  return request<{ key: string; url: string }>('/uploads', { method: 'POST', body: form });
+}
+
+export type ProductQuery = {
+  q?: string; categoryId?: string; sellerId?: string; minPrice?: number; maxPrice?: number;
+  freeShipping?: boolean; offers?: boolean; sort?: 'relevancia' | 'precio_asc' | 'precio_desc' | 'nuevos'; limit?: number; offset?: number;
+};
+
 export const api = {
-  config: () => request<{ live: { url: string; configured: boolean } }>('/api/config'),
-  liveToken: (streamId: string) =>
-    request<{ url: string; token: string; room: string; role: 'broadcaster' | 'viewer' }>(
-      `/api/streams/${streamId}/token`
-    ),
-
-  /* ---------------------------------------------------------- cuenta --- */
-  signup: (payload: { name: string; phone: string; password: string; role: string }) =>
-    request<{ token: string; user: any }>('/api/auth/signup', { method: 'POST', body: body(payload) }),
-  login: (phone: string, password: string) =>
-    request<{ token: string; user: any }>('/api/auth/login', { method: 'POST', body: body({ phone, password }) }),
-  me: () => request<{ user: any }>('/api/auth/me'),
-  updateMe: (payload: { name?: string; address?: string }) =>
-    request<{ user: any }>('/api/auth/me', { method: 'PATCH', body: body(payload) }),
+  /* ------------------------------------------------------------ cuenta --- */
+  config: () => get('/config'),
+  signup: (payload: { name: string; phone: string; password: string; role: string }) => post('/auth/signup', payload),
+  login: (phone: string, password: string) => post('/auth/login', { phone, password }),
+  me: () => get('/auth/me'),
+  updateMe: (payload: { name?: string; email?: string }) => patch('/auth/me', payload),
+  changePassword: (current: string, next: string) => post('/auth/me/password', { current, next }),
   /** Requisito de Apple: borrar la cuenta desde la app. */
-  deleteAccount: (password: string) =>
-    request<{ ok: true }>('/api/auth/me', { method: 'DELETE', body: body({ password }) }),
-  toggleBlock: (handle: string) =>
-    request<{ user: any }>(`/api/auth/me/blocked/${encodeURIComponent(handle)}`, { method: 'PUT' }),
-  report: (payload: { handle: string; text?: string; streamId?: string; reason?: string }) =>
-    request<{ ok: true }>('/api/auth/report', { method: 'POST', body: body(payload) }),
+  deleteAccount: (password: string) => request('/auth/me', { method: 'DELETE', body: JSON.stringify({ password }) }),
+  toggleBlock: (handle: string) => put(`/auth/me/blocked/${encodeURIComponent(handle)}`),
+  report: (payload: { handle?: string; text?: string; streamId?: string; productId?: string; reason?: string }) => post('/auth/report', payload),
 
-  /* ------------------------------------------------------ comprador --- */
-  streams: (mode: 'all' | Mode = 'all', q?: string) => {
-    const params: string[] = [];
-    if (mode !== 'all') params.push(`mode=${mode}`);
-    if (q) params.push(`q=${encodeURIComponent(q)}`);
-    return request<{ streams: any[]; count: number }>(`/api/streams?${params.join('&')}`);
+  /* ------------------------------------------------------------ público --- */
+  home: () => get('/home'),
+  categories: () => get('/categories'),
+  products: (query: ProductQuery = {}) => get(`/products${qs(query)}`),
+  product: (id: string) => get(`/products/${id}`),
+  seller: (slug: string) => get(`/sellers/${slug}`),
+  sellerReviews: (slug: string) => get(`/sellers/${slug}/reviews`),
+  suggest: (q: string) => get(`/search/suggest${qs({ q })}`),
+  trending: () => get('/search/trending'),
+  searchCounts: (q: string) => get(`/search/counts${qs({ q })}`),
+  searchSellers: (q: string) => get(`/search/sellers${qs({ q })}`),
+  streams: (mode?: 'subasta' | 'fijo', q?: string) => get(`/streams${qs({ mode, q })}`),
+  stream: (id: string) => get(`/streams/${id}`),
+
+  /* --------------------------------------------------------- comprador --- */
+  wishlist: () => get('/me/wishlist'),
+  toggleWishlist: (productId: string) => put(`/me/wishlist/${productId}`),
+  following: () => get('/me/following'),
+  toggleFollow: (sellerId: string) => put(`/me/following/${sellerId}`),
+  setFollowNotify: (sellerId: string, notify: boolean) => patch(`/me/following/${sellerId}`, { notify }),
+  upcoming: () => get('/me/upcoming'),
+  addresses: () => get('/me/addresses'),
+  saveAddress: (payload: any, id?: string) => (id ? patch(`/me/addresses/${id}`, payload) : post('/me/addresses', payload)),
+  deleteAddress: (id: string) => del(`/me/addresses/${id}`),
+  cart: () => get('/me/cart'),
+  addToCart: (variantId: string, qty = 1) => post('/me/cart/items', { variantId, qty }),
+  setCartQty: (variantId: string, qty: number) => patch(`/me/cart/items/${variantId}`, { qty }),
+  removeFromCart: (variantId: string) => del(`/me/cart/items/${variantId}`),
+  checkout: (payload: { addressId?: string; phone?: string; delivery?: Record<string, 'envio' | 'retiro'> }) => post('/me/checkout', payload),
+  payment: (id: string) => get(`/me/payments/${id}`),
+  submitReceipt: (id: string, receiptKey: string) => post(`/me/payments/${id}/receipt`, { receiptKey }),
+  orders: (filter?: string) => get(`/me/orders${qs({ filter })}`),
+  order: (id: string) => get(`/me/orders/${id}`),
+  confirmReceived: (id: string) => post(`/me/orders/${id}/confirm`),
+  openClaim: (id: string, payload: { reason: string; description?: string; photoKeys?: string[] }) => post(`/me/orders/${id}/claim`, payload),
+  review: (id: string, payload: { rating: number; comment?: string; photoKey?: string }) => post(`/me/orders/${id}/review`, payload),
+  threads: () => get('/me/threads'),
+  threadWithSeller: (sellerId: string, orderId?: string) => get(`/me/threads/${sellerId}${qs({ order: orderId })}`),
+  messageSeller: (sellerId: string, text: string, orderId?: string) => post(`/me/threads/${sellerId}`, { text, orderId }),
+  notifications: () => get('/me/notifications'),
+  markNotificationsRead: (ids?: string[]) => post('/me/notifications/read', { ids }),
+  badges: () => get('/me/badges'),
+  bid: (streamId: string, amount: number) => post(`/me/streams/${streamId}/bid`, { amount }),
+  buy: (streamId: string) => post(`/me/streams/${streamId}/buy`),
+  chat: (streamId: string, text: string) => post(`/me/streams/${streamId}/chat`, { text }),
+  liveToken: (streamId: string) =>
+    get<{ url: string; token: string; room: string; role: 'broadcaster' | 'viewer' }>(`/me/streams/${streamId}/token`),
+
+  /* ---------------------------------------------------------- vendedor --- */
+  seller_: {
+    summary: (period: 'hoy' | 'semana' | 'mes' = 'semana') => get(`/seller/summary${qs({ period })}`),
+    products: (filter?: string, q?: string) => get(`/seller/products${qs({ filter, q })}`),
+    product: (id: string) => get(`/seller/products/${id}`),
+    saveProduct: (payload: any, id?: string) => (id ? put(`/seller/products/${id}`, payload) : post('/seller/products', payload)),
+    setProductStatus: (id: string, status: 'active' | 'paused' | 'deleted') => patch(`/seller/products/${id}/status`, { status }),
+    variantStock: (id: string) => get(`/seller/variants/${id}/stock`),
+    adjustStock: (id: string, delta: number, reason: string, note?: string) => post(`/seller/variants/${id}/adjust`, { delta, reason, note }),
+    bundles: () => get('/seller/bundles'),
+    bundle: (id: string) => get(`/seller/bundles/${id}`),
+    saveBundle: (payload: any, id?: string) => (id ? put(`/seller/bundles/${id}`, payload) : post('/seller/bundles', payload)),
+    deleteBundle: (id: string) => del(`/seller/bundles/${id}`),
+    orders: (filter?: string) => get(`/seller/orders${qs({ filter })}`),
+    order: (id: string) => get(`/seller/orders/${id}`),
+    advance: (id: string, to: 'preparando' | 'enviado', extra: { carrier?: string; tracking?: string } = {}) => post(`/seller/orders/${id}/advance`, { to, ...extra }),
+    payouts: () => get('/seller/payouts'),
+    payoutAccount: () => get('/seller/payout-account'),
+    savePayoutAccount: (payload: any) => put('/seller/payout-account', payload),
+    store: () => get('/seller/store'),
+    saveStore: (payload: any) => put('/seller/store', payload),
+    plan: () => get('/seller/plan'),
+    requestPremium: () => post('/seller/plan/premium'),
+    reviews: (stars?: number) => get(`/seller/reviews${qs({ stars })}`),
+    replyReview: (id: string, text: string) => post(`/seller/reviews/${id}/reply`, { text }),
+    threads: (q?: string) => get(`/seller/threads${qs({ q })}`),
+    threadWithBuyer: (buyerId: string, orderId?: string) => get(`/seller/threads/${buyerId}${qs({ order: orderId })}`),
+    messageBuyer: (buyerId: string, text: string, orderId?: string) => post(`/seller/threads/${buyerId}`, { text, orderId }),
+    streams: () => get('/seller/streams'),
+    setup: () => get('/seller/streams/setup'),
+    startStream: (payload: { title?: string; entries: any[] }) => post('/seller/streams', payload),
+    reorderQueue: (streamId: string, reservationIds: string[]) => put(`/seller/streams/${streamId}/queue`, { reservationIds }),
+    openNext: (streamId: string, reservationId?: string) => post(`/seller/streams/${streamId}/next`, { reservationId }),
+    extend: (streamId: string, seconds = 30) => post(`/seller/streams/${streamId}/extend`, { seconds }),
+    closeLot: (streamId: string) => del(`/seller/streams/${streamId}/lot`),
+    endStream: (streamId: string) => post(`/seller/streams/${streamId}/end`),
+    streamSummary: (streamId: string) => get(`/seller/streams/${streamId}/summary`),
   },
-  stream: (id: string) => request<{ stream: any; lot: any; messages: any[]; queue: any[] }>(`/api/streams/${id}`),
-  bid: (id: string, amount: number) =>
-    request<{ lot: any }>(`/api/streams/${id}/bid`, { method: 'POST', body: body({ amount }) }),
-  buy: (id: string) => request<{ order: any; lot: any }>(`/api/streams/${id}/buy`, { method: 'POST' }),
-  chat: (id: string, text: string) =>
-    request<{ message: any }>(`/api/streams/${id}/chat`, { method: 'POST', body: body({ text }) }),
-
-  orders: () => request<{ orders: any[] }>('/api/orders'),
-  order: (id: string) => request<{ order: any }>(`/api/orders/${id}`),
-  paymentQr: (id: string) =>
-    request<{ qr: string; bank: string; account: string; holder: string; total: number; ref: string }>(
-      `/api/orders/${id}/qr`
-    ),
-  uploadReceipt: (id: string, file: Upload) => {
-    const form = new FormData();
-    form.append('receipt', file as any); // RN acepta { uri, name, type } como archivo
-    return request<{ order: any }>(`/api/orders/${id}/receipt`, { method: 'POST', body: form });
-  },
-
-  favorites: () => request<{ favorites: string[] }>('/api/seller/favorites'),
-  toggleFavorite: (streamId: string) =>
-    request<{ favorites: string[] }>(`/api/seller/favorites/${streamId}`, { method: 'PUT' }),
-
-  sellerInfo: (sellerId: string) => request<{ seller: any }>(`/api/sellers/${sellerId}`),
-  threadWith: (sellerId: string) => request<{ thread: any[] }>(`/api/threads/${sellerId}`),
-  messageSeller: (sellerId: string, text: string) =>
-    request<{ message: any }>(`/api/threads/${sellerId}`, { method: 'POST', body: body({ text }) }),
-
-  /* --------------------------------------------------- notificaciones --- */
-  notifications: () => request<{ notifications: any[]; unread: number }>('/api/notifications'),
-  markNotificationsRead: (ids?: string[]) =>
-    request<{ unread: number }>('/api/notifications/read', { method: 'POST', body: body({ ids }) }),
-
-  /* ------------------------------------------------------- vendedor --- */
-  overview: () => request<any>('/api/seller/overview'),
-  products: () => request<{ products: any[] }>('/api/products'),
-  createProduct: (payload: Record<string, unknown>) =>
-    request<{ product: any }>('/api/products', { method: 'POST', body: body(payload) }),
-  updateProduct: (id: string, payload: Record<string, unknown>) =>
-    request<{ product: any }>(`/api/products/${id}`, { method: 'PATCH', body: body(payload) }),
-  deleteProduct: (id: string) => request<{ ok: true }>(`/api/products/${id}`, { method: 'DELETE' }),
-
-  sellerOrders: (status?: string) =>
-    request<{ orders: any[] }>(`/api/orders/seller/list${status && status !== 'todas' ? `?status=${status}` : ''}`),
-  verifyOrder: (id: string) => request<{ order: any }>(`/api/orders/${id}/verify`, { method: 'POST' }),
-  shipOrder: (id: string) => request<{ order: any }>(`/api/orders/${id}/ship`, { method: 'POST' }),
-  summary: () => request<{ summary: any }>('/api/orders/seller/summary'),
-  customers: () => request<{ customers: any[] }>('/api/seller/customers'),
-  thread: (id: string) => request<{ thread: any[] }>(`/api/seller/customers/${id}/thread`),
-  sendMessage: (id: string, text: string) =>
-    request<{ message: any }>(`/api/seller/customers/${id}/thread`, { method: 'POST', body: body({ text }) }),
-
-  startStream: (payload: { title: string }) =>
-    request<{ stream: any }>('/api/streams', { method: 'POST', body: body(payload) }),
-  openLot: (streamId: string, productId: string) =>
-    request<{ lot: any }>(`/api/streams/${streamId}/lot`, { method: 'POST', body: body({ productId }) }),
-  setQueue: (streamId: string, productIds: string[]) =>
-    request<{ queue: any[] }>(`/api/streams/${streamId}/queue`, { method: 'POST', body: body({ productIds }) }),
-  nextInQueue: (streamId: string) =>
-    request<{ lot: any }>(`/api/streams/${streamId}/queue/next`, { method: 'POST' }),
-  extendLot: (streamId: string, seconds = 30) =>
-    request<{ lot: any }>(`/api/streams/${streamId}/lot/extend`, { method: 'POST', body: body({ seconds }) }),
-  closeLot: (streamId: string) => request<{ outcome: any }>(`/api/streams/${streamId}/lot`, { method: 'DELETE' }),
-  endStream: (streamId: string) => request<{ ok: true }>(`/api/streams/${streamId}/end`, { method: 'POST' }),
 };
 
 /* ------------------------------------------------------------ socket --- */

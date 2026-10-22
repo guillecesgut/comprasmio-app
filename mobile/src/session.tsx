@@ -2,41 +2,70 @@ import React from 'react';
 import { AppState } from 'react-native';
 import { api, setToken, loadToken, realtime } from './api';
 
+type Badges = { cartUnits: number; pendingPayments: number; unread: number; liveNow: boolean; toPrepare: number };
+
 type Session = {
   user: any | null;
   loading: boolean;
-  favorites: string[];
   online: boolean;
+  badges: Badges;
+  refreshBadges: () => void;
+  refreshUser: () => Promise<void>;
   login: (phone: string, password: string) => Promise<any>;
   signup: (payload: { name: string; phone: string; password: string; role: string }) => Promise<any>;
   logout: () => Promise<void>;
-  toggleFavorite: (streamId: string) => Promise<void>;
   toggleBlock: (handle: string) => Promise<void>;
   deleteAccount: (password: string) => Promise<void>;
 };
 
+const EMPTY: Badges = { cartUnits: 0, pendingPayments: 0, unread: 0, liveNow: false, toPrepare: 0 };
 const Ctx = React.createContext<Session>(null as any);
 export const useSession = () => React.useContext(Ctx);
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
-  const [favorites, setFavorites] = React.useState<string[]>([]);
   const [online, setOnline] = React.useState(false);
+  const [badges, setBadges] = React.useState<Badges>(EMPTY);
+  const userRef = React.useRef<any>(null);
+  userRef.current = user;
 
-  const adopt = React.useCallback(async (user: any) => {
-    setUser(user);
-    realtime.reset();
-    realtime.connect();
-    if (user?.sellerId) realtime.subscribe(`seller:${user.sellerId}`);
-    const { favorites } = await api.favorites().catch(() => ({ favorites: [] as string[] }));
-    setFavorites(favorites);
+  /** Badges de las tab bars: carrito, pagos pendientes y avisos (comprador); por preparar (vendedor). */
+  const refreshBadges = React.useCallback(() => {
+    const u = userRef.current;
+    if (!u) return;
+    api.streams().then(({ streams }) => setBadges((b) => ({ ...b, liveNow: streams.length > 0 }))).catch(() => {});
+    if (u.role === 'seller') {
+      api.seller_.orders('por_preparar').then(({ counts }) => setBadges((b) => ({ ...b, toPrepare: counts.por_preparar || 0 }))).catch(() => {});
+      api.notifications().then(({ unread }) => setBadges((b) => ({ ...b, unread }))).catch(() => {});
+    } else {
+      api.badges().then((r) => setBadges((b) => ({ ...b, ...r }))).catch(() => {});
+    }
   }, []);
 
+  const adopt = React.useCallback(async (u: any) => {
+    setUser(u);
+    userRef.current = u;
+    realtime.reset();
+    realtime.connect();
+    realtime.subscribe('feed');
+    if (u?.sellerId) realtime.subscribe(`seller:${u.sellerId}`);
+    refreshBadges();
+  }, [refreshBadges]);
+
   React.useEffect(() => {
-    const off = realtime.on('connection', ({ online }) => setOnline(online));
+    const offs = [
+      realtime.on('connection', ({ online }) => setOnline(online)),
+      ...['order:new', 'order:update', 'payment:update', 'notification:new', 'notification:read', 'auction:won', 'purchase:done', 'stream:started', 'stream:ended']
+        .map((type) => realtime.on(type, refreshBadges)),
+    ];
     // iOS corta el socket en segundo plano; al volver se reconecta enseguida.
-    const sub = AppState.addEventListener('change', (state) => state === 'active' && realtime.resume());
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        realtime.resume();
+        refreshBadges();
+      }
+    });
 
     (async () => {
       try {
@@ -52,16 +81,21 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     })();
 
     return () => {
-      off();
+      offs.forEach((off) => off());
       sub.remove();
     };
-  }, [adopt]);
+  }, [adopt, refreshBadges]);
 
   const value: Session = {
     user,
     loading,
-    favorites,
     online,
+    badges,
+    refreshBadges,
+    async refreshUser() {
+      const { user } = await api.me();
+      setUser(user);
+    },
     async login(phone, password) {
       const { token, user } = await api.login(phone, password);
       await setToken(token);
@@ -78,7 +112,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       await setToken(null);
       realtime.reset();
       setUser(null);
-      setFavorites([]);
+      setBadges(EMPTY);
     },
     async toggleBlock(handle) {
       const { user } = await api.toggleBlock(handle);
@@ -88,17 +122,10 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       await api.deleteAccount(password);
       await value.logout();
     },
-    async toggleFavorite(streamId) {
-      const previous = favorites;
-      setFavorites(previous.includes(streamId) ? previous.filter((id) => id !== streamId) : [...previous, streamId]);
-      try {
-        const { favorites } = await api.toggleFavorite(streamId);
-        setFavorites(favorites);
-      } catch {
-        setFavorites(previous);
-      }
-    },
   };
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
+
+/** Recarga una pantalla cuando vuelve a estar en foco (al volver de una hoja o de otra tab). */
+export { useFocusEffect } from 'expo-router';

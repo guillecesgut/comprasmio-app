@@ -1,9 +1,4 @@
 import React from 'react';
-import { bs } from './api';
-
-/** "Desde Bs 600 · mín. Bs 750" (subasta) / "Bs 90 · 12 u." (precio fijo). */
-export const priceLine = (p: any) =>
-  p.mode === 'fixed' ? `${bs(p.price)} · ${p.stock} u.` : `Desde ${bs(p.start)} · mín. ${bs(p.min)}`;
 
 export const initialsOf = (name?: string) =>
   (name || '').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '?';
@@ -33,14 +28,9 @@ export function shortTime(iso?: string) {
   return date.toLocaleDateString('es-BO', { day: 'numeric', month: 'short' });
 }
 
-export const PAY_WINDOW_MS = 5 * 60 * 1000;
-
-/** Segundos que quedan para pagar una orden (5 min desde que se creó). */
-export function useCountdown(fromIso?: string, windowMs = PAY_WINDOW_MS) {
-  const compute = React.useCallback(
-    () => (fromIso ? Math.max(0, Math.ceil((new Date(fromIso).getTime() + windowMs - Date.now()) / 1000)) : 0),
-    [fromIso, windowMs]
-  );
+/** Segundos que faltan hasta `iso` (0 si ya pasó); se actualiza cada segundo. */
+export function useCountdown(iso?: string | null) {
+  const compute = React.useCallback(() => (iso ? Math.max(0, Math.ceil((new Date(iso).getTime() - Date.now()) / 1000)) : 0), [iso]);
   const [left, setLeft] = React.useState(compute);
   React.useEffect(() => {
     setLeft(compute());
@@ -48,6 +38,24 @@ export function useCountdown(fromIso?: string, windowMs = PAY_WINDOW_MS) {
     return () => clearInterval(t);
   }, [compute]);
   return left;
+}
+
+const TZ = 'America/La_Paz';
+/** "3 nov" */
+export const shortDate = (iso?: string | null) =>
+  iso ? new Date(iso.length === 10 ? `${iso}T12:00:00Z` : iso).toLocaleDateString('es-BO', { day: 'numeric', month: 'short', timeZone: TZ }) : '';
+/** "lunes 3 nov" */
+export const weekdayDate = (iso?: string | null) =>
+  iso ? new Date(iso.length === 10 ? `${iso}T12:00:00Z` : iso).toLocaleDateString('es-BO', { weekday: 'long', day: 'numeric', month: 'short', timeZone: TZ }) : '';
+/** "hoy 20:30", "mañana 19:00" o "vie 7 nov 19:00" para vivos programados. */
+export function whenLabel(iso?: string | null) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const time = d.toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit', timeZone: TZ });
+  const day = (x: Date) => x.toLocaleDateString('en-CA', { timeZone: TZ });
+  if (day(d) === day(new Date())) return `Hoy ${time}`;
+  if (day(d) === day(new Date(Date.now() + 864e5))) return `Mañana ${time}`;
+  return `${d.toLocaleDateString('es-BO', { weekday: 'short', day: 'numeric', month: 'short', timeZone: TZ })} ${time}`;
 }
 
 /** Cronómetro ascendente para "AL AIRE · 24:08". */

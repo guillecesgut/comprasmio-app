@@ -25,23 +25,47 @@ export const C = {
   unchecked: '#C9C1B5',
   destructive: '#D23B2C',
   grabber: '#D4CCBF',
+  label2: '#3D3A34',
   white: '#FFFFFF',
   black: '#000000',
 } as const;
 
-/** Estados de orden: fondo / texto. */
+/** Estados de pedido (handoff v2 → tabla de estados): texto exacto, fondo / texto. */
 export const STATUS: Record<string, { bg: string; fg: string; label: string }> = {
   pendiente_pago: { bg: '#FBE9DC', fg: '#8E4211', label: 'Pendiente de pago' },
-  en_revision: { bg: '#E4F0EA', fg: '#0A4A3C', label: 'En revisión' },
-  verificado: { bg: '#0E7C66', fg: '#FFFFFF', label: 'Verificado' },
+  pago_en_revision: { bg: '#E4F0EA', fg: '#0A4A3C', label: 'Pago en revisión' },
+  pagado: { bg: '#0E7C66', fg: '#FFFFFF', label: 'Pago confirmado' },
+  preparando: { bg: '#EDE8E0', fg: '#4C463C', label: 'Preparando' },
   enviado: { bg: '#EDE8E0', fg: '#4C463C', label: 'Enviado' },
+  entregado: { bg: '#0E7C66', fg: '#FFFFFF', label: 'Entregado' },
+  en_reclamo: { bg: '#F7DEDA', fg: '#9C2A1E', label: 'En reclamo' },
+  cancelado: { bg: '#F2EEE7', fg: '#6B6455', label: 'Cancelado' },
+  vencido: { bg: '#F2EEE7', fg: '#6B6455', label: 'Venció el pago' },
 };
 
 /** Chips de forma de venta: suave (sobre claro) y sólido (sobre foto/video). */
 export const MODE = {
-  auction: { label: 'Subasta', soft: '#FBE9DC', softFg: '#8E4211', solid: '#AE5115', dot: '#AE5115' },
-  fixed: { label: 'Precio fijo', soft: '#E4F0EA', softFg: '#0A4A3C', solid: '#0E7C66', dot: '#0E7C66' },
+  subasta: { label: 'Subasta', soft: '#FBE9DC', softFg: '#8E4211', solid: '#AE5115', dot: '#AE5115' },
+  fijo: { label: 'Precio fijo', soft: '#E4F0EA', softFg: '#0A4A3C', solid: '#0E7C66', dot: '#0E7C66' },
+  paquete: { label: 'Paquete', soft: '#FBE9DC', softFg: '#8E4211', solid: '#AE5115', dot: '#AE5115' },
 } as const;
+export type Mode = keyof typeof MODE;
+
+/** Chips de canal del pedido (E5). */
+export const CHANNEL: Record<string, { label: string; bg: string; fg: string }> = {
+  catalogo: { label: 'Catálogo', bg: '#F2EEE7', fg: '#4C463C' },
+  subasta: { label: 'Subasta', bg: '#FBE9DC', fg: '#8E4211' },
+  vivo: { label: 'En vivo', bg: '#FBE9DC', fg: '#8E4211' },
+  fijo: { label: 'En vivo', bg: '#FBE9DC', fg: '#8E4211' },
+};
+
+/** Tonos suaves de avisos. */
+export const SOFT = {
+  green: { bg: '#E4F0EA', fg: '#0A4A3C' },
+  amber: { bg: '#FBE9DC', fg: '#6E330C' },
+  red: { bg: '#F7DEDA', fg: '#9C2A1E' },
+  gray: { bg: '#EDE8E0', fg: '#4C463C' },
+};
 
 const num: TextStyle = { fontVariant: ['tabular-nums'] };
 
