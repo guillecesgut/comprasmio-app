@@ -105,7 +105,7 @@ export function Thread({ side, buyerId, sellerId, orderId }: { side: 'buyer' | '
         contentContainerStyle={{ padding: 16, gap: 8, flexGrow: 1 }}
         keyboardDismissMode="interactive"
         onContentSizeChange={() => list.current?.scrollToEnd({ animated: true })}
-        ListEmptyComponent={messages === null ? null : (
+        ListEmptyComponent={messages === null ? undefined : (
           <Text style={[T.subhead, { color: C.secondary, textAlign: 'center', marginTop: 40 }]}>Todavía no hay mensajes. Escribí para coordinar la entrega.</Text>
         )}
         renderItem={({ item }) => {

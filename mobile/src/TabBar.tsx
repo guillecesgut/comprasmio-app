@@ -14,8 +14,8 @@ export type TabSpec = { name: string; label: string; icon: SymbolName; iconActiv
  * todos los vendedores). Se dibuja a mano porque el botón
  * Transmitir no es una tab (abre una hoja) y NativeTabs no lo permite.
  */
-export function FloatingTabBar({ state, navigation, descriptors, tabs, extra }: {
-  state: any; navigation: any; descriptors: any; tabs: TabSpec[];
+export function FloatingTabBar({ state, descriptors, emitter, navigateToTab, tabs, extra }: {
+  state: any; descriptors: any; emitter: any; navigateToTab: (routeKey: string) => void; tabs: TabSpec[];
   extra?: { icon: SymbolName; label: string; onPress: () => void; tone: 'glass' | 'bid' | 'locked' };
 }) {
   const insets = useSafeAreaInsets();
@@ -34,10 +34,11 @@ export function FloatingTabBar({ state, navigation, descriptors, tabs, extra }: 
           const color = focused ? C.tintText : C.label;
 
           const onPress = () => {
-            const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
+            // React Navigation 8 (SDK 58): la barra recibe emitter y navigateToTab en lugar de navigation.
+            const event = emitter.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
             if (!focused && !event.defaultPrevented) {
               Haptics.selectionAsync();
-              navigation.navigate(route.name);
+              navigateToTab(route.key);
             }
           };
 

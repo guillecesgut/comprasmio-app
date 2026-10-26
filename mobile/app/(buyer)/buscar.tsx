@@ -20,7 +20,7 @@ const SORTS = [
 export default function Buscar() {
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ q?: string }>();
-  const input = React.useRef<TextInput>(null);
+  const input = React.useRef<React.ComponentRef<typeof TextInput>>(null);
   const [text, setText] = React.useState(params.q || '');
   const [query, setQuery] = React.useState(params.q || '');
   const [recent, setRecent] = React.useState<string[]>([]);

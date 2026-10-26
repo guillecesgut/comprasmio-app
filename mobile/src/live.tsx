@@ -59,7 +59,7 @@ const friendlyError = (e: any) => {
 export function LiveVideo({ track, mirror, style }: { track: VideoTrack | null; mirror?: boolean; style?: StyleProp<ViewStyle> }) {
   if (!track || IN_EXPO_GO) return null;
   const { VideoView } = lk();
-  return <VideoView videoTrack={track} objectFit="cover" mirror={mirror} style={StyleSheet.flatten([StyleSheet.absoluteFill, style])} />;
+  return <VideoView videoTrack={track} objectFit="cover" mirror={mirror} style={StyleSheet.flatten([StyleSheet.absoluteFill, style]) ?? undefined} />;
 }
 
 /* ----------------------------------------------------------- comprador --- */
