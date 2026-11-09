@@ -1,0 +1,16 @@
+.git
+**/node_modules
+**/.env
+**/.env.*
+!**/.env.example
+mobile
+design
+videos
+render.yaml
+web/dist
+web/*.tsbuildinfo
+server/uploads
+server/data
+server/.pgdata
+server/.pgtest
+deploy

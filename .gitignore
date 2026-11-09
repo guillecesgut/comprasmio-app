@@ -6,3 +6,6 @@ server/uploads/
 .env
 .pgdata/
 .pgtest/
+
+# Vista previa en el VPS
+deploy/.env.preview

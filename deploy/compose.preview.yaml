@@ -1,0 +1,84 @@
+# Vista previa de ComprasMío! en el VPS compartido (sin dominio propio, con sslip.io).
+# El Caddy del ERP atiende los puertos 80/443 y reparte el tráfico (ver docs/vistas-previas-vps.md del repositorio
+# del ERP). Solo para pruebas: los archivos van al disco del servidor y los datos son de ejemplo.
+#
+#   cd deploy
+#   cp .env.preview.example .env.preview          # completa los valores
+#   docker compose -f compose.preview.yaml --env-file .env.preview up -d --build
+#
+# La API y el panel quedan en la red `edge` con el nombre `comprasmio-app`; la base de datos NO sale de este proyecto.
+name: comprasmio-preview
+
+x-logging: &logging
+  driver: json-file
+  options: { max-size: "10m", max-file: "3" }
+
+services:
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    mem_limit: 384m
+    environment:
+      POSTGRES_USER: comprasmio
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Define POSTGRES_PASSWORD en deploy/.env.preview}
+      POSTGRES_DB: comprasmio
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U comprasmio -d comprasmio"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    logging: *logging
+
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    # Límites para que una vista previa nunca le quite recursos al ERP del mismo servidor.
+    mem_limit: 512m
+    cpus: 1.0
+    depends_on:
+      db: { condition: service_healthy }
+    networks:
+      default: {}
+      edge:
+        aliases: [comprasmio-app]
+    environment:
+      NODE_ENV: production
+      PORT: "4000"
+      DATABASE_URL: postgresql://comprasmio:${POSTGRES_PASSWORD}@db:5432/comprasmio
+      PG_POOL_MAX: "10"
+      PUBLIC_URL: https://${PREVIEW_HOST:?Define PREVIEW_HOST en deploy/.env.preview (bash edge.sh host comprasmio)}
+      JWT_SECRET: ${JWT_SECRET:?Define JWT_SECRET en deploy/.env.preview}
+      FILE_SIGNING_SECRET: ${FILE_SIGNING_SECRET:?Define FILE_SIGNING_SECRET en deploy/.env.preview}
+      # Archivos (fotos, comprobantes, QR) en el volumen `uploads`, solo por enlace firmado. Es una vista previa:
+      # para producción se usa un bucket compatible con S3 (STORAGE_*), no el disco del servidor.
+      STORAGE_DRIVER: local
+      STORAGE_LOCAL_DIR: /data/uploads
+      ALLOW_LOCAL_STORAGE: "1"
+      # Primera cuenta del panel: se crea al arrancar si no existe. NO se carga el seed con claves conocidas.
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      ADMIN_NAME: ${ADMIN_NAME:-Administración}
+      # Video en vivo (opcional): sin estos tres, la sala muestra un bloque de color en lugar de la cámara.
+      LIVEKIT_URL: ${LIVEKIT_URL:-}
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY:-}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET:-}
+    volumes: [uploads:/data/uploads]
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:4000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    logging: *logging
+
+volumes:
+  pgdata:
+  uploads:
+
+networks:
+  edge:
+    external: true
+    name: edge
