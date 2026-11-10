@@ -208,9 +208,32 @@ export async function adminPayouts({ periodEnd } = {}) {
     `SELECT period_end, count(*)::int AS sellers, SUM(net_cents)::int AS net, bool_and(status = 'pagada') AS all_paid
      FROM payouts GROUP BY period_end ORDER BY period_end DESC LIMIT 12`
   );
+  // Lo entregado que todavía no entra en ningún corte (lo que cada vendedor ve como "Próximo pago").
+  const acc = await many(
+    `SELECT o.seller_id, s.name AS seller_name, count(*)::int AS orders, COALESCE(SUM(o.total_cents), 0)::int AS gross,
+            COALESCE(SUM(o.commission_cents), 0)::int AS commission, a.status AS account_status
+     FROM orders o JOIN sellers s ON s.id = o.seller_id LEFT JOIN payout_accounts a ON a.seller_id = o.seller_id
+     WHERE o.status = 'entregado' AND o.payout_id IS NULL
+     GROUP BY o.seller_id, s.name, a.status ORDER BY s.name`
+  );
+  const current = periodFor(new Date(), settings);
   return {
     period,
     pendingToCut: pendingToCut.n,
+    accumulating: {
+      cutOn: current.end,
+      payOn: current.payOn,
+      totals: {
+        orders: acc.reduce((s, r) => s + r.orders, 0),
+        gross: bs(acc.reduce((s, r) => s + r.gross, 0)),
+        commission: bs(acc.reduce((s, r) => s + r.commission, 0)),
+        net: bs(acc.reduce((s, r) => s + r.gross - r.commission, 0)),
+      },
+      items: acc.map((r) => ({
+        sellerId: r.seller_id, seller: r.seller_name, orders: r.orders, gross: bs(r.gross), commission: bs(r.commission),
+        net: bs(r.gross - r.commission), accountStatus: r.account_status || 'missing',
+      })),
+    },
     totals: {
       gross: bs(rows.reduce((s, p) => s + p.gross_cents, 0)),
       commission: bs(rows.reduce((s, p) => s + p.commission_cents, 0)),

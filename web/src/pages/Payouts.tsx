@@ -10,6 +10,8 @@ type Item = {
 type Data = {
   period: { start: string; end: string; payOn: string }; pendingToCut: number;
   totals: { gross: number; commission: number; net: number; toTransfer: number };
+  accumulating: { cutOn: string; payOn: string; totals: { orders: number; gross: number; commission: number; net: number };
+    items: { sellerId: string; seller: string; orders: number; gross: number; commission: number; net: number; accountStatus: string }[] };
   items: Item[]; weeks: { periodEnd: string; sellers: number; net: number; allPaid: boolean }[];
 };
 
@@ -55,6 +57,40 @@ export default function Payouts() {
               <em>{data.pendingToCut ? <button className="btn small primary" disabled={busy} onClick={cut}>{busy ? 'Generando…' : 'Generar corte'}</button> : 'Todo incluido'}</em>
             </div>
           </div>
+          <section className="card stack" style={{ marginBottom: 16 }}>
+            <div className="row" style={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
+              <h2 style={{ margin: 0 }}>Acumulado sin corte</h2>
+              <span className="small muted">Corte: {diaSemana(data.accumulating.cutOn)} · pago: {diaSemana(data.accumulating.payOn)}</span>
+            </div>
+            <p className="small muted" style={{ margin: 0 }}>Pedidos ya entregados que todavía no están en ninguna liquidación: es lo que cada vendedor ve como «Próximo pago». Pasa a «Liquidaciones» cuando se genera el corte, al cerrar la semana.</p>
+            {data.accumulating.items.length === 0 ? <p className="muted" style={{ margin: 0 }}>No hay pedidos entregados pendientes de corte.</p> : (
+              <div className="table-wrap">
+                <table>
+                  <thead><tr><th>Vendedor</th><th className="r">Pedidos</th><th className="r">Ventas</th><th className="r">Comisión</th><th className="r">Neto a pagar</th><th>Cuenta</th></tr></thead>
+                  <tbody>
+                    {data.accumulating.items.map((r) => (
+                      <tr key={r.sellerId}>
+                        <td><strong>{r.seller}</strong></td>
+                        <td className="r">{r.orders}</td>
+                        <td className="r">{bs(r.gross)}</td>
+                        <td className="r muted">− {bs(r.commission)}</td>
+                        <td className="r"><strong>{bs(r.net)}</strong></td>
+                        <td>{r.accountStatus === 'verified' ? <Chip tone="solid">Verificada</Chip> : r.accountStatus === 'missing' ? <Chip tone="red">Sin datos para cobrar</Chip> : <Chip tone="amber">Sin verificar</Chip>}</td>
+                      </tr>
+                    ))}
+                    <tr>
+                      <td><strong>Total</strong></td>
+                      <td className="r">{data.accumulating.totals.orders}</td>
+                      <td className="r">{bs(data.accumulating.totals.gross)}</td>
+                      <td className="r muted">− {bs(data.accumulating.totals.commission)}</td>
+                      <td className="r"><strong>{bs(data.accumulating.totals.net)}</strong></td>
+                      <td />
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
           <div className="table-wrap">
             <table>
               <thead><tr><th>Vendedor</th><th className="r">Pedidos</th><th className="r">Ventas</th><th className="r">Comisión</th><th className="r">Neto</th><th>Cuenta</th><th>Estado</th><th /></tr></thead>

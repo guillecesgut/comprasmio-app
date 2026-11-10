@@ -114,6 +114,12 @@ test('compra a dos vendedores con una sola transferencia, de punta a punta hasta
   assert.equal((await buyer.post(`/me/orders/${o1.id}/review`, { rating: 5, comment: 'Impecable' })).status, 201);
   assert.equal((await s1.get('/seller/reviews')).data.avg, 5);
 
+  // Antes del corte, el panel ya ve lo acumulado por vendedor (lo que el vendedor ve como "Próximo pago").
+  const acc = (await adm.get('/admin/payouts')).data.accumulating;
+  const accMine = acc.items.find((i) => i.seller === 'Relojería Andina');
+  assert.deepEqual([accMine.orders, accMine.gross, accMine.commission, accMine.net], [1, 900, 90, 810]);
+  assert.equal(acc.totals.net, 810);
+
   // El corte de la semana: se simula que se entregó la semana pasada.
   await sql(`UPDATE orders SET delivered_at = now() - interval '8 days' WHERE id = $1`, [o1.id]);
   const cut = await adm.post('/admin/payouts/cut', {});
