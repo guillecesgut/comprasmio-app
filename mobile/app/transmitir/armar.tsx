@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, ScrollView, TextInput, Pressable, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
+import { Alert } from '@/dialogs';
 import * as Haptics from 'expo-haptics';
 import { api, bs } from '@/api';
 import { useSession } from '@/session';
@@ -28,6 +29,30 @@ export default function Armar() {
   const [title, setTitle] = React.useState(`${user?.name || 'Mi tienda'} en vivo`);
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+
+  // Un vivo que quedó al aire (p. ej. no se cerró bien): el servidor permite uno solo por tienda.
+  const [onAir, setOnAir] = React.useState<{ id: string; title: string } | null>(null);
+  const checkOnAir = React.useCallback(
+    () => api.seller_.streams().then((r) => setOnAir((r.streams || []).find((s: any) => s.status === 'live') || null)).catch(() => {}),
+    [],
+  );
+  React.useEffect(() => { checkOnAir(); }, [checkOnAir]);
+  const endOnAir = () =>
+    Alert.alert('¿Terminar ese vivo?', 'Se cierra ahora y lo que no vendiste vuelve al catálogo.', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Terminar',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await api.seller_.endStream(onAir!.id);
+            setOnAir(null);
+            setError(null);
+            api.seller_.setup().then(setSetup).catch(() => {});
+          } catch (e: any) { setError(e.message); }
+        },
+      },
+    ]);
 
   React.useEffect(() => {
     api.seller_.setup().then(setSetup).catch((e) => { setError(e.message); setSetup({ products: [], bundles: [] }); });
@@ -91,8 +116,26 @@ export default function Armar() {
     } catch (e: any) {
       setError(e.message);
       setBusy(false);
+      if (e.status === 409) checkOnAir();
     }
   };
+
+  if (onAir) {
+    return (
+      <View style={{ flex: 1, backgroundColor: C.groupedBg }}>
+        <SheetHeader title="Ya estás al aire" subtitle="Solo se puede tener un vivo a la vez." onClose={() => router.back()} />
+        <View style={{ padding: 16, gap: 10 }}>
+          <View style={[styles.card, { padding: 14 }]}>
+            <Text style={{ fontSize: 13, fontWeight: '600', color: C.bidText }}>Al aire ahora</Text>
+            <Text style={T.headline} numberOfLines={2}>{onAir.title}</Text>
+          </View>
+          <ErrorLine message={error} />
+          <Btn title="Volver a la transmisión" tone="bid" icon="video.fill" onPress={() => { router.dismiss(); router.push(`/transmitir/${onAir.id}`); }} />
+          <Btn title="Terminar ese vivo y armar otro" tone="tonal" onPress={endOnAir} />
+        </View>
+      </View>
+    );
+  }
 
   if (!setup) return <View style={{ flex: 1, backgroundColor: C.groupedBg }}><SheetHeader title="¿Qué vendés hoy?" onClose={() => router.back()} /><Loading /></View>;
   const products = setup.products.filter((p: any) => !q.trim() || p.title.toLowerCase().includes(q.trim().toLowerCase()));
