@@ -4,7 +4,7 @@ import { config } from '../config.js';
 import * as hub from '../realtime/hub.js';
 import * as storage from '../storage.js';
 import * as stock from './stock.js';
-import { createOrdersAndPayment } from './orders.js';
+import { createOrdersAndPayment, activeQr } from './orders.js';
 import { notify, KIND } from './notifications.js';
 import { getSettings } from '../settings.js';
 import { bs, toCents, colorFor } from '../util.js';
@@ -254,6 +254,11 @@ async function sellerStream(sellerId, streamId) {
   return st;
 }
 
+/** Sin QR de cobro activo no se puede crear ningún pedido: se avisa antes de vender, no después. */
+async function requirePaymentQr() {
+  if (!(await activeQr())) fail(503, 'La plataforma todavía no tiene un QR de cobro activo. Pedile al administrador que lo active en Configuración.');
+}
+
 /**
  * E9 · Salir al aire: crea el vivo y aparta las unidades cargadas.
  * `entries`: [{ variantId | bundleId, qty, mode: 'subasta'|'fijo', startPrice, minPrice, increment, price }]
@@ -262,6 +267,7 @@ async function sellerStream(sellerId, streamId) {
 export async function startStream(seller, { title, entries, scheduledId }) {
   if (!Array.isArray(entries) || !entries.length) fail(400, 'Cargá al menos un producto o paquete.');
   if (await one(`SELECT 1 FROM streams WHERE seller_id = $1 AND status = 'live'`, [seller.id])) fail(409, 'Ya tenés un vivo al aire.');
+  await requirePaymentQr();
 
   const clean = entries.map((e, i) => {
     const qty = Number.parseInt(e.qty, 10);
@@ -342,6 +348,7 @@ export async function openNext(seller, streamId, { reservationId } = {}) {
   const st = await sellerStream(seller.id, streamId);
   if (st.status !== 'live') fail(409, 'El vivo ya terminó.');
   if (lots.get(streamId)) fail(409, 'Ya tenés un lote en el aire. Cerralo primero.');
+  await requirePaymentQr();
   const r = reservationId
     ? await one(`SELECT * FROM live_reservations WHERE id = $1 AND stream_id = $2`, [reservationId, streamId])
     : await one(
@@ -505,29 +512,33 @@ async function settle(streamId, reason) {
   let outcome;
   try {
     if (state.mode === 'subasta') {
-      if (state.leaderId && state.priceCents >= state.minCents) {
-        const winner = await one('SELECT u.*, s.id AS seller_id FROM users u LEFT JOIN sellers s ON s.user_id = u.id WHERE u.id = $1', [state.leaderId]);
-        let result = null;
+      const reachedMin = Boolean(state.leaderId && state.priceCents >= state.minCents);
+      let winner = null;
+      let result = null;
+      if (reachedMin) {
+        winner = await one('SELECT u.*, s.id AS seller_id FROM users u LEFT JOIN sellers s ON s.user_id = u.id WHERE u.id = $1', [state.leaderId]);
         try {
           result = await liveOrder(state, winner, state.priceCents, 'subasta');
         } catch (err) {
           console.error('[vivo] no se pudo crear el pedido del ganador', err.message);
         }
+      }
+      if (result) {
         await one(`UPDATE lots SET status = 'sold', closed_at = now(), sold_qty = 1 WHERE id = $1 RETURNING id`, [state.id]);
-        outcome = { type: 'won', winnerHandle: state.leaderHandle, title: state.title, price: bs(state.priceCents), orderId: result?.orderId };
-        if (result) {
-          hub.emit(`user:${winner.id}`, 'auction:won', { streamId, paymentId: result.paymentId, orderId: result.orderId, price: bs(state.priceCents), title: state.title });
-          await notify(undefined, {
-            userId: winner.id, kind: KIND.ORDER_UPDATE, title: '¡Ganaste el lote!',
-            body: `${state.title} por Bs ${bs(state.priceCents)}. Tenés pocos minutos para pagar.`, link: `/pago/${result.paymentId}`,
-          });
-        }
+        outcome = { type: 'won', winnerHandle: state.leaderHandle, title: state.title, price: bs(state.priceCents), orderId: result.orderId };
+        hub.emit(`user:${winner.id}`, 'auction:won', { streamId, paymentId: result.paymentId, orderId: result.orderId, price: bs(state.priceCents), title: state.title });
+        await notify(undefined, {
+          userId: winner.id, kind: KIND.ORDER_UPDATE, title: '¡Ganaste el lote!',
+          body: `${state.title} por Bs ${bs(state.priceCents)}. Tenés pocos minutos para pagar.`, link: `/pago/${result.paymentId}`,
+        });
         await systemMessage(streamId, state.leaderHandle, `Se lo llevó por Bs ${bs(state.priceCents)}`);
       } else {
+        // Sin venta: no alcanzó el mínimo, o no se pudo crear el pedido (nunca se anuncia un ganador sin pedido).
         await one(`UPDATE lots SET status = 'no_sale', closed_at = now() WHERE id = $1 RETURNING id`, [state.id]);
-        // Sin venta: esa unidad vuelve al catálogo al terminar el vivo; la cola sigue con otro lote.
+        // Esa unidad vuelve al catálogo al terminar el vivo; la cola sigue con otro lote.
         await one(`UPDATE live_reservations SET status = 'done' WHERE id = $1 RETURNING id`, [state.reservationId]);
-        outcome = { type: 'no_sale', title: state.title, price: bs(state.priceCents), min: bs(state.minCents), hadBids: state.bids > 0 };
+        outcome = { type: 'no_sale', title: state.title, price: bs(state.priceCents), min: bs(state.minCents), hadBids: state.bids > 0, orderFailed: reachedMin };
+        if (reachedMin) await systemMessage(streamId, state.leaderHandle, 'No se pudo registrar la compra. El vendedor te contactará.');
       }
     } else {
       await one(`UPDATE lots SET status = 'closed', closed_at = now() WHERE id = $1 RETURNING id`, [state.id]);

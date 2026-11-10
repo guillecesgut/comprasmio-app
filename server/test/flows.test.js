@@ -49,6 +49,15 @@ test('sin QR de cobro activo no se puede pagar', async () => {
   assert.equal((await buyer.get('/me/cart')).data.units, 1, 'el carrito queda intacto');
 });
 
+test('sin QR de cobro activo el vendedor no sale al aire (no se anuncian ganadores sin pedido)', async () => {
+  const seller = await api.signup('seller');
+  const p = await product(seller, { variants: [{ price: 90, stock: 3 }] });
+  const r = await seller.post('/seller/streams', { title: 'Sin QR', entries: [{ variantId: p.variants[0].id, qty: 1, mode: 'subasta', startPrice: 100 }] });
+  assert.equal(r.status, 503, JSON.stringify(r.data));
+  assert.match(r.data.error, /QR de cobro activo/);
+  assert.equal((await seller.get('/seller/streams')).data.streams.length, 0, 'no queda ningún vivo creado');
+});
+
 test('compra a dos vendedores con una sola transferencia, de punta a punta hasta la liquidación', async () => {
   await activateQr(adm);
   const s1 = await api.signup('seller', 'Relojería Andina');
