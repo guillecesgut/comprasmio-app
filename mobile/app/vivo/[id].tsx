@@ -1,7 +1,6 @@
 import React from 'react';
-import {
-  View, Text, TextInput, StyleSheet, KeyboardAvoidingView, Platform, Animated, Share, ActionSheetIOS, Alert,
-} from 'react-native';
+import { View, Text, TextInput, StyleSheet, KeyboardAvoidingView, Platform, Animated, Share } from 'react-native';
+import { ActionSheetIOS, Alert } from '@/dialogs';
 import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { BlurView } from 'expo-blur';

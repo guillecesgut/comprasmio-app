@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, ScrollView, ActionSheetIOS, Alert, TextInput } from 'react-native';
+import { View, Text, ScrollView, TextInput } from 'react-native';
+import { ActionSheetIOS, Alert } from '@/dialogs';
 import { router, useLocalSearchParams } from 'expo-router';
 import { api } from '@/api';
 import { useData, useToggleFav, setFav } from '@/hooks';

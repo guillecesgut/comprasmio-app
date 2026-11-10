@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, ScrollView, Alert } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
+import { Alert } from '@/dialogs';
 import { router } from 'expo-router';
 import { useSession } from '@/session';
 import { NavBar, Group, Row, Avatar, Badge } from '@/ui';

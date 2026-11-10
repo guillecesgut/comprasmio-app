@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, TextInput, FlatList, KeyboardAvoidingView, Platform, StyleSheet, ActionSheetIOS } from 'react-native';
+import { View, Text, TextInput, FlatList, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
+import { ActionSheetIOS } from '@/dialogs';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, bs, realtime } from './api';

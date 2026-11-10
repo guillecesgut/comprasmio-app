@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, ScrollView, Pressable, Alert, ActionSheetIOS, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
+import { Alert, ActionSheetIOS } from '@/dialogs';
 import { api } from '@/api';
 import { useData } from '@/hooks';
 import { shortDate } from '@/format';

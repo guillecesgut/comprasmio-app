@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, ScrollView, ActionSheetIOS, TextInput, Pressable } from 'react-native';
+import { View, Text, ScrollView, TextInput, Pressable } from 'react-native';
+import { ActionSheetIOS } from '@/dialogs';
 import { router, useLocalSearchParams } from 'expo-router';
 import { api } from '@/api';
 import { SheetHeader, Group, Row, Field, SwitchRow, Btn, ErrorLine, Sym } from '@/ui';

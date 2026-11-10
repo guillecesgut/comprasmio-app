@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, ScrollView, ActionSheetIOS, TextInput, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TextInput, StyleSheet } from 'react-native';
+import { ActionSheetIOS } from '@/dialogs';
 import { router } from 'expo-router';
 import { api, bs } from '@/api';
 import { useSession } from '@/session';

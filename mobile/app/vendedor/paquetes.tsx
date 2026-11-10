@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, ScrollView, Alert, ActionSheetIOS, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { Alert, ActionSheetIOS } from '@/dialogs';
 import { router } from 'expo-router';
 import { api, bs } from '@/api';
 import { useData } from '@/hooks';

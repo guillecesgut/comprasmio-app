@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, ScrollView, Alert } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
+import { Alert } from '@/dialogs';
 import { useSession } from '@/session';
 import { NavBar, Group, Field, Btn, ErrorLine, Notice } from '@/ui';
 import { C, T } from '@/theme';

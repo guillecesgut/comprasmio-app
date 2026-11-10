@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, Image, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, Image, StyleSheet, Platform } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
@@ -39,6 +39,12 @@ export default function Pago() {
 
   const saveQr = async () => {
     try {
+      if (Platform.OS === 'web') {
+        // Sin galería en el navegador: se abre la imagen para guardarla (mantener presionada o clic derecho).
+        window.open(p.qr.imageUrl, '_blank');
+        toast('QR abierto: guardalo desde la imagen');
+        return;
+      }
       // Carga diferida: solo se necesitan al guardar el QR.
       const MediaLibrary = await import('expo-media-library');
       const { File, Paths } = await import('expo-file-system');

@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, ScrollView, TextInput, Pressable, ActionSheetIOS, Alert, Switch, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TextInput, Pressable, Switch, StyleSheet } from 'react-native';
+import { ActionSheetIOS, Alert } from '@/dialogs';
 import { router, useLocalSearchParams } from 'expo-router';
 import { api, upload } from '@/api';
 import { pickFromLibrary, takePhoto } from '@/pickers';

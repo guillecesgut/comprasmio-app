@@ -1,4 +1,4 @@
-import { Alert } from 'react-native';
+import { Alert } from '@/dialogs';
 import { api } from './api';
 
 /** Pide el número de seguimiento (opcional) y marca el pedido como enviado. */

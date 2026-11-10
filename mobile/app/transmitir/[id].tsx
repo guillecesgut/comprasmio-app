@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, Alert, AppState } from 'react-native';
+import { View, Text, StyleSheet, AppState } from 'react-native';
+import { Alert } from '@/dialogs';
 import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { BlurView } from 'expo-blur';
