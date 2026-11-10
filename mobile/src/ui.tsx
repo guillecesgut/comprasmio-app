@@ -3,7 +3,7 @@ import {
   View, Text, Pressable, ScrollView, StyleSheet, ActivityIndicator, Animated, Image, TextInput, Switch,
   type ViewStyle, type StyleProp, type TextStyle, type ScrollViewProps, type TextInputProps,
 } from 'react-native';
-import { SymbolView, type SymbolViewProps } from 'expo-symbols';
+import { Sym, type SymbolName } from './symbol';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Rect, Path, Circle as SvgCircle, Defs, Pattern, Line } from 'react-native-svg';
@@ -13,13 +13,7 @@ import { bs } from './api';
 
 /* ------------------------------------------------------------- íconos --- */
 
-export type SymbolName = SymbolViewProps['name'];
-
-export function Sym({ name, size = 20, color = C.label, weight = 'regular' }: {
-  name: SymbolName; size?: number; color?: string; weight?: SymbolViewProps['weight'];
-}) {
-  return <SymbolView name={name} size={size} tintColor={color} weight={weight} resizeMode="scaleAspectFit" style={{ width: size, height: size }} />;
-}
+export { Sym, type SymbolName };
 
 /* ------------------------------------------------------------- marca --- */
 

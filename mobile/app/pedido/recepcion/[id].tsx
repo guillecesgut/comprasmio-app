@@ -79,6 +79,9 @@ export default function Recepcion() {
           </Pressable>
         ))}
       </View>
+      <Text style={[T.footnote, { textAlign: 'center', marginTop: -4, marginBottom: 8, color: rating ? C.tintText : C.secondary }]}>
+        {rating ? `${rating} de 5 estrellas` : 'Elegí de 1 a 5 estrellas para poder enviar tu reseña.'}
+      </Text>
       <Group>
         <TextInput value={comment} onChangeText={setComment} multiline maxLength={600} placeholder="Contá cómo te fue (opcional)"
           placeholderTextColor={C.tertiary} style={{ minHeight: 100, padding: 16, fontSize: 16, color: C.label, textAlignVertical: 'top' }} />
