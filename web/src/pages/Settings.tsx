@@ -122,7 +122,12 @@ function QrSection({ platformName }: { platformName: string }) {
         <button className="btn primary" onClick={() => setAdding(true)}>{active ? 'Cambiar QR' : 'Subir QR'}</button>
       </div>
       <ErrorLine error={error || actionError} />
-      {data && !active && <p className="note amber">No hay un QR activo: los compradores no pueden pagar hasta que actives uno.</p>}
+      {data && !active && (
+        <p className="note amber">
+          No hay un QR activo: los compradores no pueden pagar ni los vendedores salir al aire hasta que actives uno.
+          {data.length > 0 && ' Ya subiste uno: usá el botón «Activar» de la lista de abajo.'}
+        </p>
+      )}
       {active && (
         <div className="qr-preview">
           <img src={active.imageUrl} alt="QR de cobro activo" />
@@ -135,9 +140,9 @@ function QrSection({ platformName }: { platformName: string }) {
           </div>
         </div>
       )}
-      {data && data.length > 1 && (
-        <details>
-          <summary className="small">Historial de QR ({data.length})</summary>
+      {data && (data.length > 1 || (data.length > 0 && !active)) && (
+        <details open={!active}>
+          <summary className="small">{active ? `Historial de QR (${data.length})` : `QR subidos (${data.length})`}</summary>
           <table style={{ marginTop: 8 }}>
             <thead><tr><th>QR</th><th>Cuenta</th><th>Subido</th><th>Estado</th><th /></tr></thead>
             <tbody>
