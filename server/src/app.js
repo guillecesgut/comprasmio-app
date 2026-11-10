@@ -36,6 +36,13 @@ export function createApp() {
   app.use('/api', publicRoutes);
   app.use('/api', (req, res) => res.status(404).json({ error: `No existe ${req.method} ${req.path}` }));
 
+  // App web de compradores y vendedores (Expo, exportada con baseUrl /app).
+  const appDist = path.join(__dirname, '..', '..', 'web', 'app-dist');
+  if (fs.existsSync(appDist)) {
+    app.use('/app', express.static(appDist));
+    app.get('/app/*', (_req, res) => res.sendFile(path.join(appDist, 'index.html')));
+  }
+
   const webDist = path.join(__dirname, '..', '..', 'web', 'dist');
   if (fs.existsSync(webDist)) {
     app.use(express.static(webDist));

@@ -1,4 +1,5 @@
-import * as SecureStore from 'expo-secure-store';
+import * as NativeStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 
 /**
@@ -11,7 +12,11 @@ import Constants from 'expo-constants';
 const TOKEN_KEY = 'comprasmio.token';
 
 export const API_URL = String(
-  process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl || 'http://localhost:4000'
+  process.env.EXPO_PUBLIC_API_URL ||
+    Constants.expoConfig?.extra?.apiUrl ||
+    // En el navegador servido por la propia API (/app) la API es el mismo origen.
+    (Platform.OS === 'web' && typeof location !== 'undefined' && !/^localhost|^127\./.test(location.hostname) ? location.origin : '') ||
+    'http://localhost:4000'
 ).replace(/\/$/, '');
 
 /** "Bs 1.240" y, con centavos, "Bs 12,50". */
@@ -24,6 +29,15 @@ export const bs = (n: number | null | undefined) => {
 
 export const clock = (seconds: number) =>
   `${Math.floor(Math.max(0, seconds) / 60)}:${String(Math.max(0, seconds) % 60).padStart(2, '0')}`;
+
+/** Llavero en el celular; en el navegador, localStorage (la sesión sobrevive a recargar). */
+const SecureStore = Platform.OS === 'web'
+  ? {
+      getItemAsync: async (k: string) => globalThis.localStorage?.getItem(k) ?? null,
+      setItemAsync: async (k: string, v: string) => void globalThis.localStorage?.setItem(k, v),
+      deleteItemAsync: async (k: string) => void globalThis.localStorage?.removeItem(k),
+    }
+  : NativeStore;
 
 let token: string | null = null;
 export const getToken = () => token;

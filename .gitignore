@@ -9,3 +9,4 @@ server/uploads/
 
 # Vista previa en el VPS
 deploy/.env.preview
+web/app-dist/

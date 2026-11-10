@@ -80,7 +80,9 @@ const config: ExpoConfig = {
     ],
     ['expo-build-properties', { ios: { deploymentTarget: '16.4' } }],
   ],
-  experiments: { typedRoutes: true },
+  // Versión web (navegador): la API la sirve en /app (ver Dockerfile y server/src/app.js).
+  web: { bundler: 'metro', output: 'single', favicon: './assets/icon.png' },
+  experiments: { typedRoutes: true, baseUrl: '/app' },
   extra: {
     apiUrl: process.env.EXPO_PUBLIC_API_URL,
     eas: { projectId: EAS_PROJECT_ID },

@@ -96,6 +96,17 @@ conoce `localhost`). El servidor tiene que estar corriendo (`cd server && npm ru
 Cuentas de prueba (con `npm run seed` en el servidor): compradora `71234567` / `comprar123`,
 vendedores `70000000`, `70000001` y `70000002` / `vender123`.
 
+### Probar contra la vista previa del VPS
+
+La vista previa de ComprasMío! corre en el VPS (`https://comprasmio.187-41-116-190.sslip.io`; si la IP del
+servidor cambia, cambia la dirección). Esa base **no tiene las cuentas del seed**: creá la cuenta desde la app
+(*Crear cuenta*) o desde el panel del equipo.
+
+- **Sin compilar (cámara y video no):** en `mobile/.env.local` poné
+  `EXPO_PUBLIC_API_URL=https://comprasmio.187-41-116-190.sslip.io`, corré `npm run start:go` y abrí la app en Expo Go.
+- **Build instalable (perfil `vps` de `eas.json`, con video si LiveKit está configurado):** `npm run build:vps`.
+  Para instalarla en un iPhone hace falta cuenta de Apple Developer y registrar el equipo con `eas device:create`.
+
 ## Publicar en la App Store
 
 Requisitos: cuenta de **Apple Developer** (USD 99/año) y una cuenta de Expo. EAS compila en la
@@ -119,3 +130,11 @@ nube: no hace falta una Mac.
 
 Íconos: `assets/icon.png` (1024, opaco), `assets/splash.png` y `assets/adaptive-icon.png`,
 generados con la geometría del APP ICON del Brand Kit.
+
+## Versión web (navegador)
+
+La misma app se exporta como web y la sirve la API en `/app` (p. ej. `https://comprasmio.<IP>.sslip.io/app`); el `Dockerfile` raíz la compila. El video usa `src/live.web.tsx` (livekit-client directo) y la sesión se guarda en `localStorage`.
+
+- Probar en local con recarga: `EXPO_PUBLIC_API_URL=http://localhost:4000 npx expo start --web`.
+- Exportar a mano: `npx expo export --platform web --output-dir ../web/app-dist` y abrir `http://localhost:4000/app/`.
+- La cámara y el micrófono exigen HTTPS (o localhost). Pendiente de probar en iPhone (Safari) y Android (Chrome).

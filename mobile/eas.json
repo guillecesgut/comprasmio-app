@@ -19,6 +19,13 @@
       },
       "channel": "preview"
     },
+    "vps": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://comprasmio.187-41-116-190.sslip.io"
+      },
+      "channel": "vps"
+    },
     "production": {
       "autoIncrement": true,
       "env": {
