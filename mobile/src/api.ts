@@ -104,10 +104,16 @@ const qs = (params: Record<string, unknown>) => {
 export type Upload = { uri: string; name: string; type: string };
 
 /** Sube un archivo al bucket y devuelve la clave para guardar en el recurso. */
-export function upload(folder: string, file: Upload) {
+export async function upload(folder: string, file: Upload) {
   const form = new FormData();
   form.append('folder', folder);
-  form.append('file', file as any);
+  if (Platform.OS === 'web') {
+    // En el navegador el selector devuelve una URL blob:/data:; FormData necesita el archivo real.
+    const blob = await (await fetch(file.uri)).blob();
+    form.append('file', new File([blob], file.name, { type: file.type || blob.type }));
+  } else {
+    form.append('file', file as any);
+  }
   return request<{ key: string; url: string }>('/uploads', { method: 'POST', body: form });
 }
 
